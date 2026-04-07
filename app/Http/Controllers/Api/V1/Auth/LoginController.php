@@ -26,7 +26,11 @@ class LoginController extends Controller
 
         return response()->json([
             'user' => new UserResource($user),
-            'token' => $token
-        ]);
+        ])
+            ->cookie(
+                'access_token',
+                $token,
+                now()->addDays(7),
+            );
     }
 }

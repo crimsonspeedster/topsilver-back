@@ -50,7 +50,11 @@ class RegisterController extends Controller
 
         return response()->json([
             'user'  => new UserResource($result['user']),
-            'token' => $result['token'],
-        ], 201);
+        ], 201)
+            ->cookie(
+                'access_token',
+                $result['token'],
+                now()->addDays(7),
+            );
     }
 }
