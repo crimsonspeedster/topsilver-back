@@ -54,7 +54,7 @@ class RegisterController extends Controller
             ->cookie(
                 'access_token',
                 $result['token'],
-                now()->addDays(7),
+                60 * 24 * 7,
             );
     }
 }
