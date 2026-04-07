@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRoles;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -18,6 +19,7 @@ class UserSeeder extends Seeder
             'name' => 'Test',
             'email' => 'test@gmail.com',
             'password' => Hash::make('password'),
+            'role' => UserRoles::Customer,
         ]);
     }
 }

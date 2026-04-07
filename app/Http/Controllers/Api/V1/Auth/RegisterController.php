@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Api\V1\Auth;
 
+use App\Enums\UserRoles;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
@@ -14,9 +15,21 @@ class RegisterController extends Controller
     public function __invoke(Request $request)
     {
         $data = $request->validate([
-            'name'     => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'min:2',
+                'max:255',
+                'regex:/^[\p{L}\s\'\-\.]+$/u',
+            ],
             'email'    => 'required|email|unique:users',
-            'password' => ['required', 'min:8', 'confirmed', 'regex:/[A-Z]/', 'regex:/[0-9]/'],
+            'password' => [
+                'required',
+                'min:8',
+                'confirmed',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
+            ],
         ]);
 
         $result = DB::transaction(function () use ($data) {
@@ -24,6 +37,7 @@ class RegisterController extends Controller
                 'name'     => $data['name'],
                 'email'    => $data['email'],
                 'password' => Hash::make($data['password']),
+                'role' => UserRoles::Customer,
             ]);
 
             event(new Registered($user));
