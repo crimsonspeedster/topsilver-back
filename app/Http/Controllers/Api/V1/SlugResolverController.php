@@ -33,7 +33,6 @@ class SlugResolverController extends Controller
             case Category::class:
                 $category = $entity;
                 $products = $category->products()
-                    ->published()
                     ->paginate(12);
 
                 return $this->resolverCategory($category->load('seo'), $products);

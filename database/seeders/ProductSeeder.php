@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\ProductTypes;
+use App\Models\AttributeTerm;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -38,7 +39,10 @@ class ProductSeeder extends Seeder
                 ->create([
                     'type' => ProductTypes::Variation,
                     'parent_id' => $variable->id,
-                ]);
+                ])
+                ->each(function($product) {
+                    $this->attachAttributeTerms($product);
+                });
         }
     }
 
@@ -46,6 +50,13 @@ class ProductSeeder extends Seeder
     {
         $product->categories()->attach(
             Category::inRandomOrder()->take(rand(1,3))->pluck('id')
+        );
+    }
+
+    private function attachAttributeTerms(Product $product): void
+    {
+        $product->attributeTerms()->attach(
+            AttributeTerm::inRandomOrder()->take(rand(1,3))->pluck('id')
         );
     }
 }

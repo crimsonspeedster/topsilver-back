@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Product extends Model
@@ -106,18 +107,32 @@ class Product extends Model
         );
     }
 
-    #[Scope]
-    protected function scopePublished (Builder $query)
+    public function attributeTerms (): BelongsToMany
     {
-        return $query->where(function ($q) {
-            $q->where('type', '!=', ProductTypes::Variation)
-                ->where('status', '=', EntityStatus::Published);
-        })
-            ->orWhere(function ($q) {
-                $q->where('type', '=', ProductTypes::Variation)
-                    ->whereHas('parent', function ($parent) {
-                        $parent->where('status', '=', EntityStatus::Published);
-                    });
-            });
+        return $this->belongsToMany(
+            AttributeTerm::class,
+            'attribute_term_products',
+            'product_id',
+            'attribute_term_id'
+        );
     }
+
+    public function variations (): HasMany
+    {
+        return $this->hasMany(
+            Product::class,
+            'parent_id',
+            'id'
+        )
+            ->where('type', '=', ProductTypes::Variation);
+    }
+
+//    #[Scope]
+//    protected function scopePublished (Builder $query)
+//    {
+//        return $query->where(function ($q) {
+//            $q->where('type', '!=', ProductTypes::Variable)
+//                ->where('status', '=', EntityStatus::Published);
+//        });
+//    }
 }

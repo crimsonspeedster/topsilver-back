@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('parent_id')->nullable();
+            $table->unsignedBigInteger('default_variation_id')->nullable();
             $table->string('external_id')->unique();
             $table->string('sku')->nullable()->unique();
             $table->string('type')->default('simple');
@@ -21,13 +22,16 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->text('short_description')->nullable();
-            $table->decimal('price', 8, 2);
+            $table->decimal('price', 8, 2)->nullable();
             $table->decimal('price_on_sale', 8, 2)->nullable();
             $table->boolean('manage_stock')->default(false);
             $table->unsignedInteger('stock')->nullable();
             $table->string('stock_status')->default('in_stock');
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
+
+            $table->index(['parent_id', 'type']);
+            $table->index(['type', 'status', 'published_at']);
         });
     }
 

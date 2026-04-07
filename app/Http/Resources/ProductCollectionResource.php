@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Resources;
 
+use App\Enums\ProductTypes;
 use App\Models\Product;
 use App\Models\Slug;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -13,6 +14,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property-read Slug|null $sluggable
  * @property float $price
  * @property float|null $price_on_sale
+ * @property ProductTypes $type
  * @mixin Product
  * */
 
@@ -26,6 +28,7 @@ class ProductCollectionResource extends JsonResource
             'slug' => $this->sluggable?->slug,
             'price' => $this->price,
             'price_on_sale' => $this->price_on_sale,
+            'type' => $this->type,
         ];
     }
 }
