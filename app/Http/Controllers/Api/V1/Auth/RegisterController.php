@@ -44,7 +44,7 @@ class RegisterController extends Controller
 
             return [
                 'user'  => $user,
-                'token' => $user->createToken('site_token')->plainTextToken,
+                'token' => $user->createToken('site_token', [], now()->addDays(7))->plainTextToken,
             ];
         });
 
@@ -55,6 +55,12 @@ class RegisterController extends Controller
                 'access_token',
                 $result['token'],
                 60 * 24 * 7,
+                '/',
+                null,
+                true,
+                true,
+                false,
+                'Strict'
             );
     }
 }

@@ -31,6 +31,12 @@ class LoginController extends Controller
                 'access_token',
                 $token,
                 60 * 24 * 7,
+                '/',
+                null,
+                true,
+                true,
+                false,
+                'Strict'
             );
     }
 }
