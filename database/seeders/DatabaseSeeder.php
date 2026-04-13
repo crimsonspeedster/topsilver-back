@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             SlugSeeder::class,
             SeoSeeder::class,
+            BonusSeeder::class,
 //            OrderSeeder::class,
 //            OrderItemSeeder::class,
         ]);
