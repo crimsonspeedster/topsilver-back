@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\V1\SlugResolverController;
 use App\Http\Controllers\Api\V1\User\BonusController;
 use App\Http\Controllers\Api\V1\User\UserController;
+use App\Http\Controllers\Api\V1\User\UserUpdateController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -28,6 +29,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/logout', LogoutController::class);
 
         Route::get('/me', UserController::class);
+        Route::patch('/me', UserUpdateController::class);
         Route::get('/me/bonuses', BonusController::class);
     });
 });

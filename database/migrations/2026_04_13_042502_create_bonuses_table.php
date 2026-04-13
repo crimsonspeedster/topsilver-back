@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->decimal('amount', 8, 2)->default(0);
-            $table->timestamp('accrual_from');
-            $table->timestamp('available_from');
-            $table->timestamp('expires_at');
+            $table->date('accrual_from');
+            $table->date('available_from');
+            $table->date('expires_at');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

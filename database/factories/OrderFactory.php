@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
 use App\Enums\ShippingMethod;
 use App\Models\Order;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -19,11 +20,9 @@ class OrderFactory extends Factory
      */
     public function definition(): array
     {
-//        $status = $this->faker->randomElement([OrderStatus::]);
-//        $payment_method = $this->faker->randomElement([]);
-        $status = '';
-        $payment_method = '';
-        $shipping_method = $this->faker->randomElement([ShippingMethod::Local_Pickup, ShippingMethod::NOVA_POSHTA, ShippingMethod::UKR_POSHTA]);
+        $status = $this->faker->randomElement(OrderStatus::cases());
+        $payment_method = $this->faker->randomElement(PaymentMethod::cases());
+        $shipping_method = $this->faker->randomElement(ShippingMethod::cases());
 
         return [
             'total' => $this->faker->numberBetween(3000, 50000),

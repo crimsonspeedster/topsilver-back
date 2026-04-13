@@ -10,7 +10,9 @@ class UserController extends Controller
     public function __invoke(Request $request)
     {
         return response()->json([
-            'user' => new UserResource($request->user()),
+            'user' => new UserResource(
+                $request->user()->load('profile.city.region')
+            ),
         ]);
     }
 }

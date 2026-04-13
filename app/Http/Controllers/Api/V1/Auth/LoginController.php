@@ -25,7 +25,9 @@ class LoginController extends Controller
         $token = $user->createToken('site_token', [], now()->addDays(7))->plainTextToken;
 
         return response()->json([
-            'user' => new UserResource($user),
+            'user' => new UserResource(
+                $user->load('profile.city.region')
+            ),
         ])
             ->cookie(
                 'access_token',

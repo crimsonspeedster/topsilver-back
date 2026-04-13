@@ -24,6 +24,9 @@ class DatabaseSeeder extends Seeder
             SlugSeeder::class,
             SeoSeeder::class,
             BonusSeeder::class,
+            RegionSeeder::class,
+            CitySeeder::class,
+            ProfileSeeder::class,
 //            OrderSeeder::class,
 //            OrderItemSeeder::class,
         ]);

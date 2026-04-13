@@ -21,9 +21,9 @@ class Bonus extends Model
     ];
 
     protected $casts = [
-        'accrual_from' => 'datetime',
-        'available_from' => 'datetime',
-        'expires_at' => 'datetime',
+        'accrual_from' => 'date',
+        'available_from' => 'date',
+        'expires_at' => 'date',
     ];
 
     public function user(): BelongsTo

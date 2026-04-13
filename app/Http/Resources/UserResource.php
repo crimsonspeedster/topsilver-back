@@ -5,8 +5,8 @@ use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property string $name
  * @property string $email
+ * @property string $phone
  * @mixin User
  */
 
@@ -15,8 +15,9 @@ class UserResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'name' => $this->name,
             'email' => $this->email,
+            'phone' => $this->phone,
+            'profile' => new ProfileResource($this->whenLoaded('profile')),
         ];
     }
 }
