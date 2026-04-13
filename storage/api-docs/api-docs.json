@@ -1,0 +1,451 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API for TopSilver project",
+        "description": "API documentation for TopSilver project",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "Local development server"
+        }
+    ],
+    "paths": {
+        "/api/v1/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "User login",
+                "description": "Authenticate user and return access token in cookie",
+                "operationId": "b2936a62cfa7d04045be9c4478969f2e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "test@gmail.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful login",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "$ref": "#/components/schemas/UserResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout user",
+                "description": "Invalidate current access token",
+                "operationId": "b5fdbbfa2609aa0c21b46d2d0863d076",
+                "responses": {
+                    "200": {
+                        "description": "Successfully logged out",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register new user",
+                "description": "Create user account with profile and return authenticated user",
+                "operationId": "75a9823bc9fa8e08411c26e59cf9dd0a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "phone",
+                                    "password",
+                                    "password_confirmation",
+                                    "name",
+                                    "surname"
+                                ],
+                                "properties": {
+                                    "user": {
+                                        "$ref": "#/components/schemas/RegisterRequestResource"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User successfully registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "$ref": "#/components/schemas/UserResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/v1/me": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get authenticated user",
+                "description": "Returns current authenticated user with profile, city and region",
+                "operationId": "782b16be688816a246016e324e026f84",
+                "responses": {
+                    "200": {
+                        "description": "Current user data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "$ref": "#/components/schemas/UserResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update authenticated user",
+                "description": "Partially updates user and profile data",
+                "operationId": "4b6649e604b371e4d457c51090073de8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "user": {
+                                        "$ref": "#/components/schemas/UpdateProfileRequestResource"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "$ref": "#/components/schemas/UserResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "RegisterRequestResource": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "example": "test@mail.com"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "+380501234567"
+                    },
+                    "password": {
+                        "type": "string",
+                        "example": "Password123"
+                    },
+                    "password_confirmation": {
+                        "type": "string",
+                        "example": "Password123"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John"
+                    },
+                    "surname": {
+                        "type": "string",
+                        "example": "Doe"
+                    },
+                    "middle_name": {
+                        "type": "string",
+                        "example": "Alexandrian",
+                        "nullable": true
+                    },
+                    "about": {
+                        "type": "string",
+                        "example": "Developer",
+                        "nullable": true
+                    },
+                    "sex": {
+                        "type": "string",
+                        "example": "male",
+                        "nullable": true
+                    },
+                    "dob": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "city_id": {
+                        "type": "integer",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateProfileRequestResource": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "example": "new@mail.com"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "+380501234567"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John"
+                    },
+                    "surname": {
+                        "type": "string",
+                        "example": "Doe"
+                    },
+                    "middle_name": {
+                        "type": "string",
+                        "example": "Alexandrian",
+                        "nullable": true
+                    },
+                    "about": {
+                        "type": "string",
+                        "example": "Developer",
+                        "nullable": true
+                    },
+                    "sex": {
+                        "type": "string",
+                        "example": "male",
+                        "nullable": true
+                    },
+                    "dob": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "city_id": {
+                        "type": "integer",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "CityResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Kyiv"
+                    },
+                    "region": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/RegionResource"
+                            }
+                        ],
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "ProfileResource": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "John"
+                    },
+                    "surname": {
+                        "type": "string",
+                        "example": "Smith"
+                    },
+                    "middle_name": {
+                        "type": "string",
+                        "example": "Alexandrian",
+                        "nullable": true
+                    },
+                    "about": {
+                        "type": "string",
+                        "example": "Developer",
+                        "nullable": true
+                    },
+                    "sex": {
+                        "type": "string",
+                        "example": "male",
+                        "nullable": true
+                    },
+                    "dob": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "city": {
+                        "$ref": "#/components/schemas/CityResource"
+                    }
+                },
+                "type": "object"
+            },
+            "RegionResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Kyiv region"
+                    }
+                },
+                "type": "object"
+            },
+            "UserResource": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "example": "test@gmail.com"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "380630000000"
+                    },
+                    "profile": {
+                        "$ref": "#/components/schemas/ProfileResource"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "sanctum": {
+                "type": "apiKey",
+                "description": "Enter token in format: Bearer {token}",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "User",
+            "description": "User"
+        }
+    ]
+}

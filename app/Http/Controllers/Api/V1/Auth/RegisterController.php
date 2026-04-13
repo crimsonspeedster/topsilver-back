@@ -11,9 +11,53 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Enum;
+use OpenApi\Attributes as OA;
 
 class RegisterController extends Controller
 {
+    #[OA\Post(
+        path: "/api/v1/register",
+        description: "Create user account with profile and return authenticated user",
+        summary: "Register new user",
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: [
+                    "email",
+                    "phone",
+                    "password",
+                    "password_confirmation",
+                    "name",
+                    "surname"
+                ],
+                properties: [
+                    new OA\Property(
+                        property: "user",
+                        ref: "#/components/schemas/RegisterRequestResource"
+                    ),
+                ]
+            )
+        ),
+        tags: ["Auth"],
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: "User successfully registered",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: "user",
+                            ref: "#/components/schemas/UserResource"
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 422,
+                description: "Validation error"
+            )
+        ]
+    )]
     public function __invoke(Request $request)
     {
         $data = $request->validate([
