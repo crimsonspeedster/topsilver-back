@@ -21,7 +21,7 @@ class UserController extends Controller
                 content: new OA\JsonContent(
                     properties: [
                         new OA\Property(
-                            property: "user",
+                            property: "data",
                             ref: "#/components/schemas/UserResource"
                         )
                     ]
@@ -33,10 +33,11 @@ class UserController extends Controller
             )
         ]
     )]
+
     public function __invoke(Request $request)
     {
         return response()->json([
-            'user' => new UserResource(
+            'data' => new UserResource(
                 $request->user()->load('profile.city.region')
             ),
         ]);

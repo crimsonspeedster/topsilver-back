@@ -11,4 +11,12 @@ enum OrderStatus: string
     case DELIVERED = 'delivered';
     case COMPLETED = 'completed';
     case CANCELLED = 'cancelled';
+
+    public static function forFactory(): array
+    {
+        return array_filter(
+            self::cases(),
+            fn(self $case) => $case !== self::PENDING_PAYMENT
+        );
+    }
 }

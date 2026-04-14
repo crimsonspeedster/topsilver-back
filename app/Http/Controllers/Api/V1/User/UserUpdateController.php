@@ -37,7 +37,7 @@ class UserUpdateController extends Controller
                 content: new OA\JsonContent(
                     properties: [
                         new OA\Property(
-                            property: "user",
+                            property: "data",
                             ref: "#/components/schemas/UserResource"
                         )
                     ]
@@ -53,6 +53,7 @@ class UserUpdateController extends Controller
             )
         ]
     )]
+
     public function __invoke(Request $request)
     {
         $authUser = $request->user();
@@ -116,7 +117,7 @@ class UserUpdateController extends Controller
         });
 
         return response()->json([
-            'user' => new UserResource(
+            'data' => new UserResource(
                 $user->load('profile.city.region')
             ),
         ]);

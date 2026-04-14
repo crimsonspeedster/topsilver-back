@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Events\UserRegistered;
+use App\Listeners\AttachOrdersToUser;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -12,15 +14,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Event;
 
 class AppServiceProvider extends ServiceProvider
 {
-    protected $listen = [
-        Registered::class => [
-            SendEmailVerificationNotification::class,
-        ]
-    ];
-
     /**
      * Register any application services.
      */
@@ -37,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureRoutes();
         $this->configureEmails();
         $this->configureRateLimiting();
+        $this->customListeners();
     }
 
     protected function configureRoutes (): void
@@ -113,5 +111,13 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perHour(10)->by($key),
             ];
         });
+    }
+
+    protected function customListeners (): void
+    {
+        Event::listen(
+            UserRegistered::class,
+            AttachOrdersToUser::class
+        );
     }
 }

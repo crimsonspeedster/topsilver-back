@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('orders', function (Blueprint $table) {
+        Schema::create('shipping_methods', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->nullable();
-            $table->string('status');
-            $table->decimal('total', 10, 2);
-            $table->string('payment_method')->default('cash');
-            $table->string('shipping_method')->default('local_pickup');
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->string('type');
+            $table->boolean('active')->default(false);
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('shipping_methods');
     }
 };

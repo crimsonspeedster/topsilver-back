@@ -17,7 +17,7 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
         $simpleProducts = Product::factory()
-            ->count(5)
+            ->count(60)
             ->create([
                 'type' => ProductTypes::Simple,
             ])
@@ -26,7 +26,7 @@ class ProductSeeder extends Seeder
             });
 
         $variableProducts = Product::factory()
-            ->count(3)
+            ->count(50)
             ->create([
                 'type' => ProductTypes::Variable,
             ]);
@@ -35,7 +35,7 @@ class ProductSeeder extends Seeder
             $this->attachRelations($variable);
 
             $variations = Product::factory()
-                ->count(rand(2, 4))
+                ->count(rand(2, 5))
                 ->create([
                     'type' => ProductTypes::Variation,
                     'parent_id' => $variable->id,

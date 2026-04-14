@@ -27,8 +27,10 @@ class DatabaseSeeder extends Seeder
             RegionSeeder::class,
             CitySeeder::class,
             ProfileSeeder::class,
-//            OrderSeeder::class,
-//            OrderItemSeeder::class,
+            PaymentMethodSeeder::class,
+            ShippingMethodSeeder::class,
+            OrderSeeder::class,
+            OrderItemSeeder::class,
         ]);
     }
 }

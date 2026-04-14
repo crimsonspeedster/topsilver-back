@@ -13,9 +13,11 @@ class BonusController extends Controller
         $data = $service->getUserBonusSummary($request->user());
 
         return response()->json([
-            'active_total' => $data['active_total'],
-            'active_bonuses' => BonusResource::collection($data['active']),
-            'future_bonuses' => BonusResource::collection($data['future']),
+            'data' => [
+                'active_total' => $data['active_total'],
+                'active_bonuses' => BonusResource::collection($data['active']),
+                'future_bonuses' => BonusResource::collection($data['future']),
+            ],
         ]);
     }
 }

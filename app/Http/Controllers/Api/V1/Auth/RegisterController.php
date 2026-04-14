@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Enums\SexTypes;
 use App\Enums\UserRoles;
+use App\Events\UserRegistered;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
@@ -32,7 +33,7 @@ class RegisterController extends Controller
                 ],
                 properties: [
                     new OA\Property(
-                        property: "user",
+                        property: "data",
                         ref: "#/components/schemas/RegisterRequestResource"
                     ),
                 ]
@@ -58,6 +59,7 @@ class RegisterController extends Controller
             )
         ]
     )]
+
     public function __invoke(Request $request)
     {
         $data = $request->validate([
@@ -114,8 +116,6 @@ class RegisterController extends Controller
                 'city_id' => $data['city_id'] ?? null,
             ]);
 
-            event(new Registered($user));
-
             $token = $user->createToken(
                 'site_token',
                 [],
@@ -125,8 +125,11 @@ class RegisterController extends Controller
             return compact('user', 'token');
         });
 
+        event(new Registered($result['user']));
+        event(new UserRegistered($result['user']));
+
         return response()->json([
-            'user' => new UserResource(
+            'data' => new UserResource(
                 $result['user']->load('profile.city.region')
             ),
         ], 201)->cookie(

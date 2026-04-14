@@ -5,8 +5,6 @@ use App\Models\Seo;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Class ProductResource
- *
  * @property string $title
  * @property string|null $description
  * @property string|null $keywords

@@ -32,7 +32,7 @@ class LoginController extends Controller
                 content: new OA\JsonContent(
                     properties: [
                         new OA\Property(
-                            property: "user",
+                            property: "data",
                             ref: "#/components/schemas/UserResource"
                         ),
                     ]
@@ -61,7 +61,7 @@ class LoginController extends Controller
         $token = $user->createToken('site_token', [], now()->addDays(7))->plainTextToken;
 
         return response()->json([
-            'user' => new UserResource(
+            'data' => new UserResource(
                 $user->load('profile.city.region')
             ),
         ])
