@@ -5,18 +5,29 @@ namespace App\OpenApi\Schemas;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: "ProfileResource",
-    properties: [
-        new OA\Property(property: "name", type: "string", example: "John"),
-        new OA\Property(property: "surname", type: "string", example: "Smith"),
-        new OA\Property(property: "middle_name", type: "string", example: "Alexandrian", nullable: true),
-        new OA\Property(property: "about", type: "string", example: "Developer", nullable: true),
-        new OA\Property(property: "sex", type: "string", example: "male", nullable: true),
-        new OA\Property(property: "dob", type: "string", format: "date", nullable: true),
-        new OA\Property(
-            property: "city",
-            ref: "#/components/schemas/CityResource"
-        ),
-    ]
+    schema: "ProfileSchema",
+    type: "object"
 )]
-class ProfileSchema {}
+class ProfileSchema
+{
+    #[OA\Property(example: "John")]
+    public string $name;
+
+    #[OA\Property(example: "Smith")]
+    public string $surname;
+
+    #[OA\Property(example: "Alexandrian", nullable: true)]
+    public ?string $middle_name;
+
+    #[OA\Property(example: "Lorem Ipsum", nullable: true)]
+    public ?string $about;
+
+    #[OA\Property(example: "male", nullable: true)]
+    public ?string $sex;
+
+    #[OA\Property(format: "date", nullable: true)]
+    public ?string $dob;
+
+    #[OA\Property(ref: "#/components/schemas/CitySchema", nullable: true)]
+    public ?CitySchema $city;
+}

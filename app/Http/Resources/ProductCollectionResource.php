@@ -10,8 +10,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property int $id
  * @property string $title
  * @property-read Slug|null $sluggable
- * @property float $price
- * @property float|null $price_on_sale
+ * @property string $price
+ * @property string|null $price_on_sale
  * @property ProductTypes $type
  * @mixin Product
  * */

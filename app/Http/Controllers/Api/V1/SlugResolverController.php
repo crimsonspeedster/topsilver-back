@@ -64,6 +64,7 @@ class SlugResolverController extends Controller
                     'current_page' => $products->currentPage(),
                     'per_page' => $products->perPage(),
                     'total_items' => $products->total(),
+                    'has_more_pages' => $products->hasMorePages(),
                 ],
             ]);
     }

@@ -12,47 +12,42 @@
         }
     ],
     "paths": {
-        "/api/v1/login": {
-            "post": {
+        "/api/v1/me/bonuses": {
+            "get": {
                 "tags": [
-                    "Auth"
+                    "User"
                 ],
-                "summary": "User login",
-                "description": "Authenticate user and return access token in cookie",
-                "operationId": "b2936a62cfa7d04045be9c4478969f2e",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "email",
-                                    "password"
-                                ],
-                                "properties": {
-                                    "email": {
-                                        "type": "string",
-                                        "example": "test@gmail.com"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "example": "password"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
+                "summary": "Get user bonuses",
+                "description": "Returns the current user's active and future bonuses",
+                "operationId": "25023c256c68bce1f7dfe4f5b6e31afb",
                 "responses": {
                     "200": {
-                        "description": "Successful login",
+                        "description": "Successful",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "user": {
-                                            "$ref": "#/components/schemas/UserResource"
+                                        "data": {
+                                            "properties": {
+                                                "active_total": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 125.5
+                                                },
+                                                "active_bonuses": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/BonusSchema"
+                                                    }
+                                                },
+                                                "future_bonuses": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/BonusSchema"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -61,19 +56,24 @@
                         }
                     },
                     "401": {
-                        "description": "Invalid credentials"
+                        "description": "Unauthenticated"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/logout": {
             "post": {
                 "tags": [
-                    "Auth"
+                    "User"
                 ],
-                "summary": "Logout user",
+                "summary": "Logout current user",
                 "description": "Invalidate current access token",
-                "operationId": "b5fdbbfa2609aa0c21b46d2d0863d076",
+                "operationId": "c1b1275551c26048c23d4f149de328c5",
                 "responses": {
                     "200": {
                         "description": "Successfully logged out",
@@ -97,51 +97,28 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/v1/register": {
-            "post": {
+        "/api/v1/me/orders/{id}": {
+            "get": {
                 "tags": [
-                    "Auth"
+                    "User"
                 ],
-                "summary": "Register new user",
-                "description": "Create user account with profile and return authenticated user",
-                "operationId": "75a9823bc9fa8e08411c26e59cf9dd0a",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "email",
-                                    "phone",
-                                    "password",
-                                    "password_confirmation",
-                                    "name",
-                                    "surname"
-                                ],
-                                "properties": {
-                                    "user": {
-                                        "$ref": "#/components/schemas/RegisterRequestResource"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
+                "summary": "Get user order by id",
+                "description": "Returns the current user's order by id",
+                "operationId": "4be764900f2439278b9efefecb19ecc2",
                 "responses": {
-                    "201": {
-                        "description": "User successfully registered",
+                    "200": {
+                        "description": "Successful",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "user": {
-                                            "$ref": "#/components/schemas/UserResource"
+                                        "data": {
+                                            "$ref": "#/components/schemas/OrdersSchema"
                                         }
                                     },
                                     "type": "object"
@@ -149,10 +126,61 @@
                             }
                         }
                     },
-                    "422": {
-                        "description": "Validation error"
+                    "401": {
+                        "description": "Unauthenticated"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/me/orders": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get user orders",
+                "description": "Returns the current user's orders",
+                "operationId": "1e38dc3ecf0a0843782d10421f6ac618",
+                "responses": {
+                    "200": {
+                        "description": "Successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "orders": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/OrdersSchema"
+                                                    }
+                                                },
+                                                "pagination": {
+                                                    "$ref": "#/components/schemas/PaginationSchema"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/me": {
@@ -161,8 +189,8 @@
                     "User"
                 ],
                 "summary": "Get authenticated user",
-                "description": "Returns current authenticated user with profile, city and region",
-                "operationId": "782b16be688816a246016e324e026f84",
+                "description": "Returns current authenticated user with profile",
+                "operationId": "f99052b8c73e01256d9032b2af0c8295",
                 "responses": {
                     "200": {
                         "description": "Current user data",
@@ -170,8 +198,8 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "user": {
-                                            "$ref": "#/components/schemas/UserResource"
+                                        "data": {
+                                            "$ref": "#/components/schemas/ProfileSchema"
                                         }
                                     },
                                     "type": "object"
@@ -185,58 +213,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
-                    }
-                ]
-            },
-            "patch": {
-                "tags": [
-                    "User"
-                ],
-                "summary": "Update authenticated user",
-                "description": "Partially updates user and profile data",
-                "operationId": "4b6649e604b371e4d457c51090073de8",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "user": {
-                                        "$ref": "#/components/schemas/UpdateProfileRequestResource"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "User updated successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "user": {
-                                            "$ref": "#/components/schemas/UserResource"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
-                    },
-                    "422": {
-                        "description": "Validation error"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
@@ -244,7 +221,15 @@
     },
     "components": {
         "schemas": {
-            "RegisterRequestResource": {
+            "RegisterRequestSchema": {
+                "required": [
+                    "email",
+                    "phone",
+                    "password",
+                    "password_confirmation",
+                    "name",
+                    "surname"
+                ],
                 "properties": {
                     "email": {
                         "type": "string",
@@ -252,7 +237,7 @@
                     },
                     "phone": {
                         "type": "string",
-                        "example": "+380501234567"
+                        "example": "380630000000"
                     },
                     "password": {
                         "type": "string",
@@ -277,7 +262,7 @@
                     },
                     "about": {
                         "type": "string",
-                        "example": "Developer",
+                        "example": "Lorem Ipsum",
                         "nullable": true
                     },
                     "sex": {
@@ -288,32 +273,48 @@
                     "dob": {
                         "type": "string",
                         "format": "date",
+                        "example": "2026-02-28",
                         "nullable": true
                     },
                     "city_id": {
                         "type": "integer",
+                        "example": 1,
                         "nullable": true
                     }
                 },
                 "type": "object"
             },
-            "UpdateProfileRequestResource": {
+            "UpdateProfileRequestSchema": {
                 "properties": {
                     "email": {
                         "type": "string",
-                        "example": "new@mail.com"
+                        "example": "test@mail.com",
+                        "nullable": true
                     },
                     "phone": {
                         "type": "string",
-                        "example": "+380501234567"
+                        "example": "380630000000",
+                        "nullable": true
+                    },
+                    "password": {
+                        "type": "string",
+                        "example": "Password123",
+                        "nullable": true
+                    },
+                    "password_confirmation": {
+                        "type": "string",
+                        "example": "Password123",
+                        "nullable": true
                     },
                     "name": {
                         "type": "string",
-                        "example": "John"
+                        "example": "John",
+                        "nullable": true
                     },
                     "surname": {
                         "type": "string",
-                        "example": "Doe"
+                        "example": "Doe",
+                        "nullable": true
                     },
                     "middle_name": {
                         "type": "string",
@@ -322,7 +323,7 @@
                     },
                     "about": {
                         "type": "string",
-                        "example": "Developer",
+                        "example": "Lorem Ipsum",
                         "nullable": true
                     },
                     "sex": {
@@ -333,16 +334,42 @@
                     "dob": {
                         "type": "string",
                         "format": "date",
+                        "example": "2026-02-28",
                         "nullable": true
                     },
                     "city_id": {
                         "type": "integer",
+                        "example": 1,
                         "nullable": true
                     }
                 },
                 "type": "object"
             },
-            "CityResource": {
+            "BonusSchema": {
+                "properties": {
+                    "amount": {
+                        "type": "string",
+                        "example": "2400.00"
+                    },
+                    "accrual_from": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-04-14T10:00:00Z"
+                    },
+                    "available_from": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-04-16T10:00:00Z"
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-04-20T10:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "CitySchema": {
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -353,9 +380,41 @@
                         "example": "Kyiv"
                     },
                     "region": {
+                        "$ref": "#/components/schemas/RegionSchema"
+                    }
+                },
+                "type": "object"
+            },
+            "OrderItemSchema": {
+                "properties": {
+                    "product_name": {
+                        "type": "string",
+                        "example": "iPhone 17"
+                    },
+                    "product_image": {
+                        "type": "string",
+                        "example": "https://example.com/image.jpg"
+                    },
+                    "product_price": {
+                        "type": "string",
+                        "example": "1000.00"
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "total": {
+                        "type": "string",
+                        "example": "2000.00"
+                    },
+                    "product_variant": {
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "product": {
                         "oneOf": [
                             {
-                                "$ref": "#/components/schemas/RegionResource"
+                                "$ref": "#/components/schemas/ProductCollectionSchema"
                             }
                         ],
                         "nullable": true
@@ -363,7 +422,142 @@
                 },
                 "type": "object"
             },
-            "ProfileResource": {
+            "OrdersSchema": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "pending"
+                    },
+                    "subtotal": {
+                        "type": "string",
+                        "example": "100.00"
+                    },
+                    "total": {
+                        "type": "string",
+                        "example": "120.00"
+                    },
+                    "paid_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "notes": {
+                        "type": "string",
+                        "example": "Call before delivery",
+                        "nullable": true
+                    },
+                    "first_name": {
+                        "type": "string",
+                        "example": "John"
+                    },
+                    "last_name": {
+                        "type": "string",
+                        "example": "Doe"
+                    },
+                    "middle_name": {
+                        "type": "string",
+                        "example": "Alex",
+                        "nullable": true
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "380501234567"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "test@gmail.com",
+                        "nullable": true
+                    },
+                    "payment_type": {
+                        "type": "string",
+                        "example": "cod"
+                    },
+                    "payment_data": {
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "shipping_type": {
+                        "type": "string",
+                        "example": "nova_poshta"
+                    },
+                    "shipping_data": {
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrderItemSchema"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "PaginationSchema": {
+                "properties": {
+                    "total_pages": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "current_page": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "per_page": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "total_items": {
+                        "type": "integer",
+                        "example": 150
+                    },
+                    "has_more_pages": {
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "ProductCollectionSchema": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "iPhone 17"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "iphone-17",
+                        "nullable": true
+                    },
+                    "price": {
+                        "type": "string",
+                        "example": "999.99"
+                    },
+                    "price_on_sale": {
+                        "type": "string",
+                        "example": "899.99",
+                        "nullable": true
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "simple"
+                    }
+                },
+                "type": "object"
+            },
+            "ProfileSchema": {
                 "properties": {
                     "name": {
                         "type": "string",
@@ -380,7 +574,7 @@
                     },
                     "about": {
                         "type": "string",
-                        "example": "Developer",
+                        "example": "Lorem Ipsum",
                         "nullable": true
                     },
                     "sex": {
@@ -394,12 +588,17 @@
                         "nullable": true
                     },
                     "city": {
-                        "$ref": "#/components/schemas/CityResource"
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/CitySchema"
+                            }
+                        ],
+                        "nullable": true
                     }
                 },
                 "type": "object"
             },
-            "RegionResource": {
+            "RegionSchema": {
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -412,7 +611,7 @@
                 },
                 "type": "object"
             },
-            "UserResource": {
+            "UserSchema": {
                 "properties": {
                     "email": {
                         "type": "string",
@@ -423,7 +622,7 @@
                         "example": "380630000000"
                     },
                     "profile": {
-                        "$ref": "#/components/schemas/ProfileResource"
+                        "$ref": "#/components/schemas/ProfileSchema"
                     }
                 },
                 "type": "object"
@@ -439,10 +638,6 @@
         }
     },
     "tags": [
-        {
-            "name": "Auth",
-            "description": "Auth"
-        },
         {
             "name": "User",
             "description": "User"

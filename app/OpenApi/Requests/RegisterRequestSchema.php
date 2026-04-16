@@ -5,20 +5,42 @@ namespace App\OpenApi\Requests;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: "RegisterRequestResource",
-    properties: [
-        new OA\Property(property: "email", type: "string", example: "test@mail.com"),
-        new OA\Property(property: "phone", type: "string", example: "+380501234567"),
-        new OA\Property(property: "password", type: "string", example: "Password123"),
-        new OA\Property(property: "password_confirmation", type: "string", example: "Password123"),
-        new OA\Property(property: "name", type: "string", example: "John"),
-        new OA\Property(property: "surname", type: "string", example: "Doe"),
-        new OA\Property(property: "middle_name", type: "string", example: "Alexandrian", nullable: true),
-        new OA\Property(property: "about", type: "string", example: "Developer", nullable: true),
-        new OA\Property(property: "sex", type: "string", example: "male", nullable: true),
-        new OA\Property(property: "dob", type: "string", format: "date", nullable: true),
-        new OA\Property(property: "city_id", type: "integer", nullable: true),
-    ],
+    schema: "RegisterRequestSchema",
+    required: ["email", "phone", "password", "password_confirmation", "name", "surname"],
     type: "object"
 )]
-class RegisterRequestSchema {}
+class RegisterRequestSchema
+{
+    #[OA\Property(example: "test@mail.com")]
+    public string $email;
+
+    #[OA\Property(example: "380630000000")]
+    public string $phone;
+
+    #[OA\Property(example: "Password123")]
+    public string $password;
+
+    #[OA\Property(example: "Password123")]
+    public string $password_confirmation;
+
+    #[OA\Property(example: "John")]
+    public string $name;
+
+    #[OA\Property(example: "Doe")]
+    public string $surname;
+
+    #[OA\Property(example: "Alexandrian", nullable: true)]
+    public ?string $middle_name;
+
+    #[OA\Property(example: "Lorem Ipsum", nullable: true)]
+    public ?string $about;
+
+    #[OA\Property(example: "male", nullable: true)]
+    public ?string $sex;
+
+    #[OA\Property(format: "date", example: "2026-02-28", nullable: true)]
+    public ?string $dob;
+
+    #[OA\Property(example: 1, nullable: true)]
+    public ?int $city_id;
+}

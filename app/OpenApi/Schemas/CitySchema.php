@@ -5,24 +5,16 @@ namespace App\OpenApi\Schemas;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: "CityResource",
-    properties: [
-        new OA\Property(
-            property: "id",
-            type: "integer",
-            example: 1
-        ),
-        new OA\Property(
-            property: "name",
-            type: "string",
-            example: "Kyiv"
-        ),
-        new OA\Property(
-            property: "region",
-            ref: "#/components/schemas/RegionResource",
-            nullable: true
-        ),
-    ],
+    schema: "CitySchema",
     type: "object"
 )]
-class CitySchema {}
+class CitySchema {
+    #[OA\Property(example: 1)]
+    public int $id;
+
+    #[OA\Property(example: "Kyiv")]
+    public string $name;
+
+    #[OA\Property(ref: "#/components/schemas/RegionSchema")]
+    public RegionSchema $region;
+}

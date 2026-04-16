@@ -9,51 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
-use OpenApi\Attributes as OA;
 
 class UserUpdateController extends Controller
 {
-    #[OA\Patch(
-        path: "/api/v1/me",
-        description: "Partially updates user and profile data",
-        summary: "Update authenticated user",
-        security: [["sanctum" => []]],
-        requestBody: new OA\RequestBody(
-            required: true,
-            content: new OA\JsonContent(
-                properties: [
-                    new OA\Property(
-                        property: "user",
-                        ref: "#/components/schemas/UpdateProfileRequestResource"
-                    )
-                ]
-            )
-        ),
-        tags: ["User"],
-        responses: [
-            new OA\Response(
-                response: 200,
-                description: "User updated successfully",
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(
-                            property: "data",
-                            ref: "#/components/schemas/UserResource"
-                        )
-                    ]
-                )
-            ),
-            new OA\Response(
-                response: 401,
-                description: "Unauthenticated"
-            ),
-            new OA\Response(
-                response: 422,
-                description: "Validation error"
-            )
-        ]
-    )]
-
     public function __invoke(Request $request)
     {
         $authUser = $request->user();
