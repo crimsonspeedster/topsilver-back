@@ -13,11 +13,8 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('parent_id')->nullable();
-            $table->unsignedBigInteger('default_variation_id')->nullable();
-            $table->string('external_id')->unique();
+            $table->string('group_key')->nullable();
             $table->string('sku')->nullable()->unique();
-            $table->string('type')->default('simple');
             $table->string('status')->default('draft');
             $table->string('title');
             $table->text('description')->nullable();
@@ -30,8 +27,8 @@ return new class extends Migration
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
 
-            $table->index(['parent_id', 'type']);
-            $table->index(['type', 'status', 'published_at']);
+            $table->index(['group_key']);
+            $table->index(['status', 'published_at']);
         });
     }
 

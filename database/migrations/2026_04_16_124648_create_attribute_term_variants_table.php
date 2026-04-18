@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attribute_term_products', function (Blueprint $table) {
-            $table->unsignedBigInteger('product_id');
+        Schema::create('attribute_term_variants', function (Blueprint $table) {
+            $table->unsignedBigInteger('product_variant_id');
             $table->unsignedBigInteger('attribute_term_id');
 
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('product_variant_id')->references('id')->on('product_variants')->onDelete('cascade');
             $table->foreign('attribute_term_id')->references('id')->on('attribute_terms')->onDelete('cascade');
 
-            $table->primary(['product_id', 'attribute_term_id']);
+            $table->primary(['product_variant_id', 'attribute_term_id']);
         });
     }
 
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attribute_term_products');
+        Schema::dropIfExists('attribute_term_variants');
     }
 };

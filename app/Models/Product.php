@@ -3,33 +3,34 @@
 namespace App\Models;
 
 use App\Enums\EntityStatus;
-use App\Enums\ProductTypes;
+use App\Enums\ProductRelationTypes;
 use App\Enums\StockStatus;
-use Illuminate\Database\Eloquent\Attributes\Scope;
-use Illuminate\Database\Eloquent\Builder;
+use App\Traits\HasSeo;
+use App\Traits\HasSlug;
+use App\Transformers\ProductAttributeTransformer;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Product extends Model
+class Product extends Model implements HasMedia
 {
-    use HasFactory;
+    use HasFactory, HasSlug, HasSeo, InteractsWithMedia;
 
     protected $casts = [
         'stock_status' => StockStatus::class,
-        'type' => ProductTypes::class,
         'status' => EntityStatus::class,
         'published_at' => 'datetime',
+        'manage_stock' => 'boolean',
+        'price' => 'decimal:2',
+        'price_on_sale' => 'decimal:2',
     ];
 
     protected $fillable = [
-        'parent_id',
-        'external_id',
+        'group_key',
         'sku',
-        'type',
         'status',
         'title',
         'description',
@@ -66,34 +67,22 @@ class Product extends Model
         });
     }
 
-    public function sluggable (): MorphOne
+    public function registerMediaCollections(): void
     {
-        return $this->morphOne(
-            Slug::class,
-            'entity',
-            'entity_type',
-            'entity_id',
-            'id',
-        );
+        $this
+            ->addMediaCollection('main_image')
+            ->singleFile()
+            ->useFallbackUrl('/images/fallback-product.png');
+
+        $this
+            ->addMediaCollection('gallery')
+            ->useFallbackUrl('/images/fallback-product.png');
     }
 
-    public function seo (): MorphOne
+    public function variants (): HasMany
     {
-        return $this->morphOne(
-            Seo::class,
-            'entity',
-            'entity_type',
-            'entity_id',
-            'id',
-        );
-    }
-
-    public function parent (): BelongsTo
-    {
-        return $this->belongsTo(
-            Product::class,
-            'parent_id',
-            'id',
+        return $this->hasMany(
+            ProductVariant::class,
         );
     }
 
@@ -107,32 +96,88 @@ class Product extends Model
         );
     }
 
+    public function bundles (): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Bundle::class,
+            'bundle_items',
+            'product_id',
+            'bundle_id',
+        );
+    }
+
+    public function collections (): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Collection::class,
+            'product_collection',
+            'product_id',
+            'collection_id',
+        );
+    }
+
+    public function labels (): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Label::class,
+            'label_products',
+            'product_id',
+            'label_id',
+        );
+    }
+
+    public function relations (): HasMany
+    {
+        return $this->hasMany(
+            ProductRelation::class,
+        );
+    }
+
+    public function crossSells(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Product::class,
+            'product_relations',
+            'product_id',
+            'related_product_id',
+        )
+            ->wherePivot('type', ProductRelationTypes::CROSS_SELL)
+            ->withPivot('sort_order');
+    }
+
+    public function crossSellsLimited(): BelongsToMany
+    {
+        return $this->crossSells()
+            ->orderBy('product_relations.sort_order')
+            ->limit(4);
+    }
+
     public function attributeTerms (): BelongsToMany
     {
         return $this->belongsToMany(
             AttributeTerm::class,
-            'attribute_term_products',
+            'product_attribute_terms',
             'product_id',
-            'attribute_term_id'
+            'attribute_term_id',
+        )
+            ->withPivot('is_variation');
+    }
+
+    public function groupProducts (): HasMany
+    {
+        return $this->hasMany(
+            self::class,
+            'group_key',
+            'group_key'
         );
     }
 
-    public function variations (): HasMany
+    public function getVariantAttributesAttribute()
     {
-        return $this->hasMany(
-            Product::class,
-            'parent_id',
-            'id'
-        )
-            ->where('type', '=', ProductTypes::Variation);
-    }
+        $terms = $this->attributeTerms;
 
-//    #[Scope]
-//    protected function scopePublished (Builder $query)
-//    {
-//        return $query->where(function ($q) {
-//            $q->where('type', '!=', ProductTypes::Variable)
-//                ->where('status', '=', EntityStatus::Published);
-//        });
-//    }
+        return ProductAttributeTransformer::make(
+            $terms->filter(fn ($term) => $term->pivot->is_variation)
+        );
+    }
 }

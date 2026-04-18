@@ -5,13 +5,6 @@ use App\Models\OrderItem;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property string $product_name
- * @property string $product_image
- * @property string $product_price
- * @property string $total
- * @property int $quantity
- * @property array|null $product_variant
- * @property ProductCollectionResource|null $product
  * @mixin OrderItem
  */
 

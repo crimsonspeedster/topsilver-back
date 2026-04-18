@@ -5,9 +5,6 @@ use App\Models\Seo;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property string $title
- * @property string|null $description
- * @property string|null $keywords
  * @mixin Seo
  * */
 

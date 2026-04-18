@@ -20,7 +20,11 @@ class DatabaseSeeder extends Seeder
             AttributeSeeder::class,
             AttributeTermSeeder::class,
             CategorySeeder::class,
+            CollectionSeeder::class,
+            LabelSeeder::class,
             ProductSeeder::class,
+            ProductVariantSeeder::class,
+            ProductRelationSeeder::class,
             SlugSeeder::class,
             SeoSeeder::class,
             BonusSeeder::class,
@@ -31,6 +35,7 @@ class DatabaseSeeder extends Seeder
             ShippingMethodSeeder::class,
             OrderSeeder::class,
             OrderItemSeeder::class,
+            BundleSeeder::class,
         ]);
     }
 }

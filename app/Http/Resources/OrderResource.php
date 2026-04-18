@@ -1,30 +1,10 @@
 <?php
 namespace App\Http\Resources;
 
-use App\Enums\OrderStatus;
-use App\Enums\PaymentMethods;
-use App\Enums\ShippingMethods;
 use App\Models\Order;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Carbon;
 
 /**
- * @property int $id
- * @property OrderStatus $status
- * @property string $subtotal
- * @property string $total
- * @property Carbon|null $paid_at
- * @property string|null $notes
- * @property string $first_name
- * @property string $last_name
- * @property string|null $middle_name
- * @property string $phone
- * @property string|null $email
- * @property PaymentMethods $payment_type
- * @property array|null $payment_data
- * @property ShippingMethods $shipping_type
- * @property array|null $shipping_data
- * @property Carbon $created_at
  * @mixin Order
  */
 

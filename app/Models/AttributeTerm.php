@@ -26,13 +26,13 @@ class AttributeTerm extends Model
         );
     }
 
-    public function products (): BelongsToMany
+    public function productVariants (): BelongsToMany
     {
         return $this->belongsToMany(
-            Product::class,
-            'attribute_term_products',
+            ProductVariant::class,
+            'attribute_term_variants',
             'attribute_term_id',
-            'product_id',
+            'product_variant_id',
         );
     }
 }

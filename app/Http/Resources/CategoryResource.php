@@ -6,9 +6,6 @@ use App\Models\Slug;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property int $id
- * @property string $title
- * @property-read Slug|null $sluggable
  * @mixin Category
  * */
 

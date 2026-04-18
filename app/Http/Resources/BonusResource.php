@@ -6,10 +6,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Carbon;
 
 /**
- * @property string $amount
- * @property Carbon $accrual_from
- * @property Carbon $available_from
- * @property Carbon $expires_at
  * @mixin Bonus
  */
 

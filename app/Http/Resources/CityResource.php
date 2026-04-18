@@ -5,8 +5,6 @@ use App\Models\City;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property int $id
- * @property string $name
  * @mixin City
  */
 

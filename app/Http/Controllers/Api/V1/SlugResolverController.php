@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\EntityStatus;
-use App\Enums\ProductTypes;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\ProductCollectionResource;
@@ -26,6 +25,13 @@ class SlugResolverController extends Controller
                 return $this->resolverProduct(
                     $entity->load([
                         'categories',
+                        'collections',
+                        'labels',
+                        'bundles.items.product',
+                        'variants',
+                        'attributeTerms.attribute',
+                        'crossSellsLimited',
+                        'groupProducts',
                         'seo',
                     ])
                 );
@@ -45,12 +51,8 @@ class SlugResolverController extends Controller
     private function resolverProduct (Product $product)
     {
         abort_unless($product->status === EntityStatus::Published, 404);
-        abort_if($product->type === ProductTypes::Variable, 404);
 
-        return (new ProductResource($product))
-            ->additional([
-                'type' => 'product',
-            ]);
+        return new ProductResource($product);
     }
 
     private function resolverCategory (Category $category, LengthAwarePaginator $products)

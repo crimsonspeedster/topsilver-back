@@ -1,25 +1,22 @@
 <?php
+
 namespace App\Http\Resources;
 
-use App\Models\Category;
-use App\Models\Slug;
+use App\Models\AttributeTerm;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property int $id
- * @property string $title
- * @property-read Slug|null $sluggable
- * @mixin Category
+ * @mixin AttributeTerm
  * */
-
-class CategoryCollectionResource extends JsonResource
+class AttributeTermResource extends JsonResource
 {
     public function toArray($request): array
     {
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'slug' => $this->sluggable?->slug,
+            'slug' => $this->slug,
+            'meta_value' => $this->meta_value
         ];
     }
 }

@@ -2,30 +2,20 @@
 
 namespace App\Models;
 
+use App\Traits\HasSeo;
+use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Category extends Model
 {
-    use HasFactory;
+    use HasFactory, HasSlug, HasSeo;
 
     protected $fillable = [
         'title',
         'parent_id',
     ];
-
-    public function sluggable (): MorphOne
-    {
-        return $this->morphOne(
-            Slug::class,
-            'entity',
-            'entity_type',
-            'entity_id',
-            'id',
-        );
-    }
 
     public function products (): BelongsToMany
     {
@@ -34,17 +24,6 @@ class Category extends Model
             'product_category',
             'category_id',
             'product_id',
-        );
-    }
-
-    public function seo (): MorphOne
-    {
-        return $this->morphOne(
-            Seo::class,
-            'entity',
-            'entity_type',
-            'entity_id',
-            'id',
         );
     }
 }

@@ -5,8 +5,6 @@ use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property string $email
- * @property string $phone
  * @mixin User
  */
 

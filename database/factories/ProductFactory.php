@@ -19,7 +19,7 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
-//        $status = $this->faker->randomElement([EntityStatus::Published, EntityStatus::Draft]);
+//        $status = $this->faker->randomElement([EntityStatus::cases()]);
         $status = EntityStatus::Published;
 
         $manage_stock = $this->faker->boolean();
@@ -30,7 +30,6 @@ class ProductFactory extends Factory
         $price_on_sale = $this->faker->numberBetween(500, $price);
 
         return [
-            'external_id' => $this->faker->uuid(),
             'title' => $this->faker->sentence(3),
             'description' => $this->faker->paragraph(10),
             'short_description' => $this->faker->paragraph(2),

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
+use App\Models\Collection;
 use App\Models\Product;
 use App\Models\Seo;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -17,6 +18,7 @@ class SeoSeeder extends Seeder
     {
         $products = Product::all();
         $categories = Category::all();
+        $collections = Collection::all();
 
         foreach ($categories as $category) {
             Seo::factory()->create([
@@ -29,6 +31,13 @@ class SeoSeeder extends Seeder
             Seo::factory()->create([
                 'entity_id' => $product->id,
                 'entity_type' => Product::class,
+            ]);
+        }
+
+        foreach ($collections as $collection) {
+            Seo::factory()->create([
+                'entity_id' => $collection->id,
+                'entity_type' => Collection::class,
             ]);
         }
     }
