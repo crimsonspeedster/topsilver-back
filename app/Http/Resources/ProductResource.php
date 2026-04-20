@@ -17,7 +17,7 @@ class ProductResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'slug' => $this->sluggable?->slug,
+            'slug' => $this->whenLoaded('sluggable')?->slug,
             'entity_type' => 'product',
             'title' => $this->title,
             'description' => $this->description,

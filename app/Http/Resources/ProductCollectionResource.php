@@ -15,7 +15,7 @@ class ProductCollectionResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'slug' => $this->sluggable?->slug,
+            'slug' => $this->whenLoaded('sluggable')?->slug,
             'price' => $this->price,
             'price_on_sale' => $this->price_on_sale,
         ];

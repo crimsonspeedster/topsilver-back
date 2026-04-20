@@ -24,14 +24,15 @@ class SlugResolverController extends Controller
             case Product::class:
                 return $this->resolverProduct(
                     $entity->load([
+                        'sluggable',
                         'categories',
                         'collections',
                         'labels',
-                        'bundles.items.product',
+                        'bundles.items.product.sluggable',
                         'variants',
                         'attributeTerms.attribute',
-                        'crossSellsLimited',
-                        'groupProducts',
+                        'crossSellsLimited.sluggable',
+                        'groupProducts.sluggable',
                         'seo',
                     ])
                 );
