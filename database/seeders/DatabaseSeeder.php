@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             ProductVariantSeeder::class,
             ProductRelationSeeder::class,
+            FilterPageSeeder::class,
             SlugSeeder::class,
             SeoSeeder::class,
             BonusSeeder::class,

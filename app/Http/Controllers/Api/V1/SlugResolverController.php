@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Enums\EntityStatus;
 use App\Enums\TaxonomySort;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\FilterPageResource;
 use App\Http\Resources\PaginationResource;
 use App\Http\Resources\Product\ProductCardResource;
 use App\Http\Resources\Product\ProductPDPResource;
@@ -12,6 +13,7 @@ use App\Http\Resources\TaxonomyResource;
 use App\Interfaces\TaxonomyInterface;
 use App\Models\Category;
 use App\Models\Collection;
+use App\Models\FilterPage;
 use App\Models\Product;
 use App\Models\Slug;
 use App\Services\FilterService;
@@ -34,6 +36,8 @@ class SlugResolverController extends Controller
 
             $entity instanceof Category,
             $entity instanceof Collection => $this->resolverTaxonomy($entity),
+
+            $entity instanceof FilterPage => $this->resolverFilterPage($entity),
         };
     }
 
@@ -74,6 +78,28 @@ class SlugResolverController extends Controller
             'data' => [
                 'type' => $taxonomy->getType(),
                 'category' => new TaxonomyResource($taxonomy),
+                'products' => ProductCardResource::collection($products->items()),
+                'pagination' => new PaginationResource($products),
+                'filters' => $filters,
+            ],
+        ]);
+    }
+
+    private function resolverFilterPage (FilterPage $filterPage)
+    {
+        abort_unless($filterPage->status === EntityStatus::Published, 404);
+
+        $category = $filterPage->category;
+        $selected_filters = $this->filterService->parseFiltersFromFilterPage($filterPage);
+        $products = $this->taxonomyService->getProducts($category, TaxonomySort::NEWEST, $selected_filters);
+        $filters = $this->filterService->getFilters($category, $selected_filters);
+
+        $filterPage->load('seo');
+
+        return response()->json([
+            'data' => [
+                'type' => 'filter_page',
+                'filter_page' => new FilterPageResource($filterPage),
                 'products' => ProductCardResource::collection($products->items()),
                 'pagination' => new PaginationResource($products),
                 'filters' => $filters,

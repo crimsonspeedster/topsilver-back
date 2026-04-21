@@ -9,6 +9,7 @@ class TaxonomyService
     public function getProducts(
         TaxonomyInterface $taxonomy,
         TaxonomySort $sort,
+        array $selected_filters = [],
     )
     {
         $query = $taxonomy->products()
@@ -19,7 +20,7 @@ class TaxonomyService
             ]);
 
         $query = app(FilterService::class)
-            ->applyFiltersToQuery($query, $taxonomy);
+            ->applyFiltersToQuery($query, $taxonomy, $selected_filters);
 
         $query = $this->applySorting($query, $sort);
 

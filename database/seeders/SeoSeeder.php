@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\Collection;
+use App\Models\FilterPage;
 use App\Models\Product;
 use App\Models\Seo;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -16,28 +17,36 @@ class SeoSeeder extends Seeder
      */
     public function run(): void
     {
-        $products = Product::all();
-        $categories = Category::all();
-        $collections = Collection::all();
+        $products = Product::pluck('id');
+        $categories = Category::pluck('id');
+        $collections = Collection::pluck('id');
+        $filterPages = FilterPage::pluck('id');
 
-        foreach ($categories as $category) {
+        foreach ($categories as $categoryId) {
             Seo::factory()->create([
-                'entity_id' => $category->id,
+                'entity_id' => $categoryId,
                 'entity_type' => Category::class,
             ]);
         }
 
-        foreach ($products as $product) {
+        foreach ($products as $productId) {
             Seo::factory()->create([
-                'entity_id' => $product->id,
+                'entity_id' => $productId,
                 'entity_type' => Product::class,
             ]);
         }
 
-        foreach ($collections as $collection) {
+        foreach ($collections as $collectionId) {
             Seo::factory()->create([
-                'entity_id' => $collection->id,
+                'entity_id' => $collectionId,
                 'entity_type' => Collection::class,
+            ]);
+        }
+
+        foreach ($filterPages as $filterPageId) {
+            Seo::factory()->create([
+                'entity_id' => $filterPageId,
+                'entity_type' => FilterPage::class,
             ]);
         }
     }

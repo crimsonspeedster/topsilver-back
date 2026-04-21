@@ -36,7 +36,7 @@ class ProductSeeder extends Seeder
             });
 
         Product::all()->each(function ($product) {
-            RebuildProductFilterIndexJob::dispatch($product->id);
+            RebuildProductFilterIndexJob::dispatchSync($product->id);
         });
     }
 

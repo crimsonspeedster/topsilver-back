@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\Collection;
+use App\Models\FilterPage;
 use App\Models\Product;
 use App\Models\Slug;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -11,61 +12,33 @@ use Illuminate\Database\Seeder;
 
 class SlugSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $products = Product::pluck('id');
-        $categories = Category::pluck('id');
-        $collections = Collection::pluck('id');
+        $this->seedSlugs(Product::pluck('id'), Product::class, 'product');
+        $this->seedSlugs(Category::pluck('id'), Category::class, 'category');
+        $this->seedSlugs(Collection::pluck('id'), Collection::class, 'collection');
+        $this->seedSlugs(FilterPage::pluck('id'), FilterPage::class, 'filter_page');
+    }
 
-        foreach ($categories as $categoryId) {
-            $base_slug = 'category';
-            $slug = $base_slug;
-            $counter = 1;
+    private function seedSlugs($ids, string $type, string $base): void
+    {
+        $data = [];
+        $counter = 0;
 
-            while (Slug::where('slug', $slug)->exists()) {
-                $slug = $base_slug . '-' . $counter++;
-            }
+        foreach ($ids as $id) {
+            $slug = $counter === 0 ? $base : "{$base}-{$counter}";
 
-            Slug::factory()->create([
-                'entity_id' => $categoryId,
-                'entity_type' => Category::class,
+            $data[] = [
+                'entity_id' => $id,
+                'entity_type' => $type,
                 'slug' => $slug,
-            ]);
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+
+            $counter++;
         }
 
-        foreach ($products as $productId) {
-            $base_slug = 'product';
-            $slug = $base_slug;
-            $counter = 1;
-
-            while (Slug::where('slug', $slug)->exists()) {
-                $slug = $base_slug . '-' . $counter++;
-            }
-
-            Slug::factory()->create([
-                'entity_id' => $productId,
-                'entity_type' => Product::class,
-                'slug' => $slug,
-            ]);
-        }
-
-        foreach ($collections as $collectionId) {
-            $base_slug = 'collection';
-            $slug = $base_slug;
-            $counter = 1;
-
-            while (Slug::where('slug', $slug)->exists()) {
-                $slug = $base_slug . '-' . $counter++;
-            }
-
-            Slug::factory()->create([
-                'entity_id' => $collectionId,
-                'entity_type' => Collection::class,
-                'slug' => $slug,
-            ]);
-        }
+        Slug::insert($data);
     }
 }

@@ -2,17 +2,19 @@
 
 namespace App\Services;
 
+use App\Models\FilterPage;
 use App\Models\ProductFilterIndex;
 use App\Models\AttributeTerm;
 use App\Models\Category;
 use App\Models\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class FilterService
 {
-    public function applyFiltersToQuery($query, $taxonomy)
+    public function applyFiltersToQuery($query, $taxonomy, $selected_filters = [])
     {
-        $selectedFilters = $this->parseFilters();
+        $selectedFilters = $selected_filters ?: $this->parseFilters();
 
         if (empty($selectedFilters) && !request()->has('price')) {
             return $query;
@@ -46,9 +48,9 @@ class FilterService
         return $query;
     }
 
-    public function getFilters($taxonomy): array
+    public function getFilters($taxonomy, $filters = []): array
     {
-        $selectedFilters = $this->parseFilters();
+        $selectedFilters = $filters ?: $this->parseFilters();
         $cacheKey = $this->getCacheKey($taxonomy, $selectedFilters);
 
         return Cache::remember($cacheKey, 60, function () use ($taxonomy, $selectedFilters) {
@@ -151,6 +153,24 @@ class FilterService
         }
 
         return $result;
+    }
+
+    public function parseFiltersFromFilterPage(FilterPage $filterPage): array
+    {
+        $rows = DB::table('filter_page_filters')
+            ->where('filter_page_id', $filterPage->id)
+            ->get();
+
+        return $rows
+            ->groupBy('attribute_id')
+            ->map(function ($items) {
+                return $items
+                    ->pluck('attribute_term_id')
+                    ->map(fn ($id) => (int) $id)
+                    ->values()
+                    ->toArray();
+            })
+            ->toArray();
     }
 
     private function getCacheKey($taxonomy, array $filters): string
