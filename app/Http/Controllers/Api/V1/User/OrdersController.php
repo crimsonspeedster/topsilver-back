@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Api\V1\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
+use App\Http\Resources\PaginationResource;
 use Illuminate\Http\Request;
 
 class OrdersController extends Controller
@@ -12,19 +13,16 @@ class OrdersController extends Controller
         $user = $request->user();
         $orders = $user
             ->orders()
+            ->with([
+                'items.product.sluggable',
+            ])
             ->orderBy('created_at', 'desc')
             ->paginate(5);
 
         return response()->json([
             'data' => [
-                'orders' => OrderResource::collection($orders->load('items.product')),
-                'pagination' => [
-                    'total_pages' => $orders->lastPage(),
-                    'current_page' => $orders->currentPage(),
-                    'per_page' => $orders->perPage(),
-                    'total_items' => $orders->total(),
-                    'has_more_pages' => $orders->hasMorePages(),
-                ],
+                'orders' => OrderResource::collection($orders->items()),
+                'pagination' => new PaginationResource($orders),
             ]
         ]);
     }
@@ -33,7 +31,9 @@ class OrdersController extends Controller
     {
         $user = $request->user();
         $order = $user->orders()
-            ->with(['items.product'])
+            ->with([
+                'items.product.sluggable',
+            ])
             ->findOrFail($id);
 
         return response()->json([

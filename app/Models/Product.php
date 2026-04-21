@@ -8,6 +8,8 @@ use App\Enums\StockStatus;
 use App\Traits\HasSeo;
 use App\Traits\HasSlug;
 use App\Transformers\ProductAttributeTransformer;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -178,6 +180,16 @@ class Product extends Model implements HasMedia
 
         return ProductAttributeTransformer::make(
             $terms->filter(fn ($term) => $term->pivot->is_variation)
+        );
+    }
+
+    #[Scope]
+    protected function scopePublished (Builder $query): Builder
+    {
+        return $query->where(
+            'status',
+            '=',
+            EntityStatus::Published
         );
     }
 }

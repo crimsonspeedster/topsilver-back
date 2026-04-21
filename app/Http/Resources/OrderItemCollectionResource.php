@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Resources;
 
+use App\Http\Resources\Product\ProductCardResource;
 use App\Models\OrderItem;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,7 +20,7 @@ class OrderItemCollectionResource extends JsonResource
             'product_variant' => $this->product_variant,
             'quantity' => $this->quantity,
             'total' => $this->total,
-            'product' => new ProductCollectionResource($this->whenLoaded('product')),
+            'product' => new ProductCardResource($this->whenLoaded('product')),
         ];
     }
 }

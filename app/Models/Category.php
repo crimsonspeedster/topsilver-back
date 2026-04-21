@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Interfaces\TaxonomyInterface;
 use App\Traits\HasSeo;
 use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Category extends Model
+class Category extends Model implements TaxonomyInterface
 {
     use HasFactory, HasSlug, HasSeo;
 
@@ -16,6 +17,11 @@ class Category extends Model
         'title',
         'parent_id',
     ];
+
+    public function getType(): string
+    {
+        return 'category';
+    }
 
     public function products (): BelongsToMany
     {

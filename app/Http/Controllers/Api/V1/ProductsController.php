@@ -4,25 +4,31 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductsBatchRequest;
-use App\Http\Resources\ProductCollectionResource;
+use App\Http\Resources\Product\ProductCardResource;
+use App\Http\Resources\Product\ProductQuickShopResource;
+use App\Http\Resources\Product\ProductQuickViewResource;
+use Illuminate\Http\Request;
 use App\Models\Product;
 
 class ProductsController extends Controller
 {
-    public function index() {
-
-
-        return response()->json([
-            'data' => 'test',
-        ]);
-    }
-
-    public function show(int $id)
+    public function preview(int $id, Request $request)
     {
-        $product = Product::findOrFail($id);
+        $product = Product::with([
+                'sluggable',
+                'variants',
+                'categories.sluggable',
+                'collections.sluggable',
+            ])
+            ->findOrFail($id);
+
+        $type = $request->input('type', 'quick_view');
 
         return response()->json([
-            'data' => new ProductCollectionResource($product),
+            'data' => match ($type) {
+                'quick_shop' => new ProductQuickShopResource($product),
+                default => new ProductQuickViewResource($product),
+            },
         ]);
     }
 
@@ -36,7 +42,7 @@ class ProductsController extends Controller
             ->values();
 
         return response()->json([
-            'data' => ProductCollectionResource::collection($products),
+            'data' => ProductCardResource::collection($products),
         ]);
     }
 }

@@ -6,16 +6,16 @@ use App\Models\Slug;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin Category
+ * @property int $id
+ * @property string $title
  * */
 
-class CategoryResource extends JsonResource
+class TaxonomyResource extends JsonResource
 {
     public function toArray($request): array
     {
         return [
             'id' => $this->id,
-            'slug' => $this->sluggable?->slug,
             'title' => $this->title,
             'seo' => new SeoResource($this->whenLoaded('seo')),
         ];

@@ -4,6 +4,14 @@ namespace App\Providers;
 
 use App\Events\UserRegistered;
 use App\Listeners\AttachOrdersToUser;
+use App\Models\AttributeTerm;
+use App\Models\Category;
+use App\Models\Collection;
+use App\Models\Product;
+use App\Observers\AttributeTermObserver;
+use App\Observers\CategoryObserver;
+use App\Observers\CollectionObserver;
+use App\Observers\ProductObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -35,6 +43,15 @@ class AppServiceProvider extends ServiceProvider
         $this->configureEmails();
         $this->configureRateLimiting();
         $this->customListeners();
+        $this->observeHandle();
+    }
+
+    protected function observeHandle (): void
+    {
+        Product::observe(ProductObserver::class);
+        AttributeTerm::observe(AttributeTermObserver::class);
+        Collection::observe(CollectionObserver::class);
+        Category::observe(CategoryObserver::class);
     }
 
     protected function configureRoutes (): void

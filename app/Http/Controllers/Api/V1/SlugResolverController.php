@@ -3,72 +3,81 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\EntityStatus;
+use App\Enums\TaxonomySort;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\CategoryResource;
-use App\Http\Resources\ProductCollectionResource;
-use App\Http\Resources\ProductResource;
+use App\Http\Resources\PaginationResource;
+use App\Http\Resources\Product\ProductCardResource;
+use App\Http\Resources\Product\ProductPDPResource;
+use App\Http\Resources\TaxonomyResource;
+use App\Interfaces\TaxonomyInterface;
 use App\Models\Category;
+use App\Models\Collection;
 use App\Models\Product;
 use App\Models\Slug;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
+use App\Services\FilterService;
+use App\Services\TaxonomyService;
 
 class SlugResolverController extends Controller
 {
+    public function __construct(
+        private readonly TaxonomyService $taxonomyService,
+        private readonly FilterService $filterService,
+    ) {}
+
     public function resolver (string $slug)
     {
         $slugModel = Slug::where('slug', $slug)->firstOrFail();
         $entity = $slugModel->entity;
 
-        switch (get_class($entity)) {
-            case Product::class:
-                return $this->resolverProduct(
-                    $entity->load([
-                        'sluggable',
-                        'categories',
-                        'collections',
-                        'labels',
-                        'bundles.items.product.sluggable',
-                        'variants',
-                        'attributeTerms.attribute',
-                        'crossSellsLimited.sluggable',
-                        'groupProducts.sluggable',
-                        'seo',
-                    ])
-                );
+        return match (true) {
+            $entity instanceof Product => $this->resolverProduct($entity),
 
-            case Category::class:
-                $category = $entity;
-                $products = $category->products()
-                    ->paginate(12);
-
-                return $this->resolverCategory($category->load('seo'), $products);
-
-            default:
-                abort(404);
-        }
+            $entity instanceof Category,
+            $entity instanceof Collection => $this->resolverTaxonomy($entity),
+        };
     }
 
-    private function resolverProduct (Product $product)
+    private function resolverProduct(Product $product)
     {
         abort_unless($product->status === EntityStatus::Published, 404);
 
-        return new ProductResource($product);
+        $product->load([
+            'categories.sluggable',
+            'collections.sluggable',
+            'labels',
+            'bundles.items.product.sluggable',
+            'variants',
+            'attributeTerms.attribute',
+            'crossSellsLimited.sluggable',
+            'groupProducts.sluggable',
+            'seo',
+        ]);
+
+        return response()->json([
+            'data' => [
+                'type' => 'product',
+                'product' => new ProductPDPResource($product),
+            ],
+        ]);
     }
 
-    private function resolverCategory (Category $category, LengthAwarePaginator $products)
+    private function resolverTaxonomy (TaxonomyInterface $taxonomy)
     {
-        return (new CategoryResource($category))
-            ->additional([
-                'type' => 'category',
-                'products' => ProductCollectionResource::collection($products),
-                'pagination' => [
-                    'total_pages' => $products->lastPage(),
-                    'current_page' => $products->currentPage(),
-                    'per_page' => $products->perPage(),
-                    'total_items' => $products->total(),
-                    'has_more_pages' => $products->hasMorePages(),
-                ],
-            ]);
+        $sort = TaxonomySort::tryFrom(request('sort', 'newest'))
+                ?? TaxonomySort::NEWEST;
+        $products = $this->taxonomyService->getProducts($taxonomy, $sort);
+        $filters = $this->filterService->getFilters($taxonomy);
+
+        $taxonomy->load('seo');
+
+        return response()->json([
+            'data' => [
+                'type' => $taxonomy->getType(),
+                'category' => new TaxonomyResource($taxonomy),
+                'products' => ProductCardResource::collection($products->items()),
+                'pagination' => new PaginationResource($products),
+                'filters' => $filters,
+            ],
+        ]);
     }
 }

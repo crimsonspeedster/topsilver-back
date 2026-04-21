@@ -18,7 +18,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/slug-resolver/{slug}', [SlugResolverController::class, 'resolver']);
 
     Route::get('/products/batch', [ProductsController::class, 'batch']);
-    Route::get('/products/{id}', [ProductsController::class, 'show']);
+    Route::get('/products/{id}', [ProductsController::class, 'preview']);
 
     Route::middleware('throttle:login')->post('/login', LoginController::class);
     Route::middleware('throttle:register')->post('/register', RegisterController::class);

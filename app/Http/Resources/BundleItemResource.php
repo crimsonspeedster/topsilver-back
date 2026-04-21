@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Product\ProductCardResource;
 use App\Models\BundleItem;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Carbon;
 
 /**
  * @mixin BundleItem
@@ -15,7 +15,7 @@ class BundleItemResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'product' => new ProductCollectionResource($this->whenLoaded('product')),
+            'product' => new ProductCardResource($this->whenLoaded('product')),
             'quantity' => $this->quantity,
         ];
     }

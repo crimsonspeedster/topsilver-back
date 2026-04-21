@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Jobs\RebuildProductFilterIndexJob;
 use App\Models\Attribute;
 use App\Models\Category;
 use App\Models\Collection;
@@ -33,6 +34,10 @@ class ProductSeeder extends Seeder
                 $this->attachAttributes($product);
                 $this->assignGroup($product);
             });
+
+        Product::all()->each(function ($product) {
+            RebuildProductFilterIndexJob::dispatch($product->id);
+        });
     }
 
     private function attachRelations(Product $product): void

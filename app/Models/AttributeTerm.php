@@ -35,4 +35,14 @@ class AttributeTerm extends Model
             'product_variant_id',
         );
     }
+
+    public function products (): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Product::class,
+            'product_attribute_terms',
+            'attribute_term_id',
+            'product_id',
+        );
+    }
 }
