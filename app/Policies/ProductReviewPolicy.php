@@ -17,6 +17,20 @@ class ProductReviewPolicy
             return true;
         }
 
+        if (!$user->email_verified_at) {
+            return false;
+        }
+
+        return $this->canCustomerReview($user, $product);
+    }
+
+    public function reply(User $user, ProductReview $review): bool
+    {
+        return $review->user_id === $user->id;
+    }
+
+    private function canCustomerReview(User $user, Product $product): bool
+    {
         $hasPurchased = OrderItem::where('product_id', $product->id)
             ->whereHas('order', function ($q) use ($user) {
                 $q->where('user_id', $user->id)
@@ -34,10 +48,5 @@ class ProductReviewPolicy
             ->exists();
 
         return !$alreadyReviewed;
-    }
-
-    public function reply(User $user, ProductReview $review): bool
-    {
-        return $review->user_id === $user->id;
     }
 }

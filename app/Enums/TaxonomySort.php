@@ -7,6 +7,7 @@ enum TaxonomySort: string
 {
     case NEWEST = 'newest';
     case OLDEST = 'oldest';
-    case ALPHA_ASC = 'alpha_asc';
-    case ALPHA_DESC = 'alpha_desc';
+    case PRICE_ASC = 'price_asc';
+    case PRICE_DESC = 'price_desc';
+    case SELLING = 'selling';
 }
