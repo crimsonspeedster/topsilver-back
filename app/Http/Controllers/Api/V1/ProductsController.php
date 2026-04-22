@@ -12,15 +12,14 @@ use App\Models\Product;
 
 class ProductsController extends Controller
 {
-    public function preview(int $id, Request $request)
+    public function preview(Product $product, Request $request)
     {
-        $product = Product::with([
-                'sluggable',
-                'variants',
-                'categories.sluggable',
-                'collections.sluggable',
-            ])
-            ->findOrFail($id);
+        $product->load([
+            'sluggable',
+            'variants',
+            'categories.sluggable',
+            'collections.sluggable',
+        ]);
 
         $type = $request->input('type', 'quick_view');
 

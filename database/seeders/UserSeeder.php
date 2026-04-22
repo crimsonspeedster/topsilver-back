@@ -18,6 +18,7 @@ class UserSeeder extends Seeder
         User::factory()->create([
             'email' => 'test@gmail.com',
             'password' => Hash::make('password'),
+            'role' => UserRoles::Developer,
         ]);
 
         User::factory()->count(45)->create();

@@ -8,13 +8,14 @@ use App\Models\AttributeTerm;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Product;
+use App\Models\ProductReview;
 use App\Observers\AttributeTermObserver;
 use App\Observers\CategoryObserver;
 use App\Observers\CollectionObserver;
 use App\Observers\ProductObserver;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
+use App\Policies\ProductReviewPolicy;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -39,11 +40,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->includePolicies();
         $this->configureRoutes();
         $this->configureEmails();
         $this->configureRateLimiting();
         $this->customListeners();
         $this->observeHandle();
+    }
+
+    protected function includePolicies (): void
+    {
+        Gate::policy(ProductReview::class, ProductReviewPolicy::class);
     }
 
     protected function observeHandle (): void

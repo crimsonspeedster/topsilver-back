@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\Auth\EmailVerificationController;
 use App\Http\Controllers\Api\V1\Auth\LogoutController;
+use App\Http\Controllers\Api\V1\ReviewsController;
 use App\Http\Controllers\Api\V1\User\OrdersController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
@@ -18,7 +19,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/slug-resolver/{slug}', [SlugResolverController::class, 'resolver']);
 
     Route::get('/products/batch', [ProductsController::class, 'batch']);
-    Route::get('/products/{id}', [ProductsController::class, 'preview']);
+    Route::get('/products/{product}', [ProductsController::class, 'preview']);
+    Route::get('/products/{product}/reviews', [ReviewsController::class, 'index']);
+    Route::get('/reviews/{review}', [ReviewsController::class, 'replies']);
 
     Route::middleware('throttle:login')->post('/login', LoginController::class);
     Route::middleware('throttle:register')->post('/register', RegisterController::class);
@@ -31,12 +34,13 @@ Route::prefix('v1')->group(function () {
             ->name('verification.verify');
 
         Route::post('/logout', LogoutController::class);
+        Route::post('/products/{product}/reviews', [ReviewsController::class, 'store']);
 
         Route::patch('/me', UserUpdateController::class);
 
         Route::get('/me', UserController::class);
         Route::get('/me/bonuses', BonusController::class);
         Route::get('/me/orders', [OrdersController::class, 'index']);
-        Route::get('/me/orders/{id}', [OrdersController::class, 'show']);
+        Route::get('/me/orders/{order}', [OrdersController::class, 'show']);
     });
 });

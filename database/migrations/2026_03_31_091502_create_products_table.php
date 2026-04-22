@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('group_key')->nullable();
             $table->string('sku')->nullable()->unique();
             $table->string('status')->default('draft');
+            $table->decimal('rating_avg', 3, 2)->default(0);
+            $table->unsignedInteger('rating_count')->default(0);
             $table->string('title');
             $table->text('description')->nullable();
             $table->text('short_description')->nullable();

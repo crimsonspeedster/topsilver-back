@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\EntityStatus;
+use App\Enums\ReviewStatus;
 use App\Enums\TaxonomySort;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FilterPageResource;
 use App\Http\Resources\PaginationResource;
 use App\Http\Resources\Product\ProductCardResource;
 use App\Http\Resources\Product\ProductPDPResource;
+use App\Http\Resources\ProductReviewResource;
 use App\Http\Resources\TaxonomyResource;
 use App\Interfaces\TaxonomyInterface;
 use App\Models\Category;
@@ -45,6 +47,25 @@ class SlugResolverController extends Controller
     {
         abort_unless($product->status === EntityStatus::Published, 404);
 
+        $reviews = $product->reviews()
+            ->where('status', ReviewStatus::APPROVED)
+            ->whereNull('parent_id')
+            ->with([
+                'user.profile',
+            ])
+            ->withCount([
+                'replies as replies_count' => function ($q) {
+                    $q->where('status', ReviewStatus::APPROVED);
+                }
+            ])
+            ->limit(5)
+            ->get();
+
+        $reviewsCount = $product->reviews()
+            ->where('status', ReviewStatus::APPROVED)
+            ->whereNull('parent_id')
+            ->count();
+
         $product->load([
             'categories.sluggable',
             'collections.sluggable',
@@ -61,6 +82,11 @@ class SlugResolverController extends Controller
             'data' => [
                 'type' => 'product',
                 'product' => new ProductPDPResource($product),
+                'reviews' => ProductReviewResource::collection($reviews),
+                'reviews_pagination' => [
+                    'total' => $reviewsCount,
+                    'per_page' => 5,
+                ],
             ],
         ]);
     }

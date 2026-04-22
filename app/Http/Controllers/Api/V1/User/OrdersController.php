@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\User;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
 use App\Http\Resources\PaginationResource;
+use App\Models\Order;
 use Illuminate\Http\Request;
 
 class OrdersController extends Controller
@@ -27,14 +28,13 @@ class OrdersController extends Controller
         ]);
     }
 
-    public function show(Request $request, int $id)
+    public function show(Request $request, Order $order)
     {
-        $user = $request->user();
-        $order = $user->orders()
-            ->with([
-                'items.product.sluggable',
-            ])
-            ->findOrFail($id);
+        abort_unless($order->user_id === $request->user()->id, 404);
+
+        $order->load([
+            'items.product.sluggable',
+        ]);
 
         return response()->json([
             'data' => new OrderResource($order),

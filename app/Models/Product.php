@@ -28,6 +28,8 @@ class Product extends Model implements HasMedia
         'manage_stock' => 'boolean',
         'price' => 'decimal:2',
         'price_on_sale' => 'decimal:2',
+        'rating_avg' => 'decimal:2',
+        'rating_count' => 'integer',
     ];
 
     protected $fillable = [
@@ -43,6 +45,8 @@ class Product extends Model implements HasMedia
         'stock',
         'stock_status',
         'published_at',
+        'rating_avg',
+        'rating_count',
     ];
 
     protected static function booted() : void
@@ -132,6 +136,13 @@ class Product extends Model implements HasMedia
     {
         return $this->hasMany(
             ProductRelation::class,
+        );
+    }
+
+    public function reviews (): HasMany
+    {
+        return $this->hasMany(
+            ProductReview::class,
         );
     }
 
