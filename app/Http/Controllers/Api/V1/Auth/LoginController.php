@@ -24,6 +24,9 @@ class LoginController extends Controller
 
         $token = $user->createToken('site_token', [], now()->addDays(7))->plainTextToken;
 
+        $cartToken = $request->cookie('cart_token')
+            ?? $request->header('X-Cart-Token');
+
         return response()->json([
             'data' => new UserResource(
                 $user->load('profile.city.region')
@@ -39,6 +42,7 @@ class LoginController extends Controller
                 true,
                 false,
                 'Strict'
-            );
+            )
+            ->cookie(cookie()->forget('cart_token'));
     }
 }

@@ -13,6 +13,9 @@ use App\Http\Controllers\Api\V1\User\BonusController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use App\Http\Controllers\Api\V1\ProductsController;
 use App\Http\Controllers\Api\V1\User\UserUpdateController;
+use App\Http\Middleware\ResolveCart;
+use App\Http\Controllers\Api\V1\Cart\CartController;
+use App\Http\Controllers\Api\V1\Cart\CartItemsController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -27,6 +30,14 @@ Route::prefix('v1')->group(function () {
     Route::middleware('throttle:register')->post('/register', RegisterController::class);
     Route::middleware('throttle:forgot-password')->post('/forgot-password', ForgotPasswordController::class);
     Route::middleware('throttle:reset-password')->post('/reset-password', ResetPasswordController::class);
+
+    Route::middleware([ResolveCart::class])->group(function () {
+        Route::get('/cart', [CartController::class, 'show']);
+
+        Route::post('/cart/items', [CartItemsController::class, 'store']);
+        Route::patch('/cart/items/{id}', [CartItemsController::class, 'update']);
+        Route::delete('/cart/items/{id}', [CartItemsController::class, 'destroy']);
+    });
 
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::middleware('throttle:email-verify')

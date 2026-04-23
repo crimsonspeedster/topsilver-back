@@ -53,6 +53,9 @@ class RegisterController extends Controller
             'city_id' => ['nullable', 'exists:cities,id'],
         ]);
 
+        $cartToken = $request->cookie('cart_token')
+            ?? $request->header('X-Cart-Token');
+
         $result = DB::transaction(function () use ($data) {
             $user = User::create([
                 'email' => $data['email'],
@@ -87,16 +90,18 @@ class RegisterController extends Controller
             'data' => new UserResource(
                 $result['user']->load('profile.city.region')
             ),
-        ], 201)->cookie(
-            'access_token',
-            $result['token'],
-            60 * 24 * 7,
-            '/',
-            null,
-            true,
-            true,
-            false,
-            'Strict'
-        );
+        ], 201)
+            ->cookie(
+                'access_token',
+                $result['token'],
+                60 * 24 * 7,
+                '/',
+                null,
+                true,
+                true,
+                false,
+                'Strict'
+            )
+            ->cookie(cookie()->forget('cart_token'));
     }
 }
