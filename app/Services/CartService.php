@@ -6,13 +6,14 @@ use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
-use Illuminate\Support\HigherOrderWhenProxy;
+use Illuminate\Database\Eloquent\Builder;
 
 class CartService
 {
-    public function resolveCartItem(Cart $cart, Product $product, ProductVariant|null $variant = null): CartItem|HigherOrderWhenProxy
+    public function resolveCartItem(Cart $cart, Product $product, ProductVariant|null $variant = null): Builder
     {
-        return CartItem::where('cart_id', $cart->id)
+        return CartItem::query()
+            ->where('cart_id', $cart->id)
             ->where('product_id', $product->id)
             ->when(
                 $variant,

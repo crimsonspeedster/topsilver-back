@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\V1\Auth\EmailVerificationController;
 use App\Http\Controllers\Api\V1\Auth\LogoutController;
+use App\Http\Controllers\Api\V1\CheckoutController;
+use App\Http\Controllers\Api\V1\NPController;
 use App\Http\Controllers\Api\V1\ReviewsController;
 use App\Http\Controllers\Api\V1\User\OrdersController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
@@ -31,12 +33,20 @@ Route::prefix('v1')->group(function () {
     Route::middleware('throttle:forgot-password')->post('/forgot-password', ForgotPasswordController::class);
     Route::middleware('throttle:reset-password')->post('/reset-password', ResetPasswordController::class);
 
+    Route::prefix('nova-poshta')->group(function () {
+        Route::get('/areas', [NPController::class, 'areas']);
+        Route::get('/areas/{areaRef}/cities', [NPController::class, 'citiesByArea']);
+        Route::get('/cities/{cityRef}/warehouses', [NPController::class, 'warehousesByCity']);
+    });
+
     Route::middleware([ResolveCart::class])->group(function () {
         Route::get('/cart', [CartController::class, 'show']);
 
         Route::post('/cart/items', [CartItemsController::class, 'store']);
         Route::patch('/cart/items/{id}', [CartItemsController::class, 'update']);
         Route::delete('/cart/items/{id}', [CartItemsController::class, 'destroy']);
+
+        Route::post('/checkout', CheckoutController::class);
     });
 
     Route::middleware(['auth:sanctum'])->group(function () {

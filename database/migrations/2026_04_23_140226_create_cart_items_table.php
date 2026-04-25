@@ -20,6 +20,10 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->timestamps();
 
+            $table->foreign('cart_id')->references('id')->on('carts')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('product_variant_id')->references('id')->on('product_variants')->onDelete('cascade');
+
             $table->unique(['cart_id', 'product_id', 'product_variant_id']);
         });
     }
