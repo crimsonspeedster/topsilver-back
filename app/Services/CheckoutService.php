@@ -6,7 +6,6 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentMethods;
 use App\Enums\ShippingMethods;
 use App\Models\Cart;
-use App\Models\NPStreet;
 use App\Models\NPWarehouse;
 use App\Models\Order;
 use App\Models\PaymentMethod;

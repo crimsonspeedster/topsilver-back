@@ -41,6 +41,7 @@ class ProductFactory extends Factory
             'manage_stock' => $manage_stock,
             'price' => $price,
             'price_on_sale' => $price_on_sale,
+            'selling_count' => $this->faker->numberBetween(100, 3000),
         ];
     }
 }

@@ -1,25 +1,21 @@
 <?php
 namespace App\Http\Controllers\Api\V1;
 
-use App\Enums\OrderStatus;
 use App\Enums\PaymentMethods;
-use App\Enums\ShippingMethods;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateOrderRequest;
 use App\Http\Resources\OrderResource;
-use App\Models\Order;
-use App\Models\PaymentMethod;
-use App\Models\Product;
-use App\Models\ProductVariant;
-use App\Models\ShippingMethod;
 use App\Services\CheckoutService;
-use Illuminate\Support\Facades\DB;
+use App\Services\LiqPayService;
+use App\Services\MonobankPay;
 use Illuminate\Validation\ValidationException;
 
 class CheckoutController extends Controller
 {
     public function __construct(
         protected CheckoutService $checkoutService,
+        protected LiqpayService $liqpayService,
+        protected MonobankPay $monobankPay,
     ) {}
 
     public function __invoke(CreateOrderRequest $request)
@@ -41,10 +37,32 @@ class CheckoutController extends Controller
             throw $e;
         }
 
+        switch ($order->payment_type) {
+            case PaymentMethods::LIQPAY:
+                $payment = [
+                    'type' => PaymentMethods::LIQPAY->value,
+                    'data' => $this->liqpayService->generatePaymentForm($order),
+                ];
+                break;
+            case PaymentMethods::PLATA_BY_MONO:
+                $payment = [
+                    'type' => PaymentMethods::PLATA_BY_MONO->value,
+                    'data' =>  $this->monobankPay->createInvoice($order),
+                ];
+                break;
+            default:
+                $payment = [
+                    'type' => PaymentMethods::COD->value,
+                    'data' => [],
+                ];
+                break;
+        }
+
         return response()->json([
             'data' => new OrderResource(
                 $order->load('items.product.sluggable')
             ),
+            'payment' => $payment,
         ])->cookie(cookie()->forget('cart_token'));
     }
 }

@@ -14,8 +14,10 @@
         "laravel/framework": "^13.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^3.0",
+        "liqpay/liqpay": "^1.4",
         "predis/predis": "^3.4",
-        "spatie/laravel-medialibrary": "^11.21"
+        "spatie/laravel-medialibrary": "^11.21",
+        "ext-openssl": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

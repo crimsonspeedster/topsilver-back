@@ -4,12 +4,10 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\NPAreaResource;
 use App\Http\Resources\NPCityResource;
-use App\Http\Resources\NPStreetResource;
 use App\Http\Resources\NPWarehouseResource;
 use App\Http\Resources\PaginationResource;
 use App\Models\NPArea;
 use App\Models\NPCity;
-use App\Models\NPStreet;
 use App\Models\NPWarehouse;
 use Illuminate\Http\Request;
 

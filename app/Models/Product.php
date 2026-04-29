@@ -47,6 +47,7 @@ class Product extends Model implements HasMedia
         'published_at',
         'rating_avg',
         'rating_count',
+        'selling_count',
     ];
 
     protected static function booted() : void

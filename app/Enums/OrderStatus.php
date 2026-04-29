@@ -12,7 +12,7 @@ enum OrderStatus: string
     case COMPLETED = 'completed';
     case CANCELLED = 'cancelled';
 
-    public static function forFactory(): array
+    public static function withoutPending(): array
     {
         return array_filter(
             self::cases(),

@@ -35,5 +35,12 @@ return [
         ],
     ],
 
+    'liqpay' => [
+        'public_key' => env('LIQPAY_PUBLIC_KEY', ''),
+        'private_key' => env('LIQPAY_PRIVATE_KEY', ''),
+    ],
+
+    'monobank_token' => env('MONOBANK_TOKEN', ''),
+
     'nova_poshta_key' => env('NOVA_POSHTA_KEY', ''),
 ];

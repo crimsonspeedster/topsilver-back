@@ -32,7 +32,7 @@ class OrderFactory extends Factory
 
         if ($payment_method === PaymentMethods::COD) {
             $status = $this->faker->randomElement(
-                array_map(fn($case) => $case->value, OrderStatus::forFactory())
+                array_map(fn($case) => $case->value, OrderStatus::withoutPending())
             );
             $paid_at = null;
         }

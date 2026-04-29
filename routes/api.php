@@ -3,6 +3,8 @@
 use App\Http\Controllers\Api\V1\Auth\EmailVerificationController;
 use App\Http\Controllers\Api\V1\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\CheckoutController;
+use App\Http\Controllers\Api\V1\LiqPayController;
+use App\Http\Controllers\Api\V1\MonopayController;
 use App\Http\Controllers\Api\V1\NPController;
 use App\Http\Controllers\Api\V1\ReviewsController;
 use App\Http\Controllers\Api\V1\User\OrdersController;
@@ -32,6 +34,11 @@ Route::prefix('v1')->group(function () {
     Route::middleware('throttle:register')->post('/register', RegisterController::class);
     Route::middleware('throttle:forgot-password')->post('/forgot-password', ForgotPasswordController::class);
     Route::middleware('throttle:reset-password')->post('/reset-password', ResetPasswordController::class);
+
+    Route::post('/payments/liqpay/callback', [LiqpayController::class, 'callback'])
+        ->name('payments.liqpay.callback');
+    Route::post('/payments/monobank/callback', [MonopayController::class, 'callback'])
+        ->name('payments.monobank.callback');
 
     Route::prefix('nova-poshta')->group(function () {
         Route::get('/areas', [NPController::class, 'areas']);

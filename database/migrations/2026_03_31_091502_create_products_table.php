@@ -27,6 +27,7 @@ return new class extends Migration
             $table->unsignedInteger('stock')->nullable();
             $table->string('stock_status')->default('in_stock');
             $table->timestamp('published_at')->nullable();
+            $table->unsignedInteger('selling_count')->default(0);
             $table->timestamps();
 
             $table->index(['group_key']);
