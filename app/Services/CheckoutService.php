@@ -216,10 +216,8 @@ class CheckoutService
 
     private function clearCart(Cart $cart, OrderStatus $status): void
     {
-        if ($status === OrderStatus::CREATED) {
-            $cart->items()->delete();
-            $cart->delete();
-        }
+        $cart->items()->delete();
+        $cart->delete();
     }
 
     private function getItemPrice(Product $product, ?ProductVariant $variant): float

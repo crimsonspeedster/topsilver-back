@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\PaymentMethods;
+use App\Events\OrderCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateOrderRequest;
 use App\Http\Resources\OrderResource;
@@ -33,30 +34,26 @@ class CheckoutController extends Controller
                 $cart,
                 $request->validated()
             );
+
+            event(new OrderCreated($order));
         } catch (ValidationException $e) {
             throw $e;
         }
 
-        switch ($order->payment_type) {
-            case PaymentMethods::LIQPAY:
-                $payment = [
-                    'type' => PaymentMethods::LIQPAY->value,
-                    'data' => $this->liqpayService->generatePaymentForm($order),
-                ];
-                break;
-            case PaymentMethods::PLATA_BY_MONO:
-                $payment = [
-                    'type' => PaymentMethods::PLATA_BY_MONO->value,
-                    'data' =>  $this->monobankPay->createInvoice($order),
-                ];
-                break;
-            default:
-                $payment = [
-                    'type' => PaymentMethods::COD->value,
-                    'data' => [],
-                ];
-                break;
-        }
+        $payment = match ($order->payment_type) {
+            PaymentMethods::LIQPAY => [
+                'type' => PaymentMethods::LIQPAY->value,
+                'data' => $this->liqpayService->generatePaymentForm($order),
+            ],
+            PaymentMethods::PLATA_BY_MONO => [
+                'type' => PaymentMethods::PLATA_BY_MONO->value,
+                'data' => $this->monobankPay->createInvoice($order),
+            ],
+            default => [
+                'type' => PaymentMethods::COD->value,
+                'data' => [],
+            ],
+        };
 
         return response()->json([
             'data' => new OrderResource(

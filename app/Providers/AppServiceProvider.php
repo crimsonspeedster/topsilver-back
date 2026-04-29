@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Events\OrderCreated;
 use App\Events\UserRegistered;
 use App\Listeners\AttachOrdersToUser;
 use App\Models\AttributeTerm;
@@ -139,9 +140,9 @@ class AppServiceProvider extends ServiceProvider
 
     protected function customListeners (): void
     {
-        Event::listen(
+        Event::listen([
             UserRegistered::class,
-            AttachOrdersToUser::class
-        );
+            AttachOrdersToUser::class,
+        ]);
     }
 }
