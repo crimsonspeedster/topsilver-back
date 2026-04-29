@@ -39,6 +39,8 @@ class Order extends Model
         'shipping_data' => 'array',
         'payment_data' => 'array',
         'paid_at' => 'datetime',
+        'total' => 'decimal:2',
+        'subtotal' => 'decimal:2',
     ];
 
     public function user (): BelongsTo

@@ -23,6 +23,7 @@ class OrderItem extends Model
 
     protected $casts = [
         'product_variant' => 'array',
+        'total' => 'decimal:2',
     ];
 
     public function order (): BelongsTo

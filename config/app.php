@@ -105,6 +105,8 @@ return [
         ),
     ],
 
+    'currency' => env('CURRENCY_SYMBOL_CODE', '$'),
+
     /*
     |--------------------------------------------------------------------------
     | Maintenance Mode Driver
