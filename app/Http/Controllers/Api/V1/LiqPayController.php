@@ -47,6 +47,7 @@ class LiqPayController extends Controller
         switch ($payload['status']) {
             case 'success':
                 $order->status = OrderStatus::CREATED;
+                $order->paid_at = now();
                 break;
             case 'failure':
             case 'error':

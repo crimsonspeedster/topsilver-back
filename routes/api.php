@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\V1\User\UserUpdateController;
 use App\Http\Middleware\ResolveCart;
 use App\Http\Controllers\Api\V1\Cart\CartController;
 use App\Http\Controllers\Api\V1\Cart\CartItemsController;
+use App\Http\Controllers\Api\V1\Cart\CartCouponController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -48,10 +49,12 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware([ResolveCart::class])->group(function () {
         Route::get('/cart', [CartController::class, 'show']);
-
         Route::post('/cart/items', [CartItemsController::class, 'store']);
         Route::patch('/cart/items/{id}', [CartItemsController::class, 'update']);
         Route::delete('/cart/items/{id}', [CartItemsController::class, 'destroy']);
+
+        Route::post('/cart/coupon', [CartCouponController::class, 'store']);
+        Route::delete('/cart/coupon', [CartCouponController::class, 'destroy']);
 
         Route::post('/checkout', CheckoutController::class);
     });

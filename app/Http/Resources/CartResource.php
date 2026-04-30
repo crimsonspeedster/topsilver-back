@@ -20,6 +20,7 @@ class CartResource extends JsonResource
             'total' => $this->total,
             'total_formatted' => $currency->format($this->total)->format(),
             'subtotal_formatted' => $currency->format($this->subtotal)->format(),
+            'coupon' => new CouponResource($this->whenLoaded('coupon')),
         ];
     }
 }

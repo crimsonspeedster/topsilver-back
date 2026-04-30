@@ -45,4 +45,13 @@ class ProductVariant extends Model
             'attribute_term_id'
         );
     }
+
+    public function decrementStock(int $qty): void
+    {
+        $this->decrement('stock', $qty);
+
+        if ($this->stock <= 0) {
+            $this->update(['stock_status' => 'out_of_stock']);
+        }
+    }
 }

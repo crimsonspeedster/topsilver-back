@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -186,7 +187,16 @@ class Product extends Model implements HasMedia
         );
     }
 
-    public function getVariantAttributesAttribute()
+    public function decrementStock(int $qty): void
+    {
+        $this->decrement('stock', $qty);
+
+        if ($this->stock <= 0) {
+            $this->update(['stock_status' => 'out_of_stock']);
+        }
+    }
+
+    public function getVariantAttributesAttribute(): Collection
     {
         $terms = $this->attributeTerms;
 

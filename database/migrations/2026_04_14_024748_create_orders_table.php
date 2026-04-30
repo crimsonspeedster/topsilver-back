@@ -21,6 +21,11 @@ return new class extends Migration
             $table->decimal('total', 10, 2);
             $table->timestamp('paid_at')->nullable();
 
+            $table->string('coupon_code')->nullable();
+            $table->string('coupon_type')->nullable();
+            $table->decimal('coupon_value', 10, 2)->nullable();
+            $table->decimal('discount_amount', 10, 2)->default(0);
+
             $table->text('notes')->nullable();
 
             $table->string('first_name');

@@ -17,7 +17,6 @@ class CartItemsController extends Controller
         protected CartService $cartService,
     ) {}
 
-
     public function store(StoreCartItemRequest $request)
     {
         $cart = $request->attributes->get('cart');

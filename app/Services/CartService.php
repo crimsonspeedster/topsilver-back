@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 
+use App\Enums\StockStatus;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
@@ -24,7 +25,7 @@ class CartService
 
     public function getAvailableStock(Product $product, ?ProductVariant $variant = null): int
     {
-        $max = 999;
+        $max = $product->stock_status === StockStatus::OutOfStock ? 0 : 999;
         $stock = $product->manage_stock
             ? min($product->stock, $max)
             : $max;
@@ -41,17 +42,29 @@ class CartService
         return $cart->fresh([
             'items.product.sluggable',
             'items.variant',
+            'coupon',
         ]);
     }
 
     public function recalculateTotals(Cart $cart): Cart
     {
+        $cart = $cart->fresh(['coupon']);
+
         $subtotal = CartItem::where('cart_id', $cart->id)
             ->selectRaw('SUM(price * quantity) as total')
             ->value('total') ?? 0;
 
+        $discount = 0;
+
+        if ($cart->coupon) {
+            $discount = app(CouponService::class)
+                ->calculateDiscount($cart, $cart->coupon);
+        }
+
+        $total = max(0, $subtotal - $discount);
+
         $cart->subtotal = $subtotal;
-        $cart->total = $subtotal;
+        $cart->total = $total;
 
         $cart->save();
 

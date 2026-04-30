@@ -50,6 +50,7 @@ class MonopayController extends Controller
         switch ($data['status']) {
             case 'success':
                 $order->status = OrderStatus::CREATED;
+                $order->paid_at = now();
                 break;
             case 'processing':
                 $order->status = OrderStatus::PENDING_PAYMENT;

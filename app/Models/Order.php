@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CouponTypes;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethods;
 use App\Enums\ShippingMethods;
@@ -29,6 +30,10 @@ class Order extends Model
         'payment_type',
         'payment_data',
         'shipping_type',
+        'coupon_code',
+        'coupon_type',
+        'coupon_value',
+        'discount_amount',
         'shipping_data',
     ];
 
@@ -41,6 +46,9 @@ class Order extends Model
         'paid_at' => 'datetime',
         'total' => 'decimal:2',
         'subtotal' => 'decimal:2',
+        'discount_amount' => 'decimal:2',
+        'coupon_value' => 'decimal:2',
+        'coupon_type' => CouponTypes::class,
     ];
 
     public function user (): BelongsTo

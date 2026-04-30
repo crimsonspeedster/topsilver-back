@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Enums\CouponTypes;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethods;
 use App\Enums\ShippingMethods;
 use App\Models\Cart;
+use App\Models\Coupon;
 use App\Models\NPWarehouse;
 use App\Models\Order;
 use App\Models\PaymentMethod;
@@ -21,7 +23,7 @@ class CheckoutService
     public function checkout(Cart $cart, array $data): Order
     {
         return DB::transaction(function () use ($cart, $data) {
-            $cart->load('items.product', 'items.variant');
+            $cart->load('items.product', 'items.variant', 'coupon');
 
             if ($cart->items->isEmpty()) {
                 throw ValidationException::withMessages([
@@ -33,19 +35,25 @@ class CheckoutService
 
             [$shippingMethod, $shippingData] = $this->resolveShipping($data);
             [$paymentMethod, $paymentData, $status] = $this->resolvePayment($data);
+            $couponData = $this->resolveCoupon($cart, $subtotal);
+
+            $total = max(0, $subtotal - $couponData['discount_amount']);
 
             $order = $this->createOrder(
                 $cart,
                 $data,
                 $subtotal,
+                $total,
                 $status,
                 $shippingMethod,
                 $shippingData,
                 $paymentMethod,
-                $paymentData
+                $paymentData,
+                $couponData,
             );
 
             $this->createOrderItemsAndUpdateStock($order, $cart);
+            $this->consumeCoupon($cart);
             $this->clearCart($cart, $status);
 
             return $order;
@@ -142,6 +150,44 @@ class CheckoutService
         return [$shippingMethod, $shippingData];
     }
 
+    private function resolveCoupon(Cart $cart, float $subtotal): array
+    {
+        $coupon = $cart->coupon;
+
+        if (!$coupon) {
+            return [
+                'coupon_code' => null,
+                'coupon_type' => null,
+                'coupon_value' => null,
+                'discount_amount' => 0,
+            ];
+        }
+
+        $discount = match ($coupon->type) {
+            CouponTypes::PERCENT => round($subtotal * ($coupon->value / 100), 2),
+            CouponTypes::FIXED   => min($coupon->value, $subtotal),
+            default   => 0,
+        };
+
+        return [
+            'coupon_code' => $coupon->code,
+            'coupon_type' => $coupon->type,
+            'coupon_value' => $coupon->value,
+            'discount_amount' => $discount,
+        ];
+    }
+
+    private function consumeCoupon(Cart $cart): void
+    {
+        if (!$cart->coupon) {
+            return;
+        }
+
+        Coupon::where('id', $cart->coupon->id)
+            ->lockForUpdate()
+            ->increment('used_count');
+    }
+
     private function resolvePayment(array $data): array
     {
         $paymentMethod = PaymentMethod::findOrFail($data['payment_method_id']);
@@ -162,17 +208,25 @@ class CheckoutService
         Cart $cart,
         array $data,
         float $subtotal,
+        float $total,
         OrderStatus $status,
         $shippingMethod,
         array $shippingData,
         $paymentMethod,
-        array $paymentData
+        array $paymentData,
+        array $couponData,
     ): Order {
         return Order::create([
             'status' => $status,
             'subtotal' => $subtotal,
-            'total' => $subtotal,
+            'total' => $total,
             'paid_at' => null,
+
+            'coupon_code' => $couponData['coupon_code'],
+            'coupon_type' => $couponData['coupon_type'],
+            'coupon_value' => $couponData['coupon_value'],
+            'discount_amount' => $couponData['discount_amount'],
+
             'notes' => $data['notes'] ?? null,
 
             'first_name' => $data['first_name'],
@@ -245,9 +299,9 @@ class CheckoutService
         }
 
         if ($variant) {
-            $variant->decrement('stock', $qty);
+            $variant->decrementStock($qty);
         } else {
-            $product->decrement('stock', $qty);
+            $product->decrementStock($qty);
         }
     }
 }

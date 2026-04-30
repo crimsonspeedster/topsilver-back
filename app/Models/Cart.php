@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Cart extends Model
@@ -13,6 +14,7 @@ class Cart extends Model
         'subtotal',
         'total',
         'last_modified',
+        'coupon_id',
     ];
 
     protected $casts = [
@@ -25,6 +27,13 @@ class Cart extends Model
     {
         return $this->hasMany(
             CartItem::class,
+        );
+    }
+
+    public function coupon(): BelongsTo
+    {
+        return $this->belongsTo(
+            Coupon::class,
         );
     }
 }
