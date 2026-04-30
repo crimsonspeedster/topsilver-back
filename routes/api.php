@@ -6,10 +6,12 @@ use App\Http\Controllers\Api\V1\CheckoutController;
 use App\Http\Controllers\Api\V1\LiqPayController;
 use App\Http\Controllers\Api\V1\MonopayController;
 use App\Http\Controllers\Api\V1\NPController;
+use App\Http\Controllers\Api\V1\PageController;
 use App\Http\Controllers\Api\V1\ReviewsController;
 use App\Http\Controllers\Api\V1\User\OrdersController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
+use App\Http\Controllers\Api\V1\SettingsController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\V1\SlugResolverController;
@@ -26,10 +28,15 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     Route::get('/slug-resolver/{slug}', [SlugResolverController::class, 'resolver']);
 
+    Route::get('/settings', [SettingsController::class, 'index']);
+    Route::get('/settings/{key}', [SettingsController::class, 'show']);
+
     Route::get('/products/batch', [ProductsController::class, 'batch']);
     Route::get('/products/{product}', [ProductsController::class, 'preview']);
     Route::get('/products/{product}/reviews', [ReviewsController::class, 'index']);
     Route::get('/reviews/{review}', [ReviewsController::class, 'replies']);
+
+    Route::get('/pages/{page}', [PageController::class, 'show']);
 
     Route::middleware('throttle:login')->post('/login', LoginController::class);
     Route::middleware('throttle:register')->post('/register', RegisterController::class);

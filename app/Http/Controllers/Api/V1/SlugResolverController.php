@@ -7,6 +7,7 @@ use App\Enums\ReviewStatus;
 use App\Enums\TaxonomySort;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FilterPageResource;
+use App\Http\Resources\PageResource;
 use App\Http\Resources\PaginationResource;
 use App\Http\Resources\Product\ProductCardResource;
 use App\Http\Resources\Product\ProductPDPResource;
@@ -16,6 +17,7 @@ use App\Interfaces\TaxonomyInterface;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\FilterPage;
+use App\Models\Page;
 use App\Models\Product;
 use App\Models\Slug;
 use App\Services\FilterService;
@@ -36,11 +38,29 @@ class SlugResolverController extends Controller
         return match (true) {
             $entity instanceof Product => $this->resolverProduct($entity),
 
+            $entity instanceof Page => $this->resolverPage($entity),
+
             $entity instanceof Category,
             $entity instanceof Collection => $this->resolverTaxonomy($entity),
 
             $entity instanceof FilterPage => $this->resolverFilterPage($entity),
         };
+    }
+
+    private function resolverPage (Page $page)
+    {
+        abort_unless($page->status === EntityStatus::Published, 404);
+
+        $page->load([
+            'seo'
+        ]);
+
+        return response()->json([
+            'data' => [
+                'type' => 'page',
+                'page' => new PageResource($page),
+            ],
+        ]);
     }
 
     private function resolverProduct(Product $product)
