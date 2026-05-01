@@ -10,14 +10,15 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "ext-openssl": "*",
         "darkaonline/l5-swagger": "^11.0",
-        "laravel/framework": "^13.0",
+        "laravel/framework": "^12.0",
+        "laravel/nova": "5.7.7",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^3.0",
         "liqpay/liqpay": "^1.4",
         "predis/predis": "^3.4",
-        "spatie/laravel-medialibrary": "^11.21",
-        "ext-openssl": "*"
+        "spatie/laravel-medialibrary": "^11.21"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -83,6 +84,12 @@
             "dont-discover": []
         }
     },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://nova.laravel.com"
+        }
+    ],
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
