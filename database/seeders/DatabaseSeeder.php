@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             FilterPageSeeder::class,
             SlugSeeder::class,
             SeoSeeder::class,
+            SeoBlockSeeder::class,
             BonusSeeder::class,
             RegionSeeder::class,
             CitySeeder::class,

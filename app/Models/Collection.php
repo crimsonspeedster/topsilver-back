@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Interfaces\TaxonomyInterface;
 use App\Traits\HasSeo;
+use App\Traits\HasSeoBlock;
 use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +14,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Collection extends Model implements TaxonomyInterface, HasMedia
 {
-    use HasFactory, HasSeo, HasSlug, InteractsWithMedia;
+    use HasFactory, HasSeo, HasSeoBlock, HasSlug, InteractsWithMedia;
 
     protected $fillable = [
         'title',

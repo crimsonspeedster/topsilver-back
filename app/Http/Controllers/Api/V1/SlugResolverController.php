@@ -52,7 +52,8 @@ class SlugResolverController extends Controller
         abort_unless($page->status === EntityStatus::Published, 404);
 
         $page->load([
-            'seo'
+            'seo',
+            'seoBlock',
         ]);
 
         return response()->json([
@@ -96,6 +97,7 @@ class SlugResolverController extends Controller
             'crossSellsLimited.sluggable',
             'groupProducts.sluggable',
             'seo',
+            'seoBlock',
         ]);
 
         return response()->json([
@@ -118,7 +120,10 @@ class SlugResolverController extends Controller
         $products = $this->taxonomyService->getProducts($taxonomy, $sort);
         $filters = $this->filterService->getFilters($taxonomy);
 
-        $taxonomy->load('seo');
+        $taxonomy->load([
+            'seo',
+            'seoBlock',
+        ]);
 
         return response()->json([
             'data' => [
@@ -140,7 +145,10 @@ class SlugResolverController extends Controller
         $products = $this->taxonomyService->getProducts($category, TaxonomySort::NEWEST, $selected_filters);
         $filters = $this->filterService->getFilters($category, $selected_filters);
 
-        $filterPage->load('seo');
+        $filterPage->load([
+            'seo',
+            'seoBlock',
+        ]);
 
         return response()->json([
             'data' => [

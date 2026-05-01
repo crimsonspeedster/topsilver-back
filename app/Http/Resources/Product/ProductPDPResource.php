@@ -6,6 +6,7 @@ use App\Http\Resources\BundleResource;
 use App\Http\Resources\LabelResource;
 use App\Http\Resources\MediaResource;
 use App\Http\Resources\ProductVariantResource;
+use App\Http\Resources\SeoBlockResource;
 use App\Http\Resources\SeoResource;
 use App\Http\Resources\TaxonomyCollectionResource;
 use App\Models\Product;
@@ -51,6 +52,7 @@ class ProductPDPResource extends JsonResource
             'cross_sells' => ProductCardResource::collection($this->whenLoaded('crossSellsLimited')),
             'group_products' => ProductCardResource::collection($this->whenLoaded('groupProducts')),
             'seo' => new SeoResource($this->whenLoaded('seo')),
+            'seo_block' => new SeoBlockResource($this->whenLoaded('seoBlock')),
         ];
     }
 }

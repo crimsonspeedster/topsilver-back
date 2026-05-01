@@ -4,12 +4,13 @@ namespace App\Models;
 
 use App\Enums\EntityStatus;
 use App\Traits\HasSeo;
+use App\Traits\HasSeoBlock;
 use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Model;
 
 class Page extends Model
 {
-    use HasSeo, HasSlug;
+    use HasSeo, HasSlug, HasSeoBlock;
 
     protected $fillable = [
         'title',

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\EntityStatus;
 use App\Traits\HasSeo;
+use App\Traits\HasSeoBlock;
 use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class FilterPage extends Model
 {
-    use HasFactory, HasSlug, HasSeo;
+    use HasFactory, HasSlug, HasSeo, HasSeoBlock;
 
     protected $fillable = [
         'category_id',

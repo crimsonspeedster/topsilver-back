@@ -6,6 +6,7 @@ use App\Enums\EntityStatus;
 use App\Enums\ProductRelationTypes;
 use App\Enums\StockStatus;
 use App\Traits\HasSeo;
+use App\Traits\HasSeoBlock;
 use App\Traits\HasSlug;
 use App\Transformers\ProductAttributeTransformer;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -19,7 +20,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Product extends Model implements HasMedia
 {
-    use HasFactory, HasSlug, HasSeo, InteractsWithMedia;
+    use HasFactory, HasSlug, HasSeo, HasSeoBlock, InteractsWithMedia;
 
     protected $casts = [
         'stock_status' => StockStatus::class,
