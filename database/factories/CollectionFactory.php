@@ -19,6 +19,7 @@ class CollectionFactory extends Factory
     {
         return [
             'title' => $this->faker->name(),
+            'description' => $this->faker->text(),
             'parent_id' => null,
         ];
     }

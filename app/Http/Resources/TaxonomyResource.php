@@ -2,12 +2,10 @@
 namespace App\Http\Resources;
 
 use App\Models\Category;
-use App\Models\Slug;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property int $id
- * @property string $title
+ * @mixin Category
  * */
 
 class TaxonomyResource extends JsonResource
@@ -17,6 +15,8 @@ class TaxonomyResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
+            'description' => $this->description,
+            'image' => $this->getFirstMediaUrl('main_image'),
             'seo' => new SeoResource($this->whenLoaded('seo')),
         ];
     }

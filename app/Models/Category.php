@@ -8,10 +8,12 @@ use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Category extends Model implements TaxonomyInterface
+class Category extends Model implements TaxonomyInterface, HasMedia
 {
-    use HasFactory, HasSlug, HasSeo;
+    use HasFactory, HasSlug, HasSeo, InteractsWithMedia;
 
     protected $fillable = [
         'title',
@@ -31,5 +33,13 @@ class Category extends Model implements TaxonomyInterface
             'category_id',
             'product_id',
         );
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this
+            ->addMediaCollection('main_image')
+            ->singleFile()
+            ->useFallbackUrl('/images/fallback-taxonomy.png');
     }
 }

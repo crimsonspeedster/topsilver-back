@@ -19,6 +19,7 @@ class CategoryFactory extends Factory
     {
         return [
             'title' => $this->faker->word(),
+            'description' => $this->faker->text(),
         ];
     }
 }
