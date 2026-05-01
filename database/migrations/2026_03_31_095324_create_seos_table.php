@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->text('keywords')->nullable();
+            $table->string('robots')->nullable();
             $table->timestamps();
 
             $table->unique(['entity_id', 'entity_type']);

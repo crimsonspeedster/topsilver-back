@@ -26,4 +26,11 @@ class Seo extends Model
             'entity_id',
         );
     }
+
+    public function getResolvedRobotsAttribute(): string
+    {
+        return $this->robots
+            ?? settings('seo.robots')
+            ?? config('app.env') === 'production' ? 'index, follow' : 'noindex, nofollow';
+    }
 }
