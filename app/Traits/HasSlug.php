@@ -7,6 +7,19 @@ use App\Models\Slug;
 
 trait HasSlug
 {
+    protected static function bootHasSlug(): void
+    {
+        static::created(function ($model) {
+            if (!$model->sluggable) {
+                $model->sluggable()->create();
+            }
+        });
+
+        static::deleting(function ($model) {
+            $model->sluggable()->delete();
+        });
+    }
+
     public function sluggable(): MorphOne
     {
         return $this->morphOne(

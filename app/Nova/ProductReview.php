@@ -4,6 +4,7 @@ namespace App\Nova;
 
 use App\Enums\ReviewStatus;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\FormData;
 use Laravel\Nova\Fields\HasMany;
@@ -36,12 +37,8 @@ class ProductReview extends Resource
      */
     public static $search = [
         'id',
+        'user.phone',
     ];
-
-    public static function authorizedToCreate(Request $request): bool
-    {
-        return $request->viaRelationship === 'replies';
-    }
 
     /**
      * Get the fields displayed by the resource.
@@ -53,17 +50,29 @@ class ProductReview extends Resource
         return [
             ID::make()->sortable(),
 
-            Textarea::make('Comment'),
+            Textarea::make('Comment')
+                ->rules('required'),
 
             Number::make('Rating')
                 ->min(1)
                 ->max(5)
                 ->step(1)
-                ->rules('required'),
+                ->sortable()
+                ->dependsOn(
+                    ['parent'],
+                    function (Number $field, NovaRequest $request, FormData $formData) {
+                        if ($formData->parent) {
+                            $field->hide()->nullable();
+                        } else {
+                            $field->show()->rules('required');
+                        }
+                    }
+                ),
 
             Select::make('Status')
                 ->options(ReviewStatus::options())
                 ->displayUsingLabels()
+                ->sortable()
                 ->rules('required'),
 
             BelongsTo::make('Product', 'product', Product::class)
@@ -71,21 +80,36 @@ class ProductReview extends Resource
                     ['parent'],
                     function (BelongsTo $field, NovaRequest $request, FormData $formData) {
                         if ($formData->parent) {
-                            $field->hide();
+                            $field->hide()->nullable();
+                        } else {
+                            $field->show()->rules('required');
+                        }
+                    }
+                )
+                ->searchable()
+                ->sortable(),
+
+            BelongsTo::make('User', 'user', User::class)
+                ->searchable(),
+
+            HasMany::make('Replies', 'replies', self::class),
+
+            BelongsTo::make('Parent', 'parent', self::class)
+                ->searchable()
+                ->sortable()
+                ->dependsOn(
+                    ['product'],
+                    function (BelongsTo $field, NovaRequest $request, FormData $formData) {
+                        if ($formData->product) {
+                            $field->hide()->nullable();
                         } else {
                             $field->show()->rules('required');
                         }
                     }
                 ),
 
-            BelongsTo::make('User', 'user', User::class),
-
-            HasMany::make('Replies', 'replies', self::class),
-
-            BelongsTo::make('Parent', 'parent', self::class)
-            ->sortable(),
-
-            BelongsTo::make('Order', 'order', Order::class),
+            BelongsTo::make('Order', 'order', Order::class)
+                ->searchable(),
         ];
     }
 

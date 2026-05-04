@@ -26,7 +26,7 @@ class ShippingMethod extends Resource
      *
      * @var string
      */
-    public static $title = 'id';
+    public static $title = 'name';
 
     /**
      * The columns that should be searched.
@@ -35,6 +35,7 @@ class ShippingMethod extends Resource
      */
     public static $search = [
         'id',
+        'name',
     ];
 
     /**
@@ -47,17 +48,21 @@ class ShippingMethod extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('Name'),
+            Text::make('Name')
+                ->rules('required')
+                ->sortable(),
 
             Textarea::make('Description'),
 
             Select::make('Type')
                 ->options(ShippingMethods::options())
-                ->displayUsingLabels(),
+                ->displayUsingLabels()
+                ->rules('required'),
 
             KeyValue::make('Config'),
 
-            Boolean::make('Active'),
+            Boolean::make('Active')
+                ->default(false),
         ];
     }
 

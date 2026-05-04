@@ -50,14 +50,16 @@ class Page extends Resource
             ID::make()->sortable(),
 
             Text::make('Title')
-                ->required(),
+                ->sortable()
+                ->rules('required'),
 
-            Select::make('Type')
+            Select::make('Status')
                 ->options(EntityStatus::options())
                 ->displayUsingLabels()
                 ->rules('required'),
 
             DateTime::make('Published At', 'published_at')
+                ->exceptOnForms()
                 ->readonly(),
 
             MorphOne::make('Seo', 'seo', Seo::class),

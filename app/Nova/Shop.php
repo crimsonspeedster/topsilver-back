@@ -47,18 +47,25 @@ class Shop extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('Name'),
+            Text::make('Name')
+                ->sortable()
+                ->rules('required'),
 
-            Textarea::make('Address'),
+            Textarea::make('Address')
+                ->rules('required'),
 
             Text::make('Address Link')
-            ->hideFromIndex(),
+                ->hideFromIndex()
+                ->rules('required'),
 
-            Text::make('Phone'),
+            Text::make('Phone')
+                ->rules('required'),
 
-            Textarea::make('Time Working'),
+            Textarea::make('Time Working')
+                ->rules('required'),
 
-            BelongsTo::make('City', 'city', City::class),
+            BelongsTo::make('City', 'city', City::class)
+                ->searchable(),
         ];
     }
 

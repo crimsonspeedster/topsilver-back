@@ -47,24 +47,45 @@ class OrderItem extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('Product Name')->sortable(),
+            Text::make('Product Name')
+                ->sortable()
+                ->rules('required'),
 
             Image::make('Product Image')
                 ->preview(fn ($value, $disk, $model) => $value)
                 ->thumbnail(fn ($value, $disk, $model) => $value)
                 ->disableDownload(),
 
-            Number::make('Product Price'),
+            Number::make('Product Price')
+                ->rules(
+                    'required',
+                    'min:0',
+                )
+                ->sortable(),
 
             KeyValue::make('Product Variant'),
 
-            Number::make('Quantity'),
+            Number::make('Quantity')
+                ->rules(
+                    'required',
+                    'min:1',
+                )
+                ->default(1)
+                ->sortable(),
 
-            Number::make('Total'),
+            Number::make('Total')
+                ->rules(
+                    'required',
+                    'min:0',
+                )
+                ->sortable(),
 
-            BelongsTo::make('Order', 'order', Order::class),
+            BelongsTo::make('Order', 'order', Order::class)
+                ->searchable(),
 
-            BelongsTo::make('Product', 'product', Product::class),
+            BelongsTo::make('Product', 'product', Product::class)
+                ->searchable()
+                ->nullable(),
         ];
     }
 

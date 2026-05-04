@@ -3,6 +3,7 @@
 namespace App\Nova;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
@@ -45,9 +46,21 @@ class City extends Resource
             ID::make()->sortable(),
 
             Text::make('Name')
-                ->rules('required', 'string'),
+                ->sortable()
+                ->rules(
+                    function ($request) {
+                        return [
+                            'required',
+                            Rule::unique('cities', 'name')
+                                ->where('region_id', $request->input('region'))
+                                ->ignore($request->resourceId),
+                        ];
+                    }
+                ),
 
-            BelongsTo::make('Region', 'region', Region::class),
+            BelongsTo::make('Region', 'region', Region::class)
+                ->sortable()
+                ->searchable(),
         ];
     }
 

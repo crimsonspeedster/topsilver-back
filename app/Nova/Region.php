@@ -45,7 +45,8 @@ class Region extends Resource
             ID::make()->sortable(),
 
             Text::make('Name')
-                ->rules('required', 'string'),
+                ->sortable()
+                ->rules('required'),
 
             HasMany::make('Cities', 'cities', City::class),
         ];

@@ -48,15 +48,33 @@ class Bundle extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('Title'),
+            Text::make('Title')
+                ->rules('required'),
 
-            Text::make('SKU'),
+            Text::make('SKU')
+                ->rules(
+                    'required',
+                    'unique:bundles,sku',
+                )
+                ->sortable(),
 
-            Number::make('Price'),
+            Number::make('Price')
+                ->rules(
+                    'required',
+                    'gt:old_price',
+                )
+                ->sortable(),
 
-            Number::make('Old Price'),
+            Number::make('Old Price')
+                ->rules(
+                    'required',
+                    'min:0'
+                )
+                ->sortable(),
 
-            Boolean::make('Active'),
+            Boolean::make('Active')
+                ->default(true)
+                ->sortable(),
 
             HasMany::make('Items', 'items', BundleItem::class),
 

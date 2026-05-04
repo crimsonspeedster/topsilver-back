@@ -2,10 +2,13 @@
 
 namespace App\Nova;
 
+use App\Enums\EntityStatus;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\MorphOne;
+use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
@@ -45,9 +48,22 @@ class FilterPage extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('Title'),
+            Text::make('Title')
+                ->sortable()
+                ->rules('required'),
 
-            BelongsTo::make('Category', 'category', Category::class),
+            Select::make('Status')
+                ->options(EntityStatus::options())
+                ->displayUsingLabels()
+                ->rules('required'),
+
+            DateTime::make('Published At', 'published_at')
+                ->sortable()
+                ->exceptOnForms()
+                ->readonly(),
+
+            BelongsTo::make('Category', 'category', Category::class)
+                ->searchable(),
 
             MorphOne::make('Slug', 'sluggable', Slug::class),
 

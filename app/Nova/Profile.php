@@ -26,7 +26,7 @@ class Profile extends Resource
      *
      * @var string
      */
-    public static $title = 'id';
+    public static $title = 'name';
 
     /**
      * The columns that should be searched.
@@ -55,7 +55,6 @@ class Profile extends Resource
             Text::make('Name')
                 ->rules(
                     'required',
-                    'string',
                     'min:2',
                     'max:255',
                 ),
@@ -63,22 +62,17 @@ class Profile extends Resource
             Text::make('Surname')
                 ->rules(
                     'required',
-                    'string',
                     'min:2',
                     'max:255',
                 ),
 
             Text::make('Middle Name', 'middle_name')
                 ->rules(
-                    'nullable',
-                    'string',
                     'max:255',
                 ),
 
             Textarea::make('About')
                 ->rules(
-                    'nullable',
-                    'string',
                     'max:1000'
                 ),
 
@@ -88,15 +82,18 @@ class Profile extends Resource
 
             Date::make('Date of Birth', 'dob')
                 ->rules([
-                    'nullable',
-                    'date',
                     'date_format:Y-m-d',
                     'before:today',
                 ]),
 
-            BelongsTo::make('User', 'user', User::class),
+            BelongsTo::make('User', 'user', User::class)
+                ->searchable()
+                ->sortable(),
 
-            BelongsTo::make('City', 'city', City::class),
+            BelongsTo::make('City', 'city', City::class)
+                ->nullable()
+                ->searchable()
+                ->sortable(),
         ];
     }
 

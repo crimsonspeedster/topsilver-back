@@ -26,7 +26,7 @@ class ProductVariant extends Resource
      *
      * @var string
      */
-    public static $title = 'id';
+    public static $title = 'sku';
 
     /**
      * The columns that should be searched.
@@ -35,6 +35,7 @@ class ProductVariant extends Resource
      */
     public static $search = [
         'id',
+        'sku',
     ];
 
     /**
@@ -47,22 +48,45 @@ class ProductVariant extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('SKU'),
+            Text::make('SKU')
+                ->sortable()
+                ->rules(
+                    'required',
+                    'unique:product_variants,sku',
+                ),
 
-            Number::make('Price'),
+            Number::make('Price')
+                ->sortable()
+                ->rules(
+                    'required',
+                    'min:1',
+                ),
 
-            Number::make('Price on Sale'),
+            Number::make('Price on Sale')
+                ->sortable(),
 
-            Number::make('Stock'),
+            Number::make('Stock')
+                ->sortable()
+                ->rules(
+                    'required',
+                    'min:0',
+                )
+                ->default(0),
 
             Select::make('Stock Status')
                 ->options(StockStatus::options())
-                ->displayUsingLabels(),
+                ->displayUsingLabels()
+                ->sortable()
+                ->rules(
+                    'required',
+                ),
 
             Text::make('Variant Key')
-                ->readonly(),
+                ->exceptOnForms(),
 
-            BelongsTo::make('Product', 'product', Product::class),
+            BelongsTo::make('Product', 'product', Product::class)
+                ->sortable()
+                ->searchable(),
 
             BelongsToMany::make('Attribute Terms', 'attributeTerms', AttributeTerm::class),
         ];

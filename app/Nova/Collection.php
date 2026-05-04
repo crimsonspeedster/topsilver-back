@@ -2,19 +2,13 @@
 
 namespace App\Nova;
 
-use Illuminate\Http\Request;
-use Laravel\Nova\Fields\BelongsTo;
-use Laravel\Nova\Fields\BelongsToMany;
-use Laravel\Nova\Fields\HasMany;
-use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Image;
-use Laravel\Nova\Fields\Markdown;
-use Laravel\Nova\Fields\MorphOne;
-use Laravel\Nova\Fields\Text;
+use App\Traits\HasTaxonomyCollectionFields;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Collection extends Resource
 {
+    use HasTaxonomyCollectionFields;
+
     /**
      * The model the resource corresponds to.
      *
@@ -45,37 +39,7 @@ class Collection extends Resource
      */
     public function fields(NovaRequest $request): array
     {
-        return [
-            ID::make()->sortable(),
-
-            Text::make('Title'),
-
-            Markdown::make('Description'),
-
-            Image::make('Image')
-                ->store(function ($request, \App\Models\Collection $model, $attribute) {
-                    if ($request->hasFile($attribute)) {
-                        $model->addMediaFromRequest($attribute)->toMediaCollection('main_image');
-                    }
-
-                    return [];
-                })
-                ->preview(fn ($value, $disk, $model) => $model->getFirstMediaUrl('main_image'))
-                ->thumbnail(fn ($value, $disk, $model) => $model->getFirstMediaUrl('main_image'))
-                ->disableDownload(),
-
-            BelongsTo::make('Parent', 'parent', self::class),
-
-            HasMany::make('Children', 'children', self::class),
-
-            BelongsToMany::make('Products', 'products', Product::class),
-
-            MorphOne::make('Slug', 'sluggable', Slug::class),
-
-            MorphOne::make('Seo', 'seo', Seo::class),
-
-            MorphOne::make('SeoBlock', 'seoBlock', SeoBlock::class),
-        ];
+        return $this->commonFields(self::class);
     }
 
     /**

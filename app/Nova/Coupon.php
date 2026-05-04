@@ -48,7 +48,12 @@ class Coupon extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('Code'),
+            Text::make('Code')
+                ->rules(
+                    'required',
+                    'unique:coupons,code',
+                )
+                ->sortable(),
 
             Select::make('Type')
                 ->options(CouponTypes::options())
@@ -61,6 +66,7 @@ class Coupon extends Resource
                     return [
                         'required',
                         'numeric',
+                        'min:1',
                         Rule::when(
                             $request->type === CouponTypes::PERCENT->value,
                             fn () => 'max:100'
@@ -81,9 +87,14 @@ class Coupon extends Resource
 
             Date::make('Starts At', 'starts_at'),
 
-            Date::make('Expires At', 'expires_at'),
+            Date::make('Expires At', 'expires_at')
+                ->rules(
+                    'after:starts_at',
+                    'nullable',
+                ),
 
-            Boolean::make('Active', 'is_active'),
+            Boolean::make('Active', 'is_active')
+                ->default(true),
         ];
     }
 

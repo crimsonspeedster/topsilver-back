@@ -7,6 +7,19 @@ use App\Models\Seo;
 
 trait HasSeo
 {
+    protected static function bootHasSeo(): void
+    {
+        static::created(function ($model) {
+            if (!$model->seo) {
+                $model->seo()->create();
+            }
+        });
+
+        static::deleting(function ($model) {
+            $model->seo()->delete();
+        });
+    }
+
     public function seo(): MorphOne
     {
         return $this->morphOne(

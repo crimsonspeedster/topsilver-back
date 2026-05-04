@@ -42,6 +42,8 @@ class Order extends Resource
      */
     public static $search = [
         'id',
+        'phone',
+        'email',
     ];
 
     /**
@@ -56,41 +58,68 @@ class Order extends Resource
 
             Select::make('Status')
                 ->options(OrderStatus::options())
-                ->displayUsingLabels(),
+                ->displayUsingLabels()
+                ->sortable()
+                ->rules('required'),
 
-            Number::make('Subtotal'),
+            Number::make('Subtotal')
+                ->sortable()
+                ->rules('required'),
 
-            Number::make('Total'),
+            Number::make('Total')
+                ->sortable()
+                ->readonly()
+                ->exceptOnForms(),
 
-            Number::make('Discount Amount'),
+            Number::make('Discount Amount')
+                ->rules('min:0', 'lte:subtotal')
+                ->default(0)
+                ->sortable(),
 
-            DateTime::make('Paid At'),
+            DateTime::make('Paid At')
+                ->sortable()
+                ->readonly()
+                ->hideWhenCreating()
+                ->hideWhenUpdating(),
 
             Textarea::make('Notes'),
 
-            Text::make('First Name'),
+            Text::make('First Name')
+                ->rules('required'),
 
-            Text::make('Last Name'),
+            Text::make('Last Name')
+                ->rules('required'),
 
             Text::make('Middle Name'),
 
-            Text::make('Phone'),
+            Text::make('Phone')
+                ->sortable()
+                ->rules(
+                    'required',
+                    'regex:/^\+?[0-9]{9,15}$/'
+                ),
 
-            Email::make('Email'),
+            Email::make('Email')
+                ->sortable(),
 
             Select::make('Payment Type')
                 ->options(PaymentMethods::options())
-                ->displayUsingLabels(),
+                ->sortable()
+                ->displayUsingLabels()
+                ->rules('required'),
 
             KeyValue::make('Payment Data'),
 
             Select::make('Shipping Type')
                 ->options(ShippingMethods::options())
-                ->displayUsingLabels(),
+                ->sortable()
+                ->displayUsingLabels()
+                ->rules('required'),
 
             KeyValue::make('Shipping Data'),
 
-            Text::make('Coupon Code'),
+            Text::make('Coupon Code')
+                ->sortable(),
 
             Select::make('Coupon Type')
                 ->options(CouponTypes::options())
@@ -98,7 +127,10 @@ class Order extends Resource
 
             Number::make('Coupon Value'),
 
-            BelongsTo::make('User', 'user', User::class),
+            BelongsTo::make('User', 'user', User::class)
+                ->searchable()
+                ->sortable()
+                ->nullable(),
 
             HasMany::make('Items', 'items', OrderItem::class),
         ];

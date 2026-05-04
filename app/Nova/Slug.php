@@ -51,11 +51,15 @@ class Slug extends Resource
             ID::make()->sortable(),
 
             Text::make('Slug')
-                ->rules('required')
-                ->creationRules('unique:slugs,slug')
-                ->updateRules(function ($request) {
+                ->rules(function ($request) {
                     return [
+                        'required',
                         Rule::unique('slugs', 'slug')
+                            ->where(function ($query) use ($request) {
+                                return $query
+                                    ->where('entity_type', $request->input('entity_type'))
+                                    ->where('entity_id', $request->input('entity_id'));
+                            })
                             ->ignore($request->resourceId),
                     ];
                 }),

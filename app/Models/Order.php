@@ -51,6 +51,16 @@ class Order extends Model
         'coupon_type' => CouponTypes::class,
     ];
 
+    public static function booted(): void
+    {
+        static::saving(function ($model) {
+            $subtotal = $model->subtotal ?? 0;
+            $discount = $model->discount_amount ?? 0;
+
+            $model->total = max(0, $subtotal - $discount);
+        });
+    }
+
     public function user (): BelongsTo
     {
         return $this->belongsTo(

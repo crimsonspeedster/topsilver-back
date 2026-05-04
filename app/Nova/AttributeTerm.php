@@ -3,6 +3,7 @@
 namespace App\Nova;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\BelongsToMany;
 use Laravel\Nova\Fields\ID;
@@ -47,11 +48,21 @@ class AttributeTerm extends Resource
             ID::make()->sortable(),
 
             Text::make('Title')
-                ->required(),
+                ->rules(
+                    'required',
+                ),
 
             Slug::make('Slug')
+                ->from('Title')
                 ->rules(
-                    'required'
+                    function ($request) {
+                        return [
+                            'required',
+                            Rule::unique('attribute_terms', 'slug')
+                                ->where('attribute_id', $request->input('attribute'))
+                                ->ignore($request->resourceId),
+                        ];
+                    }
                 ),
 
             Text::make('Meta Value', 'meta_value'),

@@ -5,6 +5,7 @@ namespace App\Nova;
 use App\Enums\UserRoles;
 use Illuminate\Http\Request;
 use Laravel\Nova\Auth\PasswordValidationRules;
+use Laravel\Nova\Fields\Email;
 use Laravel\Nova\Fields\Gravatar;
 use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\HasOne;
@@ -51,29 +52,26 @@ class User extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('Email')
+            Email::make('Email')
                 ->sortable()
-                ->rules('required', 'email', 'max:254')
-                ->creationRules('unique:users,email')
-                ->updateRules('unique:users,email,{{resourceId}}'),
+                ->rules(
+                    'required',
+                    'unique:users,email',
+                ),
 
             Text::make('Phone')
                 ->rules(
                     'required',
-                    'string',
-                    'unique:users,phone,{{resourceId}}',
+                    'unique:users,phone',
                     'regex:/^\+?[0-9]{9,15}$/'
                 )
-                ->creationRules(
-                    'unique:users,phone'
-                )
-                ->updateRules(
-                    'unique:users,phone,{{resourceId}}'
-                ),
+                ->sortable(),
 
             Select::make('Role')
                 ->options(UserRoles::options())
                 ->displayUsingLabels()
+                ->sortable()
+                ->default(UserRoles::Customer)
                 ->rules('required'),
 
             Password::make('Password')

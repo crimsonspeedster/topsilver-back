@@ -35,6 +35,7 @@ class PaymentMethod extends Resource
      */
     public static $search = [
         'id',
+        'name',
     ];
 
     /**
@@ -47,17 +48,21 @@ class PaymentMethod extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('Name'),
+            Text::make('Name')
+                ->rules('required')
+                ->sortable(),
 
             Textarea::make('Description'),
 
             Select::make('Type')
                 ->options(PaymentMethods::options())
-                ->displayUsingLabels(),
+                ->displayUsingLabels()
+                ->rules('required'),
 
             KeyValue::make('Config'),
 
-            Boolean::make('Active'),
+            Boolean::make('Active')
+                ->default(false),
         ];
     }
 

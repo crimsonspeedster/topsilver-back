@@ -48,9 +48,16 @@ class Attribute extends Resource
             ID::make()->sortable(),
 
             Text::make('Title')
-                ->required(),
+                ->rules(
+                    'required',
+                ),
 
-            Slug::make('Slug'),
+            Slug::make('Slug')
+                ->from('Title')
+                ->rules(
+                    'required',
+                    'unique:attributes,slug'
+                ),
 
             Select::make('Type')
                 ->options(AttributeTypes::options())

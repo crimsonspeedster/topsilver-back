@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\EntityStatus;
 use App\Enums\ProductRelationTypes;
 use App\Enums\StockStatus;
+use App\Traits\HasPublishedAt;
 use App\Traits\HasSeo;
 use App\Traits\HasSeoBlock;
 use App\Traits\HasSlug;
@@ -15,12 +16,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Product extends Model implements HasMedia
 {
-    use HasFactory, HasSlug, HasSeo, HasSeoBlock, InteractsWithMedia;
+    use HasFactory, HasSlug, HasSeo, HasSeoBlock, HasPublishedAt, InteractsWithMedia;
 
     protected $casts = [
         'stock_status' => StockStatus::class,
@@ -51,30 +53,6 @@ class Product extends Model implements HasMedia
         'rating_count',
         'selling_count',
     ];
-
-    protected static function booted() : void
-    {
-        static::created(function ($model) {
-            $model->seo()->create([
-                'title' => $model->title,
-                'description' => $model->description,
-            ]);
-        });
-
-        static::saving(function ($model) {
-            if ($model->status === EntityStatus::Published && !$model->published_at) {
-                $model->published_at = now();
-            }
-            elseif ($model->status === EntityStatus::Draft) {
-                $model->published_at = null;
-            }
-        });
-
-        static::deleting(function ($model) {
-            $model->seo()->delete();
-            $model->sluggable()->delete();
-        });
-    }
 
     public function registerMediaCollections(): void
     {
@@ -214,5 +192,15 @@ class Product extends Model implements HasMedia
             '=',
             EntityStatus::Published
         );
+    }
+
+    public function getSeoTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function getSeoDescription(): ?string
+    {
+        return Str::limit(strip_tags($this->description ?? ''), 160);
     }
 }

@@ -44,15 +44,34 @@ class Bonus extends Resource
         return [
             ID::make()->sortable(),
 
-            Number::make('Amount'),
+            Number::make('Amount')
+                ->default(0)
+                ->rules(
+                    'required',
+                    'min:0',
+                ),
 
-            Date::make('Accrual From'),
+            Date::make('Accrual From')
+                ->rules('required')
+                ->sortable(),
 
-            Date::make('Available From'),
+            Date::make('Available From')
+                ->rules(
+                    'required',
+                    'after_or_equal:accrual_from',
+                )
+                ->sortable(),
 
-            Date::make('Expires At'),
+            Date::make('Expires At')
+                ->rules(
+                    'required',
+                    'after:available_from',
+                )
+                ->sortable(),
 
-            BelongsTo::make('User', 'user', User::class),
+            BelongsTo::make('User', 'user', User::class)
+                ->searchable()
+                ->sortable(),
         ];
     }
 

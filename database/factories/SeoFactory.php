@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\SeoRobotTypes;
 use App\Models\Seo;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -21,6 +22,7 @@ class SeoFactory extends Factory
             'title' => $this->faker->sentence(3),
             'description' => $this->faker->text(160),
             'keywords' => implode(', ', $this->faker->words(5)),
+            'robots' => SeoRobotTypes::NOINDEX_NOFOLLOW,
         ];
     }
 }

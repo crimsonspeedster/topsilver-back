@@ -43,11 +43,18 @@ class BundleItem extends Resource
         return [
             ID::make()->sortable(),
 
-            Number::make('Quantity'),
+            Number::make('Quantity')
+                ->rules(
+                    'required',
+                    'min:1'
+                )
+                ->sortable(),
 
-            BelongsTo::make('Bundle', 'bundle', Bundle::class),
+            BelongsTo::make('Bundle', 'bundle', Bundle::class)
+                ->searchable(),
 
-            BelongsTo::make('Product', 'product', Product::class),
+            BelongsTo::make('Product', 'product', Product::class)
+                ->searchable(),
         ];
     }
 

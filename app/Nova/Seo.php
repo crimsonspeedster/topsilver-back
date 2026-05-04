@@ -2,9 +2,11 @@
 
 namespace App\Nova;
 
+use App\Enums\SeoRobotTypes;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\MorphTo;
+use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -44,13 +46,21 @@ class Seo extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('Title'),
+            Text::make('Title')
+                ->sortable()
+                ->rules(
+                    'required',
+                ),
 
             Textarea::make('Description'),
 
             Text::make('Keywords'),
 
-            Text::make('Robots'),
+            Select::make('Robots')
+                ->options(SeoRobotTypes::options())
+                ->displayUsingLabels()
+                ->default(SeoRobotTypes::INDEX_FOLLOW)
+                ->rules('required'),
 
             MorphTo::make('Entity', 'entity')
                 ->required()

@@ -46,6 +46,7 @@ class Product extends Resource
         'title',
         'sku',
         'group_key',
+        'sluggable.slug',
     ];
 
     /**
@@ -61,37 +62,66 @@ class Product extends Resource
             Text::make('Group Key')
                 ->sortable(),
 
-            Text::make('SKU'),
+            Text::make('SKU')
+                ->sortable()
+                ->rules(
+                    'required',
+                    'unique:products,sku',
+                ),
 
             Select::make('Status')
                 ->options(EntityStatus::options())
-                ->displayUsingLabels(),
+                ->displayUsingLabels()
+                ->sortable()
+                ->rules('required'),
 
-            Text::make('Title'),
+            Text::make('Title')
+                ->rules('required')
+                ->sortable(),
 
             Markdown::make('Description'),
 
             TextArea::make('Short Description'),
 
-            Number::make('Price'),
+            Number::make('Price')
+                ->sortable(),
 
-            Number::make('Price on Sale'),
+            Number::make('Price on Sale')
+                ->sortable(),
 
-            Boolean::make('Manage Stock'),
+            Boolean::make('Manage Stock')
+                ->sortable()
+                ->default(false),
 
-            Number::make('Stock'),
+            Number::make('Stock')
+                ->sortable(),
 
             Select::make('Stock Status')
                 ->options(StockStatus::options())
-                ->displayUsingLabels(),
+                ->displayUsingLabels()
+                ->sortable()
+                ->rules(
+                    'required'
+                ),
 
-            DateTime::make('Published At'),
+            DateTime::make('Published At')
+                ->exceptOnForms()
+                ->sortable(),
 
-            Number::make('Rating AVG'),
+            Number::make('Rating AVG', 'rating_avg')
+                ->sortable()
+                ->exceptOnForms()
+                ->default(0),
 
-            Number::make('Rating Count'),
+            Number::make('Rating Count')
+                ->sortable()
+                ->exceptOnForms()
+                ->default(0),
 
-            Number::make('Selling Count'),
+            Number::make('Selling Count')
+                ->sortable()
+                ->default(0)
+                ->rules('required'),
 
             Image::make('Image')
                 ->store(function ($request, $model, $attribute) {
@@ -103,7 +133,10 @@ class Product extends Resource
                 })
                 ->preview(fn ($value, $disk, $model) => $model->getFirstMediaUrl('main_image'))
                 ->thumbnail(fn ($value, $disk, $model) => $model->getFirstMediaUrl('main_image'))
-                ->disableDownload(),
+                ->disableDownload()
+                ->rules(
+                    'required',
+                ),
 
             HasMany::make('Variants', 'variants', ProductVariant::class),
 

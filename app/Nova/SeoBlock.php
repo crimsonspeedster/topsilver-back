@@ -45,11 +45,18 @@ class SeoBlock extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('Title'),
+            Text::make('Title')
+                ->sortable()
+                ->rules(
+                    'required',
+                ),
 
             Markdown::make('Excerpt'),
 
-            Markdown::make('Content'),
+            Markdown::make('Content')
+                ->rules(
+                    'required',
+                ),
 
             MorphTo::make('Entity', 'entity')
                 ->required()
