@@ -27,6 +27,15 @@ class ProductReview extends Model
         'status'  => ReviewStatus::class,
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function ($model) {
+            if (!$model->product_id && $model->parent) {
+                $model->product_id = $model->parent->product_id;
+            }
+        });
+    }
+
     public function product (): BelongsTo
     {
         return $this->belongsTo(

@@ -65,7 +65,9 @@ class ProductReview extends Resource
                 ->dependsOn(
                     ['parent'],
                     function (Number $field, NovaRequest $request, FormData $formData) {
-                        if ($formData->parent) {
+                        $parent = $formData->parent ?? $request->input('viaResourceId');
+
+                        if ($parent) {
                             $field->hide()->nullable();
                         } else {
                             $field->show()->rules('required');
@@ -83,7 +85,9 @@ class ProductReview extends Resource
                 ->dependsOn(
                     ['parent'],
                     function (BelongsTo $field, NovaRequest $request, FormData $formData) {
-                        if ($formData->parent) {
+                        $parent = $formData->parent ?? $request->input('viaResourceId');
+
+                        if ($parent) {
                             $field->hide()->nullable();
                         } else {
                             $field->show()->rules('required');
@@ -113,7 +117,20 @@ class ProductReview extends Resource
                 ),
 
             BelongsTo::make('Order', 'order', Order::class)
-                ->searchable(),
+                ->dependsOn(
+                    ['parent'],
+                    function (BelongsTo $field, NovaRequest $request, FormData $formData) {
+                        $parent = $formData->parent ?? $request->input('viaResourceId');
+
+                        if ($parent) {
+                            $field->hide()->nullable();
+                        } else {
+                            $field->show()->rules('required');
+                        }
+                    }
+                )
+                ->searchable()
+                ->sortable(),
         ];
     }
 
