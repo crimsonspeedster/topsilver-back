@@ -3,6 +3,7 @@
 namespace App\Nova;
 
 use App\Traits\HasTaxonomyCollectionFields;
+use Illuminate\Http\Request;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Collection extends Resource
@@ -31,6 +32,11 @@ class Collection extends Resource
     public static $search = [
         'id',
     ];
+
+    public static function authorizedToCreate(Request $request): bool
+    {
+        return false;
+    }
 
     /**
      * Get the fields displayed by the resource.

@@ -3,6 +3,7 @@
 namespace App\Nova;
 
 use App\Traits\HasTaxonomyCollectionFields;
+use Illuminate\Http\Request;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Category extends Resource
@@ -34,6 +35,11 @@ class Category extends Resource
         'id',
         'title',
     ];
+
+    public static function authorizedToCreate(Request $request): bool
+    {
+        return false;
+    }
 
     /**
      * Get the fields displayed by the resource.

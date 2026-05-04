@@ -38,6 +38,21 @@ class Setting extends Resource
         'key'
     ];
 
+    public static function authorizedToCreate(Request $request): bool
+    {
+        return $request->user()->canAccessNovaGeneralSettings();
+    }
+
+    public function authorizedToUpdate(Request $request): bool
+    {
+        return $request->user()->canAccessNovaGeneralSettings();
+    }
+
+    public function authorizedToDelete(Request $request): bool
+    {
+        return $request->user()->canAccessNovaGeneralSettings();
+    }
+
     /**
      * Get the fields displayed by the resource.
      *

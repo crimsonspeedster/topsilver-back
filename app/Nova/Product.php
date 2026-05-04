@@ -49,6 +49,11 @@ class Product extends Resource
         'sluggable.slug',
     ];
 
+    public static function authorizedToCreate(Request $request): bool
+    {
+        return false;
+    }
+
     /**
      * Get the fields displayed by the resource.
      *

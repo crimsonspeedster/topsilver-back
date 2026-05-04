@@ -37,10 +37,10 @@ class Profile extends Resource
         'id', 'name'
     ];
 
-//    public static function availableForNavigation($request): bool
-//    {
-//        return false;
-//    }
+    public static function availableForNavigation($request): bool
+    {
+        return false;
+    }
 
     /**
      * Get the fields displayed by the resource.

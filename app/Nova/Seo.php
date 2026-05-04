@@ -33,8 +33,15 @@ class Seo extends Resource
      * @var array
      */
     public static $search = [
-        'id', 'title', 'keywords',
+        'id',
+        'title',
+        'keywords',
     ];
+
+    public static function availableForNavigation($request): bool
+    {
+        return false;
+    }
 
     /**
      * Get the fields displayed by the resource.

@@ -38,6 +38,21 @@ class PaymentMethod extends Resource
         'name',
     ];
 
+    public static function authorizedToCreate(Request $request): bool
+    {
+        return $request->user()->canAccessNovaShopSettings();
+    }
+
+    public function authorizedToUpdate(Request $request): bool
+    {
+        return $request->user()->canAccessNovaShopSettings();
+    }
+
+    public function authorizedToDelete(Request $request): bool
+    {
+        return $request->user()->canAccessNovaShopSettings();
+    }
+
     /**
      * Get the fields displayed by the resource.
      *
