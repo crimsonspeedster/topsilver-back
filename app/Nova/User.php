@@ -6,6 +6,8 @@ use App\Enums\UserRoles;
 use Illuminate\Http\Request;
 use Laravel\Nova\Auth\PasswordValidationRules;
 use Laravel\Nova\Fields\Gravatar;
+use Laravel\Nova\Fields\HasMany;
+use Laravel\Nova\Fields\HasOne;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Password;
 use Laravel\Nova\Fields\Select;
@@ -28,7 +30,7 @@ class User extends Resource
      *
      * @var string
      */
-    public static $title = 'name';
+    public static $title = 'phone';
 
     /**
      * The columns that should be searched.
@@ -36,7 +38,7 @@ class User extends Resource
      * @var array
      */
     public static $search = [
-        'id', 'name', 'email',
+        'id', 'email', 'phone',
     ];
 
     /**
@@ -49,26 +51,41 @@ class User extends Resource
         return [
             ID::make()->sortable(),
 
-            Gravatar::make()->maxWidth(50),
-
-            Text::make('Name')
-                ->sortable()
-                ->rules('required', 'max:255'),
-
             Text::make('Email')
                 ->sortable()
                 ->rules('required', 'email', 'max:254')
                 ->creationRules('unique:users,email')
                 ->updateRules('unique:users,email,{{resourceId}}'),
 
+            Text::make('Phone')
+                ->rules(
+                    'required',
+                    'string',
+                    'unique:users,phone,{{resourceId}}',
+                    'regex:/^\+?[0-9]{9,15}$/'
+                )
+                ->creationRules(
+                    'unique:users,phone'
+                )
+                ->updateRules(
+                    'unique:users,phone,{{resourceId}}'
+                ),
+
             Select::make('Role')
-                ->options(UserRoles::cases())
+                ->options(UserRoles::options())
+                ->displayUsingLabels()
                 ->rules('required'),
 
             Password::make('Password')
                 ->onlyOnForms()
                 ->creationRules($this->passwordRules())
                 ->updateRules($this->optionalPasswordRules()),
+
+            HasOne::make('Profile', 'profile', Profile::class),
+
+            HasMany::make('Orders', 'orders', Order::class),
+
+            HasMany::make('Bonuses', 'bonuses', Bonus::class),
         ];
     }
 

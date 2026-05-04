@@ -15,10 +15,12 @@ class PaymentMethod extends Model
         'description',
         'type',
         'active',
+        'config',
     ];
 
     protected $casts = [
         'active' => 'boolean',
         'type' => PaymentMethods::class,
+        'config' => 'encrypted:array',
     ];
 }

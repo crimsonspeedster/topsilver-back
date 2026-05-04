@@ -55,4 +55,14 @@ class User extends Authenticatable implements MustVerifyEmail
             Profile::class,
         );
     }
+
+    public function canAccessNova(): bool
+    {
+        return in_array($this->role, [
+            UserRoles::Admin,
+            UserRoles::Developer,
+            UserRoles::ContentManager,
+            UserRoles::ShopManager,
+        ]);
+    }
 }

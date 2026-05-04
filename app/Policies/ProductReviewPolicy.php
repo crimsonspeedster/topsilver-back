@@ -11,7 +11,32 @@ use App\Models\User;
 
 class ProductReviewPolicy
 {
-    public function create(User $user, Product $product): bool
+    public function viewAny(User $user): bool
+    {
+        return true;
+    }
+
+    public function view(User $user, ProductReview $review): bool
+    {
+        return true;
+    }
+
+    public function create(User $user): bool
+    {
+       return true;
+    }
+
+    public function update(User $user, ProductReview $review): bool
+    {
+       return true;
+    }
+
+    public function delete(User $user, ProductReview $review): bool
+    {
+       return true;
+    }
+
+    public function createForProduct(User $user, Product $product): bool
     {
         if (in_array($user->role, [UserRoles::Admin, UserRoles::Developer])) {
             return true;
@@ -26,6 +51,10 @@ class ProductReviewPolicy
 
     public function reply(User $user, ProductReview $review): bool
     {
+        if (in_array($user->role, [UserRoles::Admin, UserRoles::Developer])) {
+            return true;
+        }
+
         return $review->user_id === $user->id;
     }
 

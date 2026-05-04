@@ -19,4 +19,13 @@ enum OrderStatus: string
             fn(self $case) => $case !== self::PENDING_PAYMENT
         );
     }
+
+    public static function options(): array
+    {
+        return collect(self::cases())
+            ->mapWithKeys(fn ($case) => [
+                $case->value => ucfirst(str_replace('_', ' ', $case->name)),
+            ])
+            ->toArray();
+    }
 }

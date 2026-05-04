@@ -15,6 +15,7 @@ class Seo extends Model
         'entity_type',
         'title',
         'description',
+        'robots',
         'keywords',
     ];
 

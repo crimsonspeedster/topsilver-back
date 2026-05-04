@@ -31,6 +31,7 @@ class Product extends Model implements HasMedia
         'price_on_sale' => 'decimal:2',
         'rating_avg' => 'decimal:2',
         'rating_count' => 'integer',
+        'selling_count' => 'integer',
     ];
 
     protected $fillable = [

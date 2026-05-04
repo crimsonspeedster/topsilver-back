@@ -91,7 +91,7 @@ class ReviewsController extends Controller
             ], 201);
         }
 
-        Gate::authorize('create', [ProductReview::class, $product]);
+        Gate::authorize('createForProduct', [ProductReview::class, $product]);
 
         $orderItem = OrderItem::where('product_id', $product->id)
             ->whereHas('order', function ($q) use ($user) {
