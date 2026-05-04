@@ -37,10 +37,11 @@ class OrderItem extends Resource
         'product_name'
     ];
 
-    public static function availableForNavigation($request): bool
-    {
-        return false;
-    }
+    public static $displayInNavigation = false;
+
+    public static $group = 'Shop';
+
+    public static $showColumnBorders = true;
 
     public static function authorizedToCreate(Request $request): bool
     {
@@ -49,12 +50,12 @@ class OrderItem extends Resource
 
     public function authorizedToUpdate(Request $request): bool
     {
-        return $request->user()->canAccessNovaShopSettings();
+        return $request->user()?->canAccessNovaShopSettings() ?? false;
     }
 
     public function authorizedToDelete(Request $request): bool
     {
-        return $request->user()->canAccessNovaShopSettings();
+        return $request->user()?->canAccessNovaShopSettings() ?? false;
     }
 
     /**

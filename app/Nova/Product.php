@@ -49,6 +49,10 @@ class Product extends Resource
         'sluggable.slug',
     ];
 
+    public static $group = 'Shop';
+
+    public static $showColumnBorders = true;
+
     public static function authorizedToCreate(Request $request): bool
     {
         return false;
@@ -71,7 +75,7 @@ class Product extends Resource
                 ->sortable()
                 ->rules(
                     'required',
-                    'unique:products,sku',
+                    'unique:products,sku,{{resourceId}}'
                 ),
 
             Select::make('Status')
@@ -138,10 +142,7 @@ class Product extends Resource
                 })
                 ->preview(fn ($value, $disk, $model) => $model->getFirstMediaUrl('main_image'))
                 ->thumbnail(fn ($value, $disk, $model) => $model->getFirstMediaUrl('main_image'))
-                ->disableDownload()
-                ->rules(
-                    'required',
-                ),
+                ->disableDownload(),
 
             HasMany::make('Variants', 'variants', ProductVariant::class),
 

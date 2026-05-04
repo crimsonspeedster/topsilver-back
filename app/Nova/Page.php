@@ -39,6 +39,10 @@ class Page extends Resource
         'title',
     ];
 
+    public static $group = 'Content';
+
+    public static $showColumnBorders = true;
+
     /**
      * Get the fields displayed by the resource.
      *
@@ -60,7 +64,8 @@ class Page extends Resource
 
             DateTime::make('Published At', 'published_at')
                 ->exceptOnForms()
-                ->readonly(),
+                ->readonly()
+                ->sortable(),
 
             MorphOne::make('Seo', 'seo', Seo::class),
 

@@ -42,6 +42,10 @@ class User extends Resource
         'id', 'email', 'phone',
     ];
 
+    public static $group = 'Users';
+
+    public static $showColumnBorders = true;
+
     /**
      * Get the fields displayed by the resource.
      *

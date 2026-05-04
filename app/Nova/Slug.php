@@ -35,10 +35,11 @@ class Slug extends Resource
         'slug',
     ];
 
-    public static function availableForNavigation($request): bool
-    {
-        return false;
-    }
+    public static $displayInNavigation = false;
+
+    public static $group = 'Content';
+
+    public static $showColumnBorders = true;
 
     /**
      * Get the fields displayed by the resource.

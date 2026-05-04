@@ -37,10 +37,11 @@ class Profile extends Resource
         'id', 'name'
     ];
 
-    public static function availableForNavigation($request): bool
-    {
-        return false;
-    }
+    public static $displayInNavigation = false;
+
+    public static $group = 'Users';
+
+    public static $showColumnBorders = true;
 
     /**
      * Get the fields displayed by the resource.

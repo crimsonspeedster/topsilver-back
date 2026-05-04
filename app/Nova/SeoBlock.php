@@ -35,6 +35,10 @@ class SeoBlock extends Resource
         'title',
     ];
 
+    public static $group = 'Content';
+
+    public static $showColumnBorders = true;
+
     /**
      * Get the fields displayed by the resource.
      *

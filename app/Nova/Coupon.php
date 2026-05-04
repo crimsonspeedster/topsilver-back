@@ -38,6 +38,10 @@ class Coupon extends Resource
         'id', 'code',
     ];
 
+    public static $group = 'Shop';
+
+    public static $showColumnBorders = true;
+
     public static function authorizedToCreate(Request $request): bool
     {
         return false;
@@ -45,12 +49,12 @@ class Coupon extends Resource
 
     public function authorizedToUpdate(Request $request): bool
     {
-        return $request->user()->canAccessNovaShopSettings();
+        return $request->user()?->canAccessNovaShopSettings() ?? false;
     }
 
     public function authorizedToDelete(Request $request): bool
     {
-        return $request->user()->canAccessNovaShopSettings();
+        return $request->user()?->canAccessNovaShopSettings() ?? false;
     }
 
     /**

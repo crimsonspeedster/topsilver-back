@@ -38,19 +38,23 @@ class Setting extends Resource
         'key'
     ];
 
+    public static $group = 'Content';
+
+    public static $showColumnBorders = true;
+
     public static function authorizedToCreate(Request $request): bool
     {
-        return $request->user()->canAccessNovaGeneralSettings();
+        return $request->user()?->canAccessNovaGeneralSettings() ?? false;
     }
 
     public function authorizedToUpdate(Request $request): bool
     {
-        return $request->user()->canAccessNovaGeneralSettings();
+        return $request->user()?->canAccessNovaGeneralSettings() ?? false;
     }
 
     public function authorizedToDelete(Request $request): bool
     {
-        return $request->user()->canAccessNovaGeneralSettings();
+        return $request->user()?->canAccessNovaGeneralSettings() ?? false;
     }
 
     /**

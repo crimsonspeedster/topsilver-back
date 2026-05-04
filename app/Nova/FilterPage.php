@@ -38,6 +38,10 @@ class FilterPage extends Resource
         'title',
     ];
 
+    public static $group = 'Shop';
+
+    public static $showColumnBorders = true;
+
     /**
      * Get the fields displayed by the resource.
      *

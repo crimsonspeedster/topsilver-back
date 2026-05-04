@@ -33,6 +33,10 @@ class Collection extends Resource
         'id',
     ];
 
+    public static $group = 'Shop';
+
+    public static $showColumnBorders = true;
+
     public static function authorizedToCreate(Request $request): bool
     {
         return false;

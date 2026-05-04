@@ -33,10 +33,11 @@ class BundleItem extends Resource
         'id',
     ];
 
-    public static function availableForNavigation($request): bool
-    {
-        return false;
-    }
+    public static $group = 'Shop';
+
+    public static $showColumnBorders = true;
+
+    public static $displayInNavigation = false;
 
     public static function authorizedToCreate(Request $request): bool
     {
@@ -45,12 +46,12 @@ class BundleItem extends Resource
 
     public function authorizedToUpdate(Request $request): bool
     {
-        return $request->user()->canAccessNovaShopSettings();
+        return $request->user()?->canAccessNovaShopSettings() ?? false;
     }
 
     public function authorizedToDelete(Request $request): bool
     {
-        return $request->user()->canAccessNovaShopSettings();
+        return $request->user()?->canAccessNovaShopSettings() ?? false;
     }
 
     /**

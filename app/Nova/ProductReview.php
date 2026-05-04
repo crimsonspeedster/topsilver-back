@@ -40,6 +40,10 @@ class ProductReview extends Resource
         'user.phone',
     ];
 
+    public static $group = 'Shop';
+
+    public static $showColumnBorders = true;
+
     /**
      * Get the fields displayed by the resource.
      *

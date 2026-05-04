@@ -36,6 +36,10 @@ class Category extends Resource
         'title',
     ];
 
+    public static $group = 'Shop';
+
+    public static $showColumnBorders = true;
+
     public static function authorizedToCreate(Request $request): bool
     {
         return false;
