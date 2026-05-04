@@ -19,7 +19,6 @@ abstract class Taxonomy extends Model implements TaxonomyInterface, HasMedia
         HasSeo,
         HasSeoBlock,
         HasSlug,
-        HasPublishedAt,
         HasBasicSeo,
         HasTaxonomyHierarchy,
         InteractsWithMedia;

@@ -6,7 +6,10 @@ use App\Enums\EntityStatus;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\DateTime;
+use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\ID;
+use Laravel\Nova\Fields\Image;
+use Laravel\Nova\Fields\Markdown;
 use Laravel\Nova\Fields\MorphOne;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
@@ -26,7 +29,7 @@ class FilterPage extends Resource
      *
      * @var string
      */
-    public static $title = 'id';
+    public static $title = 'title';
 
     /**
      * The columns that should be searched.
@@ -56,6 +59,14 @@ class FilterPage extends Resource
                 ->sortable()
                 ->rules('required'),
 
+            Markdown::make('Description'),
+
+            Image::make('Image')
+                ->store($this->imageStoreCallback())
+                ->preview(fn ($value, $disk, $model) => $model->getFirstMediaUrl('main_image'))
+                ->thumbnail(fn ($value, $disk, $model) => $model->getFirstMediaUrl('main_image'))
+                ->disableDownload(),
+
             Select::make('Status')
                 ->options(EntityStatus::options())
                 ->displayUsingLabels()
@@ -74,7 +85,20 @@ class FilterPage extends Resource
             MorphOne::make('Seo', 'seo', Seo::class),
 
             MorphOne::make('SeoBlock', 'seoBlock', SeoBlock::class),
+
+            HasMany::make('Filters', 'filters', FilterPageFilter::class),
         ];
+    }
+
+    protected function imageStoreCallback(): callable
+    {
+        return function ($request, $model, $attribute) {
+            if ($request->hasFile($attribute)) {
+                $model->addMediaFromRequest($attribute)->toMediaCollection('main_image');
+            }
+
+            return [];
+        };
     }
 
     /**

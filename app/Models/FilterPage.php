@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\EntityStatus;
+use App\Traits\HasBasicSeo;
 use App\Traits\HasPublishedAt;
 use App\Traits\HasSeo;
 use App\Traits\HasSeoBlock;
@@ -10,15 +11,24 @@ use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class FilterPage extends Model
+class FilterPage extends Model implements HasMedia
 {
-    use HasFactory, HasSlug, HasSeo, HasPublishedAt, HasSeoBlock;
+    use HasFactory,
+        HasSlug,
+        HasSeo,
+        HasPublishedAt,
+        HasSeoBlock,
+        HasBasicSeo,
+        InteractsWithMedia;
 
     protected $fillable = [
         'category_id',
         'title',
+        'description',
         'status',
         'published_at',
     ];
@@ -37,8 +47,10 @@ class FilterPage extends Model
         );
     }
 
-    public function getSeoTitle(): string
+    public function filters(): HasMany
     {
-        return $this->title;
+        return $this->hasMany(
+            FilterPageFilter::class,
+        );
     }
 }

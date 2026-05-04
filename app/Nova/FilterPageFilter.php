@@ -2,30 +2,25 @@
 
 namespace App\Nova;
 
-use App\Enums\AttributeTypes;
 use Illuminate\Http\Request;
-use Laravel\Nova\Fields\HasMany;
-use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Select;
-use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\Slug;
+use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class Attribute extends Resource
+class FilterPageFilter extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\App\Models\Attribute>
+     * @var class-string<\App\Models\FilterPageFilter>
      */
-    public static $model = \App\Models\Attribute::class;
+    public static $model = \App\Models\FilterPageFilter::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
      *
      * @var string
      */
-    public static $title = 'title';
+    public static $title = 'id';
 
     /**
      * The columns that should be searched.
@@ -34,17 +29,13 @@ class Attribute extends Resource
      */
     public static $search = [
         'id',
-        'title'
     ];
 
     public static $group = 'Shop';
 
     public static $showColumnBorders = true;
 
-    public static function authorizedToCreate(Request $request): bool
-    {
-        return false;
-    }
+    public static $displayInNavigation = false;
 
     /**
      * Get the fields displayed by the resource.
@@ -54,26 +45,27 @@ class Attribute extends Resource
     public function fields(NovaRequest $request): array
     {
         return [
-            ID::make()->sortable(),
-
-            Text::make('Title')
-                ->rules(
-                    'required',
-                ),
-
-            Slug::make('Slug')
-                ->from('Title')
-                ->rules(
-                    'required',
-                    'unique:attributes,slug,{{resourceId}}'
-                ),
-
-            Select::make('Type')
-                ->options(AttributeTypes::options())
-                ->displayUsingLabels()
+            BelongsTo::make('Attribute', 'attribute', Attribute::class)
+                ->searchable()
+                ->sortable()
                 ->rules('required'),
 
-            HasMany::make('Terms', 'terms', AttributeTerm::class),
+            BelongsTo::make('Term', 'attributeTerm', AttributeTerm::class)
+                ->dependsOn(['attribute'], function ($field, $request, $formData) {
+                    if (!empty($formData->attribute)) {
+                        $field->relatableQueryUsing(function ($request, $query) use ($formData) {
+                            $query->where('attribute_id', $formData->attribute);
+                        });
+                    }
+                })
+                ->sortable()
+                ->searchable()
+                ->rules('required'),
+
+            BelongsTo::make('Filter Page', 'filterPage', FilterPage::class)
+                ->searchable()
+                ->sortable()
+                ->rules('required'),
         ];
     }
 

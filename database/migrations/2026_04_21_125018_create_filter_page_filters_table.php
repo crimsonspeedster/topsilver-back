@@ -12,6 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('filter_page_filters', function (Blueprint $table) {
+            $table->id();
+
             $table->unsignedBigInteger('filter_page_id')->index();
             $table->unsignedBigInteger('attribute_id')->index();
             $table->unsignedBigInteger('attribute_term_id')->index();
@@ -20,7 +22,11 @@ return new class extends Migration
             $table->foreign('attribute_id')->references('id')->on('attributes')->onDelete('cascade');
             $table->foreign('attribute_term_id')->references('id')->on('attribute_terms')->onDelete('cascade');
 
-            $table->primary(['filter_page_id', 'attribute_id', 'attribute_term_id']);
+            $table->unique(
+                ['filter_page_id', 'attribute_id', 'attribute_term_id'],
+                'fp_filters_unique'
+            );
+
             $table->index(['filter_page_id', 'attribute_id']);
         });
     }

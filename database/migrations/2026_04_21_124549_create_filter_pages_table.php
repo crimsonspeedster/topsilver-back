@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('category_id')->index();
             $table->string('title');
+            $table->text('description')->nullable();
             $table->string('status')->default('draft');
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
