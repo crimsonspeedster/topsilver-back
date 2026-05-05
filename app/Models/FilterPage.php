@@ -53,4 +53,12 @@ class FilterPage extends Model implements HasMedia
             FilterPageFilter::class,
         );
     }
+
+    public function registerMediaCollections(): void
+    {
+        $this
+            ->addMediaCollection('main_image')
+            ->singleFile()
+            ->useFallbackUrl('/images/fallback-taxonomy.png');
+    }
 }
