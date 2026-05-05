@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\Auth\EmailVerificationController;
 use App\Http\Controllers\Api\V1\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\CheckoutController;
 use App\Http\Controllers\Api\V1\LiqPayController;
+use App\Http\Controllers\Api\V1\MenuController;
 use App\Http\Controllers\Api\V1\MonopayController;
 use App\Http\Controllers\Api\V1\NPController;
 use App\Http\Controllers\Api\V1\ReviewsController;
@@ -26,6 +27,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     Route::get('/slug-resolver/{slug}', [SlugResolverController::class, 'resolver']);
+
+    Route::get('/menus', [MenuController::class, 'index']);
+    Route::get('/menus/{location:name}', [MenuController::class, 'show']);
 
     Route::get('/settings', [SettingsController::class, 'index']);
     Route::get('/settings/{key}', [SettingsController::class, 'show']);
