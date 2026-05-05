@@ -4,8 +4,66 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "72e6008c6eb2d47d45b37f3c92782baf",
+    "content-hash": "713200737e35455069c5f2875e80496e",
     "packages": [
+        {
+            "name": "ardenthq/nova-image-gallery-field",
+            "version": "dev-nova5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ArdentHQ/nova-image-gallery-field.git",
+                "reference": "52db05e311e6859c2806e8365306fa8cb174f5a0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ArdentHQ/nova-image-gallery-field/zipball/52db05e311e6859c2806e8365306fa8cb174f5a0",
+                "reference": "52db05e311e6859c2806e8365306fa8cb174f5a0",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": "^9.0|^10.0|^11.0|^12.0",
+                "laravel/nova": "^4.22|^5.0",
+                "php": "^8.2",
+                "spatie/laravel-medialibrary": "^10.5|^11.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.11",
+                "orchestra/testbench": "^7.9|^8.0|^9.0",
+                "pestphp/pest": "^1.22|^2.0",
+                "phpstan/phpstan": "^1.8",
+                "rector/rector": "^0.14|^1.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Ardenthq\\ImageGalleryField\\FieldServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Ardenthq\\ImageGalleryField\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Alfonso",
+                    "email": "alfonso@ardenthq.com"
+                }
+            ],
+            "description": "Field for Nova that allows you to upload multiple images and sort them",
+            "support": {
+                "issues": "https://github.com/ArdentHQ/nova-image-gallery-field/issues",
+                "source": "https://github.com/ArdentHQ/nova-image-gallery-field/tree/nova5"
+            },
+            "abandoned": true,
+            "time": "2025-06-26T08:59:44+00:00"
+        },
         {
             "name": "bacon/bacon-qr-code",
             "version": "v3.1.1",
@@ -10315,7 +10373,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "ardenthq/nova-image-gallery-field": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

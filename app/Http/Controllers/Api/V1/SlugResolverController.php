@@ -6,20 +6,22 @@ use App\Enums\EntityStatus;
 use App\Enums\ReviewStatus;
 use App\Enums\TaxonomySort;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ContentEntityResource;
 use App\Http\Resources\FilterPageResource;
-use App\Http\Resources\PageResource;
 use App\Http\Resources\PaginationResource;
 use App\Http\Resources\Product\ProductCardResource;
 use App\Http\Resources\Product\ProductPDPResource;
 use App\Http\Resources\ProductReviewResource;
 use App\Http\Resources\TaxonomyResource;
-use App\Interfaces\TaxonomyInterface;
 use App\Models\Category;
 use App\Models\Collection;
+use App\Models\ContentEntity;
 use App\Models\FilterPage;
 use App\Models\Page;
+use App\Models\Post;
 use App\Models\Product;
 use App\Models\Slug;
+use App\Models\TaxonomyEntity;
 use App\Services\FilterService;
 use App\Services\TaxonomyService;
 
@@ -38,7 +40,8 @@ class SlugResolverController extends Controller
         return match (true) {
             $entity instanceof Product => $this->resolverProduct($entity),
 
-            $entity instanceof Page => $this->resolverPage($entity),
+            $entity instanceof Post,
+            $entity instanceof Page => $this->resolverContentEntity($entity),
 
             $entity instanceof Category,
             $entity instanceof Collection => $this->resolverTaxonomy($entity),
@@ -47,19 +50,20 @@ class SlugResolverController extends Controller
         };
     }
 
-    private function resolverPage (Page $page)
+    private function resolverContentEntity (ContentEntity $entity)
     {
-        abort_unless($page->status === EntityStatus::Published, 404);
+        abort_unless($entity->status === EntityStatus::Published, 404);
 
-        $page->load([
+        $entity->load([
             'seo',
             'seoBlock',
+            'media'
         ]);
 
         return response()->json([
             'data' => [
-                'type' => 'page',
-                'page' => new PageResource($page),
+                'type' => $entity->getType(),
+                'entity' => new ContentEntityResource($entity),
             ],
         ]);
     }
@@ -103,7 +107,7 @@ class SlugResolverController extends Controller
         return response()->json([
             'data' => [
                 'type' => 'product',
-                'product' => new ProductPDPResource($product),
+                'entity' => new ProductPDPResource($product),
                 'reviews' => ProductReviewResource::collection($reviews),
                 'reviews_pagination' => [
                     'total' => $reviewsCount,
@@ -113,7 +117,7 @@ class SlugResolverController extends Controller
         ]);
     }
 
-    private function resolverTaxonomy (TaxonomyInterface $taxonomy)
+    private function resolverTaxonomy (TaxonomyEntity $taxonomy)
     {
         $sort = TaxonomySort::tryFrom(request('sort', 'newest'))
                 ?? TaxonomySort::NEWEST;
@@ -128,7 +132,7 @@ class SlugResolverController extends Controller
         return response()->json([
             'data' => [
                 'type' => $taxonomy->getType(),
-                'category' => new TaxonomyResource($taxonomy),
+                'entity' => new TaxonomyResource($taxonomy),
                 'products' => ProductCardResource::collection($products->items()),
                 'pagination' => new PaginationResource($products),
                 'filters' => $filters,
@@ -153,7 +157,7 @@ class SlugResolverController extends Controller
         return response()->json([
             'data' => [
                 'type' => 'filter_page',
-                'filter_page' => new FilterPageResource($filterPage),
+                'entity' => new FilterPageResource($filterPage),
                 'products' => ProductCardResource::collection($products->items()),
                 'pagination' => new PaginationResource($products),
                 'filters' => $filters,

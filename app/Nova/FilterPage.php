@@ -63,8 +63,8 @@ class FilterPage extends Resource
 
             Image::make('Image')
                 ->store($this->imageStoreCallback())
-                ->preview(fn ($value, $disk, $model) => $model->getFirstMediaUrl('main_image'))
-                ->thumbnail(fn ($value, $disk, $model) => $model->getFirstMediaUrl('main_image'))
+                ->preview(fn ($value, $disk, $model) => $model->getFirstMediaUrl('media'))
+                ->thumbnail(fn ($value, $disk, $model) => $model->getFirstMediaUrl('media'))
                 ->disableDownload(),
 
             Select::make('Status')
@@ -94,7 +94,7 @@ class FilterPage extends Resource
     {
         return function ($request, $model, $attribute) {
             if ($request->hasFile($attribute)) {
-                $model->addMediaFromRequest($attribute)->toMediaCollection('main_image');
+                $model->addMediaFromRequest($attribute)->toMediaCollection('media');
             }
 
             return [];

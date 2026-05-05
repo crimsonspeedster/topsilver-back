@@ -57,13 +57,11 @@ class Product extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this
-            ->addMediaCollection('main_image')
-            ->singleFile()
-            ->useFallbackUrl('/images/fallback-product.png');
+            ->addMediaCollection('media')
+            ->singleFile();
 
         $this
-            ->addMediaCollection('gallery')
-            ->useFallbackUrl('/images/fallback-product.png');
+            ->addMediaCollection('gallery');
     }
 
     public function variants (): HasMany

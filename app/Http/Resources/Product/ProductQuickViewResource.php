@@ -2,6 +2,7 @@
 namespace App\Http\Resources\Product;
 
 use App\Enums\ProductTypes;
+use App\Http\Resources\MediaResource;
 use App\Http\Resources\ProductVariantResource;
 use App\Http\Resources\TaxonomyCollectionResource;
 use App\Models\Product;
@@ -24,7 +25,7 @@ class ProductQuickViewResource extends JsonResource
             'slug' => $this->whenLoaded('sluggable')?->slug,
             'title' => $this->title,
             'short_description' => $this->short_description,
-            'image' => $this->getFirstMediaUrl('main_image'),
+            'media' => new MediaResource($this->getMedia('media')),
             'price' => $this->price,
             'price_on_sale' => $this->price_on_sale,
             'price_formatted' => $currency->format($this->price)->format(),

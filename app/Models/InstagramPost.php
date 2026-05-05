@@ -24,7 +24,6 @@ class InstagramPost extends Model implements HasMedia
     {
         $this
             ->addMediaCollection('media')
-            ->singleFile()
-            ->useFallbackUrl('/images/fallback-instagram.png');
+            ->singleFile();
     }
 }

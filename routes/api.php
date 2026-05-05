@@ -6,7 +6,6 @@ use App\Http\Controllers\Api\V1\CheckoutController;
 use App\Http\Controllers\Api\V1\LiqPayController;
 use App\Http\Controllers\Api\V1\MonopayController;
 use App\Http\Controllers\Api\V1\NPController;
-use App\Http\Controllers\Api\V1\PageController;
 use App\Http\Controllers\Api\V1\ReviewsController;
 use App\Http\Controllers\Api\V1\User\OrdersController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
@@ -35,8 +34,6 @@ Route::prefix('v1')->group(function () {
     Route::get('/products/{product}', [ProductsController::class, 'preview']);
     Route::get('/products/{product}/reviews', [ReviewsController::class, 'index']);
     Route::get('/reviews/{review}', [ReviewsController::class, 'replies']);
-
-    Route::get('/pages/{page}', [PageController::class, 'show']);
 
     Route::middleware('throttle:login')->post('/login', LoginController::class);
     Route::middleware('throttle:register')->post('/register', RegisterController::class);

@@ -4,6 +4,7 @@ namespace App\Nova;
 
 use App\Enums\EntityStatus;
 use App\Enums\StockStatus;
+use Ardenthq\ImageGalleryField\ImageGalleryField;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsToMany;
 use Laravel\Nova\Fields\Boolean;
@@ -135,14 +136,18 @@ class Product extends Resource
             Image::make('Image')
                 ->store(function ($request, $model, $attribute) {
                     if ($request->hasFile($attribute)) {
-                        $model->addMediaFromRequest($attribute)->toMediaCollection('main_image');
+                        $model->addMediaFromRequest($attribute)->toMediaCollection('media');
                     }
 
                     return [];
                 })
-                ->preview(fn ($value, $disk, $model) => $model->getFirstMediaUrl('main_image'))
-                ->thumbnail(fn ($value, $disk, $model) => $model->getFirstMediaUrl('main_image'))
+                ->preview(fn ($value, $disk, $model) => $model->getFirstMediaUrl('media'))
+                ->thumbnail(fn ($value, $disk, $model) => $model->getFirstMediaUrl('media'))
                 ->disableDownload(),
+
+            ImageGalleryField::make('Gallery')
+                ->rules('mimes:jpeg,png,jpg,gif', 'max:5000')
+                ->help('Max filesize 5MB.'),
 
             HasMany::make('Variants', 'variants', ProductVariant::class),
 

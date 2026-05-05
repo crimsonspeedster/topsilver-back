@@ -23,15 +23,7 @@ class CollectionSeeder extends Seeder
     {
         $collection
             ->addMedia($this->fakeImage())
-            ->toMediaCollection('main_image');
-
-        $count = rand(3, 6);
-
-        for ($i = 0; $i < $count; $i++) {
-            $collection
-                ->addMedia($this->fakeImage())
-                ->toMediaCollection('gallery');
-        }
+            ->toMediaCollection('media');
     }
 
     private function fakeImage(): string

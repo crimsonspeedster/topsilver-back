@@ -1,7 +1,7 @@
 <?php
 namespace App\Interfaces;
 
-interface TaxonomyInterface
+interface ContentEntityInterface
 {
     public function getType(): string;
 }

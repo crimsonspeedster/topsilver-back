@@ -2,6 +2,7 @@
 namespace App\Http\Resources\Product;
 
 use App\Http\Resources\LabelResource;
+use App\Http\Resources\MediaResource;
 use App\Models\Product;
 use App\Services\CurrencyService;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -25,7 +26,7 @@ class ProductCardResource extends JsonResource
             'price_formatted' => $currency->format($this->price)->format(),
             'price_on_sale_formatted' => $this->price_on_sale ? $currency->format($this->price_on_sale)->format(): null,
             'labels' => LabelResource::collection($this->whenLoaded('labels')),
-            'image' => $this->getFirstMediaUrl('main_image'),
+            'media' => new MediaResource($this->getFirstMedia('media')),
             'stock_status' => $this->stock_status,
             'stock' => $this->stock,
             'manage_stock' => $this->manage_stock,

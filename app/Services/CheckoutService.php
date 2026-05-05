@@ -257,7 +257,7 @@ class CheckoutService
             $order->items()->create([
                 'product_id' => $product->id,
                 'product_name' => $product->title,
-                'product_image' => $product->getFirstMediaUrl('main_image'),
+                'product_image' => $product->getFirstMediaUrl('media'),
                 'product_price' => $price,
                 'product_variant' => $variant?->toArray() ?? [],
                 'quantity' => $item->quantity,

@@ -35,6 +35,8 @@ class SeoBlock extends Resource
         'title',
     ];
 
+    public static $displayInNavigation = false;
+
     public static $group = 'Content';
 
     public static $showColumnBorders = true;

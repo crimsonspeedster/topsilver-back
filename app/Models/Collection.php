@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Collection extends Taxonomy
+class Collection extends TaxonomyEntity
 {
     public function getType(): string
     {

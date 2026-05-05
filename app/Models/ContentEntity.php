@@ -1,41 +1,43 @@
 <?php
 namespace App\Models;
 
-use App\Traits\HasBasicSeo;
-use App\Traits\HasPublishedAt;
+use App\Enums\EntityStatus;
+use App\Interfaces\ContentEntityInterface;
 use App\Traits\HasSeo;
 use App\Traits\HasSeoBlock;
 use App\Traits\HasSlug;
-use App\Traits\HasTaxonomyHierarchy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Interfaces\TaxonomyInterface;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-abstract class Taxonomy extends Model implements TaxonomyInterface, HasMedia
+abstract class ContentEntity extends Model implements HasMedia, ContentEntityInterface
 {
     use HasFactory,
         HasSeo,
         HasSeoBlock,
         HasSlug,
-        HasBasicSeo,
-        HasTaxonomyHierarchy,
         InteractsWithMedia;
+
+    protected $casts = [
+        'published_at' => 'datetime',
+        'content' => 'array',
+        'status' => EntityStatus::class,
+    ];
 
     protected $fillable = [
         'title',
-        'parent_id',
-        'description',
+        'short_description',
+        'content',
+        'status',
+        'published_at',
     ];
-
-    abstract public function getType(): string;
 
     public function registerMediaCollections(): void
     {
         $this
-            ->addMediaCollection('main_image')
-            ->singleFile()
-            ->useFallbackUrl('/images/fallback-taxonomy.png');
+            ->addMediaCollection('media')
+            ->singleFile();
     }
 }

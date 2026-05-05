@@ -1,10 +1,10 @@
 <?php
 namespace App\Models;
 
-class Page extends ContentEntity
+class Post extends ContentEntity
 {
     public function getType(): string
     {
-        return 'page';
+        return 'post';
     }
 }

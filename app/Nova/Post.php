@@ -2,30 +2,21 @@
 
 namespace App\Nova;
 
-use App\Enums\EntityStatus;
 use App\Traits\HasContentCollectionFields;
 use Illuminate\Http\Request;
-use Laravel\Nova\Fields\Date;
-use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Image;
-use Laravel\Nova\Fields\MorphOne;
-use Laravel\Nova\Fields\MorphTo;
-use Laravel\Nova\Fields\Select;
-use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class Page extends Resource
+class Post extends Resource
 {
     use HasContentCollectionFields;
 
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\App\Models\Page>
+     * @var class-string<\App\Models\Post>
      */
-    public static $model = \App\Models\Page::class;
+    public static $model = \App\Models\Post::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.

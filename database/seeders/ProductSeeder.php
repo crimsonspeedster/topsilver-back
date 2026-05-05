@@ -116,7 +116,7 @@ class ProductSeeder extends Seeder
     {
         $product
             ->addMedia($this->fakeImage())
-            ->toMediaCollection('main_image');
+            ->toMediaCollection('media');
 
         $count = rand(3, 6);
 

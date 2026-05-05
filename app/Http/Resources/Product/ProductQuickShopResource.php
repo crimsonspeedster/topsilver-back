@@ -2,6 +2,7 @@
 namespace App\Http\Resources\Product;
 
 use App\Enums\ProductTypes;
+use App\Http\Resources\MediaResource;
 use App\Http\Resources\ProductVariantResource;
 use App\Models\Product;
 use App\Services\CurrencyService;
@@ -21,7 +22,7 @@ class ProductQuickShopResource extends JsonResource
             'id' => $this->id,
             'slug' => $this->whenLoaded('sluggable')?->slug,
             'title' => $this->title,
-            'image' => $this->getFirstMediaUrl('main_image'),
+            'media' => new MediaResource($this->getMedia('media')),
             'price' => $this->price,
             'price_on_sale' => $this->price_on_sale,
             'price_formatted' => $currency->format($this->price)->format(),

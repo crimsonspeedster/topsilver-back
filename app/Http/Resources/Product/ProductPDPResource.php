@@ -29,7 +29,7 @@ class ProductPDPResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'short_description' => $this->short_description,
-            'image' => $this->getFirstMediaUrl('main_image'),
+            'media' => new MediaResource($this->getFirstMedia('media')),
             'gallery' => MediaResource::collection($this->getMedia('gallery')),
             'price' => $this->price,
             'price_on_sale' => $this->price_on_sale,

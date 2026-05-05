@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\EntityStatus;
-use App\Traits\HasBasicSeo;
 use App\Traits\HasPublishedAt;
 use App\Traits\HasSeo;
 use App\Traits\HasSeoBlock;
@@ -22,7 +21,6 @@ class FilterPage extends Model implements HasMedia
         HasSeo,
         HasPublishedAt,
         HasSeoBlock,
-        HasBasicSeo,
         InteractsWithMedia;
 
     protected $fillable = [
@@ -57,8 +55,7 @@ class FilterPage extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this
-            ->addMediaCollection('main_image')
-            ->singleFile()
-            ->useFallbackUrl('/images/fallback-taxonomy.png');
+            ->addMediaCollection('media')
+            ->singleFile();
     }
 }

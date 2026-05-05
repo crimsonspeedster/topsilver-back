@@ -2,14 +2,14 @@
 namespace App\Services;
 
 use App\Enums\TaxonomySort;
-use App\Interfaces\TaxonomyInterface;
+use App\Interfaces\ContentEntityInterface;
 
 class TaxonomyService
 {
     public function getProducts(
-        TaxonomyInterface $taxonomy,
-        TaxonomySort $sort,
-        array $selected_filters = [],
+        ContentEntityInterface $taxonomy,
+        TaxonomySort           $sort,
+        array                  $selected_filters = [],
     )
     {
         $query = $taxonomy->products()
