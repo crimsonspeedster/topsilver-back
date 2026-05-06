@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Fortify\Features;
 use Laravel\Nova\Nova;
@@ -17,7 +18,16 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     {
         parent::boot();
 
-        //
+        $this->UIBrandChanges();
+    }
+
+    protected function UIBrandChanges(): void
+    {
+        Nova::withBreadcrumbs();
+
+        Nova::footer(function () {
+            return '';
+        });
     }
 
     /**
