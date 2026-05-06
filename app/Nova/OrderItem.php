@@ -50,7 +50,7 @@ class OrderItem extends Resource
 
     public function authorizedToUpdate(Request $request): bool
     {
-        return $request->user()?->canAccessNovaShopSettings() ?? false;
+        return false;
     }
 
     public function authorizedToDelete(Request $request): bool

@@ -46,6 +46,11 @@ class Attribute extends Resource
         return false;
     }
 
+    public function authorizedToUpdate(Request $request): bool
+    {
+        return false;
+    }
+
     /**
      * Get the fields displayed by the resource.
      *

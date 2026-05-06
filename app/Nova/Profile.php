@@ -43,6 +43,21 @@ class Profile extends Resource
 
     public static $showColumnBorders = true;
 
+    public static function authorizedToCreate(Request $request): bool
+    {
+        return $request->user()?->canAccessNovaGeneralSettings() ?? false;
+    }
+
+    public function authorizedToUpdate(Request $request): bool
+    {
+        return $request->user()?->canAccessNovaGeneralSettings() ?? false;
+    }
+
+    public function authorizedToDelete(Request $request): bool
+    {
+        return $request->user()?->canAccessNovaGeneralSettings() ?? false;
+    }
+
     /**
      * Get the fields displayed by the resource.
      *

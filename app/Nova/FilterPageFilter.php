@@ -37,6 +37,21 @@ class FilterPageFilter extends Resource
 
     public static $displayInNavigation = false;
 
+    public static function authorizedToCreate(Request $request): bool
+    {
+        return $request->user()?->canAccessNovaShopSettings() ?? false;
+    }
+
+    public function authorizedToUpdate(Request $request): bool
+    {
+        return $request->user()?->canAccessNovaShopSettings() ?? false;
+    }
+
+    public function authorizedToDelete(Request $request): bool
+    {
+        return $request->user()?->canAccessNovaShopSettings() ?? false;
+    }
+
     /**
      * Get the fields displayed by the resource.
      *
