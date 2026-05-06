@@ -13,6 +13,8 @@ class CartController extends Controller
             ->load([
                 'items.product.sluggable',
                 'items.variant',
+                'coupon',
+                'certificates',
             ]);
 
         return response()->json([

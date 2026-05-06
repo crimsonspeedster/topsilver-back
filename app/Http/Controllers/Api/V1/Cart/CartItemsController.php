@@ -61,7 +61,7 @@ class CartItemsController extends Controller
                 ]);
             }
 
-            $cart = $this->cartService->recalculateTotals($cart);
+            $cart = $this->cartService->recalculateCart($cart);
 
             return response()->json([
                 'data' => new CartResource(
@@ -99,7 +99,7 @@ class CartItemsController extends Controller
                 'quantity' => $validated['quantity'],
             ]);
 
-            $cart = $this->cartService->recalculateTotals($cart);
+            $cart = $this->cartService->recalculateCart($cart);
 
             return response()->json([
                 'data' => new CartResource(
@@ -121,7 +121,7 @@ class CartItemsController extends Controller
 
             $item->delete();
 
-            $cart = $this->cartService->recalculateTotals($cart);
+            $cart = $this->cartService->recalculateCart($cart);
 
             return response()->json([
                 'data' => new CartResource(

@@ -43,6 +43,9 @@ class ResolveCart
                 [
                     'user_id' => $user->id,
                     'last_modified' => now(),
+                    'total' => 0,
+                    'subtotal' => 0,
+                    'bonuses_used' => 0,
                 ]
             );
         }
@@ -57,6 +60,9 @@ class ResolveCart
                 ['cart_token' => $cartToken],
                 [
                     'last_modified' => now(),
+                    'total' => 0,
+                    'subtotal' => 0,
+                    'bonuses_used' => 0,
                 ]
             );
         }

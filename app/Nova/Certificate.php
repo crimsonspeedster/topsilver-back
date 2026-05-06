@@ -3,27 +3,27 @@
 namespace App\Nova;
 
 use Illuminate\Http\Request;
-use Laravel\Nova\Fields\BelongsTo;
-use Laravel\Nova\Fields\Date;
+use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Number;
+use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class Bonus extends Resource
+class Certificate extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\App\Models\Bonus>
+     * @var class-string<\App\Models\Certificate>
      */
-    public static $model = \App\Models\Bonus::class;
+    public static $model = \App\Models\Certificate::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
      *
      * @var string
      */
-    public static $title = 'id';
+    public static $title = 'code';
 
     /**
      * The columns that should be searched.
@@ -32,8 +32,7 @@ class Bonus extends Resource
      */
     public static $search = [
         'id',
-        'user.email',
-        'user.phone',
+        'code',
     ];
 
     public static $group = 'Shop';
@@ -65,34 +64,23 @@ class Bonus extends Resource
         return [
             ID::make()->sortable(),
 
-            Number::make('Amount')
-                ->default(0)
+            Text::make('Code')
+                ->sortable()
                 ->rules(
                     'required',
-                    'min:0',
+                    'unique:certificates,code,{{resourceId}}',
                 ),
 
-            Date::make('Accrual From')
-                ->rules('required')
-                ->sortable(),
-
-            Date::make('Available From')
+            Number::make('Value')
+                ->sortable()
                 ->rules(
                     'required',
-                    'after_or_equal:accrual_from',
-                )
-                ->sortable(),
+                    'min:1',
+                ),
 
-            Date::make('Expires At')
-                ->rules(
-                    'required',
-                    'after:available_from',
-                )
-                ->sortable(),
-
-            BelongsTo::make('User', 'user', User::class)
-                ->searchable()
-                ->sortable(),
+            Boolean::make('Used', 'is_used')
+                ->sortable()
+                ->default(false),
         ];
     }
 

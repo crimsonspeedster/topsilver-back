@@ -23,6 +23,8 @@ use App\Http\Middleware\ResolveCart;
 use App\Http\Controllers\Api\V1\Cart\CartController;
 use App\Http\Controllers\Api\V1\Cart\CartItemsController;
 use App\Http\Controllers\Api\V1\Cart\CartCouponController;
+use App\Http\Controllers\Api\V1\Cart\CartCertificateController;
+use App\Http\Controllers\Api\V1\Cart\CartBonusesController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -81,5 +83,12 @@ Route::prefix('v1')->group(function () {
         Route::get('/me/bonuses', BonusController::class);
         Route::get('/me/orders', [OrdersController::class, 'index']);
         Route::get('/me/orders/{order}', [OrdersController::class, 'show']);
+    });
+
+    Route::middleware(['auth:sanctum', ResolveCart::class])->group(function () {
+        Route::patch('/cart/bonuses', [CartBonusesController::class, 'apply']);
+
+        Route::post('/cart/certificates', [CartCertificateController::class, 'store']);
+        Route::delete('/cart/certificates/{certificate}', [CartCertificateController::class, 'destroy']);
     });
 });

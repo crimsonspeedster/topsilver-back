@@ -3,12 +3,12 @@ namespace App\Http\Controllers\Api\V1\Cart;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CartResource;
-use App\Models\Coupon;
+use App\Models\Certificate;
 use App\Services\CartService;
 use Exception;
 use Illuminate\Http\Request;
 
-class CartCouponController extends Controller
+class CartCertificateController extends Controller
 {
     public function __construct(
         protected CartService $cartService,
@@ -16,15 +16,17 @@ class CartCouponController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'code' => ['required', 'string'],
         ]);
 
-        $coupon = Coupon::where('code', $request->code)->firstOrFail();
+        $certificate = Certificate::where('code', $data['code'])
+            ->where('is_used', false)
+            ->firstOrFail();
         $cart = $request->attributes->get('cart');
 
         try {
-            $cart = $this->cartService->addCoupon($cart, $coupon);
+            $cart = $this->cartService->addCertificate($cart, $certificate);
         } catch (Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
@@ -34,19 +36,19 @@ class CartCouponController extends Controller
         return response()->json([
             'data' => new CartResource(
                 $this->cartService->loadCartItems($cart),
-            )
+            ),
         ]);
     }
 
-    public function destroy(Request $request)
+    public function destroy(Certificate $certificate, Request $request)
     {
         $cart = $request->attributes->get('cart');
-        $cart = $this->cartService->removeCoupon($cart);
+        $cart = $this->cartService->removeCertificate($cart, $certificate);
 
         return response()->json([
             'data' => new CartResource(
                 $this->cartService->loadCartItems($cart),
-            )
+            ),
         ]);
     }
 }

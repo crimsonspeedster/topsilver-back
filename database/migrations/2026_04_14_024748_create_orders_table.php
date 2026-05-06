@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('coupon_code')->nullable();
             $table->string('coupon_type')->nullable();
             $table->decimal('coupon_value', 10, 2)->nullable();
+
             $table->decimal('discount_amount', 10, 2)->default(0);
 
             $table->text('notes')->nullable();

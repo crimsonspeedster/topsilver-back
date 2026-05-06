@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use Exception;
 
 class BonusService
 {
@@ -15,5 +16,28 @@ class BonusService
             'active' => $activeQuery->orderBy('available_from')->get(),
             'future' => $futureQuery->orderBy('available_from')->get(),
         ];
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function validate(User $user, int $amount): void
+    {
+        $available = $user->bonuses()
+            ->notExpired()
+            ->active()
+            ->sum('amount');
+
+        if ($amount > $available) {
+            throw new Exception('Not enough available bonuses');
+        }
+    }
+
+    public function getAvailableAmount(User $user): int
+    {
+        return $user->bonuses()
+            ->notExpired()
+            ->active()
+            ->sum('amount');
     }
 }

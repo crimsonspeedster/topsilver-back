@@ -13,12 +13,18 @@ return new class extends Migration
     {
         Schema::create('carts', function (Blueprint $table) {
             $table->id();
+
             $table->unsignedBigInteger('user_id')->unique()->nullable();
             $table->unsignedBigInteger('coupon_id')->nullable();
+            $table->unsignedInteger('bonuses_used')->default(0);
+
             $table->string('cart_token')->unique()->nullable();
+
             $table->decimal('subtotal', 10, 2)->default(0);
             $table->decimal('total', 10, 2)->default(0);
+
             $table->timestamp('last_modified')->nullable();
+
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');

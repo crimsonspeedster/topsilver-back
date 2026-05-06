@@ -3,7 +3,9 @@ namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use App\Models\Cart;
 use App\Models\User;
+use App\Services\CartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -26,6 +28,10 @@ class LoginController extends Controller
 
         $cartToken = $request->cookie('cart_token')
             ?? $request->header('X-Cart-Token');
+
+        if ($cartToken) {
+            app(CartService::class)->mergeGuestCartWithUser($cartToken, $user);
+        }
 
         return response()->json([
             'data' => new UserResource(
