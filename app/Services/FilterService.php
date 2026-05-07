@@ -120,12 +120,14 @@ class FilterService
                     'id' => $term->attribute->id,
                     'title' => $term->attribute->title,
                     'slug' => $term->attribute->slug,
+                    'type' => $term->attribute->type,
                 ];
 
                 $filters[$attributeId]['terms'][] = [
                     'id' => $term->id,
                     'title' => $term->title,
                     'slug' => $term->slug,
+                    'meta_value' => $term->meta_value,
                     'count' => (int) $facet->count,
                     'selected' => in_array($term->id, $selectedFilters[$attributeId] ?? []),
                 ];

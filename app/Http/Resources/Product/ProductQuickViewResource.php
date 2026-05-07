@@ -25,7 +25,7 @@ class ProductQuickViewResource extends JsonResource
             'slug' => $this->whenLoaded('sluggable')?->slug,
             'title' => $this->title,
             'short_description' => $this->short_description,
-            'media' => new MediaResource($this->getMedia('media')),
+            'media' => new MediaResource($this->getFirstMedia('media')),
             'price' => $this->price,
             'price_on_sale' => $this->price_on_sale,
             'price_formatted' => $currency->format($this->price)->format(),

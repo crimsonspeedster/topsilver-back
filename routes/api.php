@@ -25,10 +25,15 @@ use App\Http\Controllers\Api\V1\Cart\CartItemsController;
 use App\Http\Controllers\Api\V1\Cart\CartCouponController;
 use App\Http\Controllers\Api\V1\Cart\CartCertificateController;
 use App\Http\Controllers\Api\V1\Cart\CartBonusesController;
+use App\Http\Controllers\Api\V1\TaxonomyController;
+use App\Http\Controllers\Api\V1\FilterPageController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     Route::get('/slug-resolver/{slug}', [SlugResolverController::class, 'resolver']);
+
+    Route::get('/taxonomies/{type}/{id}/products', [TaxonomyController::class, 'show']);
+    Route::get('/filter_page/{filter_page}/products', [FilterPageController::class, 'show']);
 
     Route::get('/menus', [MenuController::class, 'index']);
     Route::get('/menus/{location:name}', [MenuController::class, 'show']);

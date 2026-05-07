@@ -38,7 +38,6 @@ class ProductPDPResource extends JsonResource
             'manage_stock' => $this->manage_stock,
             'stock' => $this->stock,
             'stock_status' => $this->stock_status,
-            'status' => $this->status,
             'sku' => $this->sku,
             'rating_avg' => $this->rating_avg,
             'rating_count' => $this->rating_count,

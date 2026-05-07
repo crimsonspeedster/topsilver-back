@@ -117,12 +117,58 @@ class SlugResolverController extends Controller
         ]);
     }
 
-    private function resolverTaxonomy (TaxonomyEntity $taxonomy)
+    private function resolverTaxonomy(TaxonomyEntity $taxonomy)
     {
         $sort = TaxonomySort::tryFrom(request('sort', 'newest'))
-                ?? TaxonomySort::NEWEST;
-        $products = $this->taxonomyService->getProducts($taxonomy, $sort);
-        $filters = $this->filterService->getFilters($taxonomy);
+            ?? TaxonomySort::NEWEST;
+
+        return $this->resolveTaxonomyBase(
+            taxonomy: $taxonomy,
+            sort: $sort
+        );
+    }
+
+    private function resolverFilterPage(FilterPage $filterPage)
+    {
+        abort_unless($filterPage->status === EntityStatus::Published, 404);
+
+        $category = $filterPage->category;
+
+        $selectedFilters = $this->filterService
+            ->parseFiltersFromFilterPage($filterPage);
+
+        $filterPage->load([
+            'seo',
+            'seoBlock',
+        ]);
+
+        return $this->resolveTaxonomyBase(
+            taxonomy: $category,
+            selectedFilters: $selectedFilters,
+            sort: TaxonomySort::NEWEST,
+            extra: [
+                'entity' => new FilterPageResource($filterPage),
+                'type' => 'filter_page',
+            ]
+        );
+    }
+
+    private function resolveTaxonomyBase(
+        TaxonomyEntity $taxonomy,
+        array $selectedFilters = [],
+        TaxonomySort $sort = TaxonomySort::NEWEST,
+        array $extra = []
+    ) {
+        $products = $this->taxonomyService->getProducts(
+            $taxonomy,
+            $sort,
+            $selectedFilters
+        );
+
+        $filters = $this->filterService->getFilters(
+            $taxonomy,
+            $selectedFilters
+        );
 
         $taxonomy->load([
             'seo',
@@ -130,38 +176,13 @@ class SlugResolverController extends Controller
         ]);
 
         return response()->json([
-            'data' => [
+            'data' => array_merge([
                 'type' => $taxonomy->getType(),
                 'entity' => new TaxonomyResource($taxonomy),
                 'products' => ProductCardResource::collection($products->items()),
                 'pagination' => new PaginationResource($products),
                 'filters' => $filters,
-            ],
-        ]);
-    }
-
-    private function resolverFilterPage (FilterPage $filterPage)
-    {
-        abort_unless($filterPage->status === EntityStatus::Published, 404);
-
-        $category = $filterPage->category;
-        $selected_filters = $this->filterService->parseFiltersFromFilterPage($filterPage);
-        $products = $this->taxonomyService->getProducts($category, TaxonomySort::NEWEST, $selected_filters);
-        $filters = $this->filterService->getFilters($category, $selected_filters);
-
-        $filterPage->load([
-            'seo',
-            'seoBlock',
-        ]);
-
-        return response()->json([
-            'data' => [
-                'type' => 'filter_page',
-                'entity' => new FilterPageResource($filterPage),
-                'products' => ProductCardResource::collection($products->items()),
-                'pagination' => new PaginationResource($products),
-                'filters' => $filters,
-            ],
+            ], $extra),
         ]);
     }
 }
