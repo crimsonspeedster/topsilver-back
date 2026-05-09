@@ -32,8 +32,8 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     Route::get('/slug-resolver/{slug}', [SlugResolverController::class, 'resolver']);
 
+    Route::get('/taxonomies/filter_page/{filter_page}/products', [FilterPageController::class, 'show']);
     Route::get('/taxonomies/{type}/{id}/products', [TaxonomyController::class, 'show']);
-    Route::get('/filter_page/{filter_page}/products', [FilterPageController::class, 'show']);
 
     Route::get('/menus', [MenuController::class, 'index']);
     Route::get('/menus/{location:name}', [MenuController::class, 'show']);

@@ -32,8 +32,8 @@ class TaxonomyService
         return match ($sort) {
             TaxonomySort::NEWEST => $query->orderBy('created_at', 'desc'),
             TaxonomySort::OLDEST => $query->orderBy('created_at', 'asc'),
-            TaxonomySort::PRICE_DESC => $query->orderBy('price', 'desc'),
-            TaxonomySort::PRICE_ASC => $query->orderBy('price', 'asc'),
+            TaxonomySort::PRICE_DESC => $query->orderByRaw('COALESCE(price_on_sale, price) DESC'),
+            TaxonomySort::PRICE_ASC => $query->orderByRaw('COALESCE(price_on_sale, price) ASC'),
             TaxonomySort::SELLING => $query->orderBy('selling_count', 'desc'),
         };
     }
