@@ -19,7 +19,7 @@ class ProductVariantFactory extends Factory
     public function definition(): array
     {
         $price = $this->faker->numberBetween(1000, 5000);
-        $price_on_sale = $this->faker->numberBetween(500, $price);
+        $price_on_sale = $this->faker->numberBetween(500, $price-400);
 
         return [
             'sku' => $this->faker->unique()->ean8(),

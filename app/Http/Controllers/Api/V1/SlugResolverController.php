@@ -8,10 +8,12 @@ use App\Enums\TaxonomySort;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ContentEntityResource;
 use App\Http\Resources\FilterPageResource;
+use App\Http\Resources\MediaResource;
 use App\Http\Resources\PaginationResource;
 use App\Http\Resources\Product\ProductCardResource;
 use App\Http\Resources\Product\ProductPDPResource;
 use App\Http\Resources\ProductReviewResource;
+use App\Http\Resources\SeoPageResource;
 use App\Http\Resources\SeoResource;
 use App\Http\Resources\TaxonomyResource;
 use App\Models\Category;
@@ -62,8 +64,13 @@ class SlugResolverController extends Controller
 
         abort_unless($entity->status === EntityStatus::Published, 404);
 
+        $entity->load([
+            'seo',
+            'media',
+        ]);
+
         return response()->json([
-            'data' => new SeoResource($entity->seo),
+            'data' => new SeoPageResource($entity),
         ]);
     }
 

@@ -27,7 +27,7 @@ class ProductFactory extends Factory
         $stock_status = $manage_stock && $stock === 0 ? StockStatus::OutOfStock : StockStatus::InStock;
 
         $price = $this->faker->numberBetween(1000, 5000);
-        $price_on_sale = $this->faker->numberBetween(500, $price);
+        $price_on_sale = $this->faker->numberBetween(500, $price-400);
 
         return [
             'title' => $this->faker->sentence(3),
