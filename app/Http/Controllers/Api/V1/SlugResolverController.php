@@ -23,6 +23,7 @@ use App\Models\Product;
 use App\Models\Slug;
 use App\Models\TaxonomyEntity;
 use App\Services\FilterService;
+use App\Services\ProductService;
 use App\Services\TaxonomyService;
 
 class SlugResolverController extends Controller
@@ -30,6 +31,7 @@ class SlugResolverController extends Controller
     public function __construct(
         private readonly TaxonomyService $taxonomyService,
         private readonly FilterService $filterService,
+        private readonly ProductService $productService,
     ) {}
 
     public function resolver (string $slug)
@@ -99,15 +101,27 @@ class SlugResolverController extends Controller
             'variants',
             'attributeTerms.attribute',
             'crossSellsLimited.sluggable',
+            'crossSellsLimited.labels',
             'groupProducts.sluggable',
+            'groupProducts.labels',
             'seo',
             'seoBlock',
+            'videos',
         ]);
+
+        $breadcrumbs = $this->productService->getBreadcrumbs($product);
+        $prev = $this->productService->getPrev($product);
+        $next = $this->productService->getNext($product);
 
         return response()->json([
             'data' => [
                 'type' => 'product',
                 'entity' => new ProductPDPResource($product),
+                'breadcrumbs' => $breadcrumbs,
+                'prev_next' => [
+                    'prev' => $prev ? new ProductCardResource($prev) : null,
+                    'next' => $next ? new ProductCardResource($next) : null,
+                ],
                 'reviews' => ProductReviewResource::collection($reviews),
                 'reviews_pagination' => [
                     'total' => $reviewsCount,

@@ -81,6 +81,13 @@ class Product extends Model implements HasMedia
         );
     }
 
+    public function videos(): HasMany
+    {
+        return $this->hasMany(
+            Video::class
+        );
+    }
+
     public function bundles (): BelongsToMany
     {
         return $this->belongsToMany(
@@ -141,7 +148,7 @@ class Product extends Model implements HasMedia
     {
         return $this->crossSells()
             ->orderBy('product_relations.sort_order')
-            ->limit(4);
+            ->limit(8);
     }
 
     public function attributeTerms (): BelongsToMany
@@ -200,5 +207,14 @@ class Product extends Model implements HasMedia
     public function getSeoDescription(): ?string
     {
         return Str::limit(strip_tags($this->description ?? ''), 160);
+    }
+
+    public function getDiscountPercent(): ?int
+    {
+        if (!$this->price_on_sale) {
+            return null;
+        }
+
+        return round((1 - $this->price_on_sale / $this->price) * 100);
     }
 }

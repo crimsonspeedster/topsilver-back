@@ -25,6 +25,7 @@ class ProductCardResource extends JsonResource
             'price_on_sale' => $this->price_on_sale,
             'price_formatted' => $currency->format($this->price)->format(),
             'price_on_sale_formatted' => $this->price_on_sale ? $currency->format($this->price_on_sale)->format(): null,
+            'discount_percent' => $this->getDiscountPercent(),
             'labels' => LabelResource::collection($this->whenLoaded('labels')),
             'media' => new MediaResource($this->getFirstMedia('media')),
             'stock_status' => $this->stock_status,

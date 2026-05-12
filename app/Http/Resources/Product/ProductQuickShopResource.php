@@ -27,6 +27,7 @@ class ProductQuickShopResource extends JsonResource
             'price_on_sale' => $this->price_on_sale,
             'price_formatted' => $currency->format($this->price)->format(),
             'price_on_sale_formatted' => $this->price_on_sale ? $currency->format($this->price_on_sale)->format(): null,
+            'discount_percent' => $this->getDiscountPercent(),
             'type' => $this->variants()->exists() ? ProductTypes::VARIABLE : ProductTypes::SIMPLE,
             'variant_attributes' => $this->variant_attributes,
             'variants' => ProductVariantResource::collection($this->whenLoaded('variants')),

@@ -15,7 +15,6 @@ class TaxonomyCollectionResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'description' => $this->description,
             'slug' => $this->whenLoaded('sluggable')?->slug,
         ];
     }

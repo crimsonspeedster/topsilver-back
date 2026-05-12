@@ -17,6 +17,7 @@ class ProductsController extends Controller
         $product->load([
             'sluggable',
             'variants',
+            'labels',
             'categories.sluggable',
             'collections.sluggable',
         ]);
@@ -38,7 +39,13 @@ class ProductsController extends Controller
         $products = Product::whereIn('id', $ids)
             ->get()
             ->sortBy(fn ($product) => array_search($product->id, $ids))
-            ->values();
+            ->load([
+                'sluggable',
+                'variants',
+                'labels',
+                'categories.sluggable',
+                'collections.sluggable',
+            ]);
 
         return response()->json([
             'data' => ProductCardResource::collection($products),

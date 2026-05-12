@@ -22,7 +22,7 @@ class ProductSeeder extends Seeder
             ->count(200)
             ->create()
             ->each(function($product) {
-                $this->attachMedia($product);
+//                $this->attachMedia($product);
                 $this->attachRelations($product);
             });
 
@@ -58,7 +58,7 @@ class ProductSeeder extends Seeder
 
         $product->labels()->syncWithoutDetaching(
             Label::inRandomOrder()
-                ->take(rand(1,3))
+                ->take(rand(0,3))
                 ->pluck('id')
                 ->toArray()
         );

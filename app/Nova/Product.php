@@ -149,6 +149,8 @@ class Product extends Resource
                 ->rules('mimes:jpeg,png,jpg,gif', 'max:5000')
                 ->help('Max filesize 5MB.'),
 
+            HasMany::make('Videos', 'videos', Video::class),
+
             HasMany::make('Variants', 'variants', ProductVariant::class),
 
             HasMany::make('Reviews', 'reviews', ProductReview::class),

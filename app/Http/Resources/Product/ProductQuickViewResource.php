@@ -2,6 +2,7 @@
 namespace App\Http\Resources\Product;
 
 use App\Enums\ProductTypes;
+use App\Http\Resources\LabelResource;
 use App\Http\Resources\MediaResource;
 use App\Http\Resources\ProductVariantResource;
 use App\Http\Resources\TaxonomyCollectionResource;
@@ -26,17 +27,22 @@ class ProductQuickViewResource extends JsonResource
             'title' => $this->title,
             'short_description' => $this->short_description,
             'media' => new MediaResource($this->getFirstMedia('media')),
+            'gallery' => MediaResource::collection($this->getMedia('gallery')),
             'price' => $this->price,
             'price_on_sale' => $this->price_on_sale,
             'price_formatted' => $currency->format($this->price)->format(),
             'price_on_sale_formatted' => $this->price_on_sale ? $currency->format($this->price_on_sale)->format(): null,
+            'discount_percent' => $this->getDiscountPercent(),
             'type' => $this->variants()->exists() ? ProductTypes::VARIABLE : ProductTypes::SIMPLE,
             'variant_attributes' => $this->variant_attributes,
             'variants' => ProductVariantResource::collection($this->whenLoaded('variants')),
             'stock_status' => $this->stock_status,
             'stock' => $this->stock,
             'manage_stock' => $this->manage_stock,
+            'rating_count' => $this->rating_count,
+            'rating_avg' => $this->rating_avg,
             'sku' => $this->sku,
+            'labels' => LabelResource::collection($this->whenLoaded('labels')),
             'categories' => TaxonomyCollectionResource::collection($this->whenLoaded('categories')),
             'collections' => TaxonomyCollectionResource::collection($this->whenLoaded('collections')),
         ];

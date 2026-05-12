@@ -21,6 +21,7 @@ class ProductVariantResource extends JsonResource
             'price' => $this->price,
             'price_on_sale' => $this->price_on_sale,
             'price_formatted' => $currency->format($this->price)->format(),
+            'discount_percent' => $this->getDiscountPercent(),
             'price_on_sale_formatted' => $this->price_on_sale ? $currency->format($this->price_on_sale)->format(): null,
             'stock' => $this->stock,
             'stock_status' => $this->stock_status,

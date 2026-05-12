@@ -22,23 +22,18 @@ class AttributeTermSeeder extends Seeder
                 AttributeTypes::Text => [
                     [
                         'title' => 'XS',
-                        'value' => 'xs',
                     ],
                     [
                         'title' => 'S',
-                        'value' => 's',
                     ],
                     [
                         'title' => 'M',
-                        'value' => 'm',
                     ],
                     [
                         'title' => 'L',
-                        'value' => 'l',
                     ],
                     [
                         'title' => 'XL',
-                        'value' => 'xl',
                     ],
                 ],
                 AttributeTypes::Color => [
@@ -55,7 +50,7 @@ class AttributeTermSeeder extends Seeder
                 AttributeTerm::factory()->create([
                     'attribute_id' => $attribute->id,
                     'title' => $block['title'],
-                    'meta_value' => $block['value'],
+                    'meta_value' => $block['value'] ?? null,
                 ]);
             }
         }

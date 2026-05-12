@@ -13,6 +13,18 @@ class LabelSeeder extends Seeder
      */
     public function run(): void
     {
-        Label::factory()->count(3)->create();
+        $labels = [
+            'new' => 'NEW',
+            'top' => 'TOP',
+            'promotion' => 'Акція',
+            '1plus1' => '1+1=3',
+        ];
+
+        foreach ($labels as $slug => $name) {
+            Label::factory()->create([
+                'name' => $name,
+                'slug' => $slug,
+            ]);
+        }
     }
 }

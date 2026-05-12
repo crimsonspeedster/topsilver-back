@@ -54,4 +54,13 @@ class ProductVariant extends Model
             $this->update(['stock_status' => 'out_of_stock']);
         }
     }
+
+    public function getDiscountPercent(): ?int
+    {
+        if (!$this->price_on_sale) {
+            return null;
+        }
+
+        return round((1 - $this->price_on_sale / $this->price) * 100);
+    }
 }
