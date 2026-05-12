@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use App\Enums\EntityStatus;
 use App\Traits\HasSeo;
 use App\Traits\HasSeoBlock;
 use App\Traits\HasSlug;
@@ -27,6 +28,11 @@ abstract class TaxonomyEntity extends Model implements ContentEntityInterface, H
         'title',
         'parent_id',
         'description',
+    ];
+
+    protected $casts = [
+        'status' => EntityStatus::class,
+        'published_at' => 'datetime',
     ];
 
     public function parent(): BelongsTo

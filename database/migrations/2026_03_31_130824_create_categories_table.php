@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->string('status')->default('draft');
             $table->text('description')->nullable();
             $table->unsignedInteger('parent_id')->nullable();
+            $table->timestamp('published_at')->nullable();
             $table->timestamps();
         });
     }

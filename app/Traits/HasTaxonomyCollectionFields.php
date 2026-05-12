@@ -1,6 +1,7 @@
 <?php
 namespace App\Traits;
 
+use App\Enums\EntityStatus;
 use App\Nova\Product;
 use App\Nova\Seo;
 use App\Nova\SeoBlock;
@@ -12,6 +13,7 @@ use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\Markdown;
 use Laravel\Nova\Fields\MorphOne;
+use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 
 trait HasTaxonomyCollectionFields
@@ -25,6 +27,12 @@ trait HasTaxonomyCollectionFields
                 ->rules('required'),
 
             Markdown::make('Description'),
+
+            Select::make('Status')
+                ->options(EntityStatus::options())
+                ->displayUsingLabels()
+                ->sortable()
+                ->rules('required'),
 
             Image::make('Image')
                 ->store($this->imageStoreCallback())

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\EntityStatus;
 use App\Models\Collection;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -20,6 +21,8 @@ class CollectionFactory extends Factory
         return [
             'title' => $this->faker->name(),
             'description' => $this->faker->text(),
+            'status' => EntityStatus::Published,
+            'published_at' => now(),
             'parent_id' => null,
         ];
     }

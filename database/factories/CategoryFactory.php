@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\EntityStatus;
 use App\Models\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -20,6 +21,9 @@ class CategoryFactory extends Factory
         return [
             'title' => $this->faker->title(),
             'description' => $this->faker->text(),
+            'status' => EntityStatus::Published,
+            'published_at' => now(),
+            'parent_id' => null,
         ];
     }
 }

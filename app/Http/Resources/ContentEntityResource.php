@@ -16,7 +16,6 @@ class ContentEntityResource extends JsonResource
             'title' => $this->title,
             'short_description' => $this->short_description,
             'content' => $this->content,
-            'seo' => new SeoResource($this->whenLoaded('seo')),
             'seo_block' => new SeoBlockResource($this->whenLoaded('seoBlock')),
             'media' => new MediaResource($this->getFirstMedia('media')),
         ];

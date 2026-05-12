@@ -12,6 +12,7 @@ use App\Http\Resources\PaginationResource;
 use App\Http\Resources\Product\ProductCardResource;
 use App\Http\Resources\Product\ProductPDPResource;
 use App\Http\Resources\ProductReviewResource;
+use App\Http\Resources\SeoResource;
 use App\Http\Resources\TaxonomyResource;
 use App\Models\Category;
 use App\Models\Collection;
@@ -39,6 +40,8 @@ class SlugResolverController extends Controller
         $slugModel = Slug::where('slug', $slug)->firstOrFail();
         $entity = $slugModel->entity;
 
+        abort_unless($entity->status === EntityStatus::Published, 404);
+
         return match (true) {
             $entity instanceof Product => $this->resolverProduct($entity),
 
@@ -52,12 +55,21 @@ class SlugResolverController extends Controller
         };
     }
 
-    private function resolverContentEntity (ContentEntity $entity)
+    public function seo(string $slug)
     {
+        $slugModel = Slug::where('slug', $slug)->firstOrFail();
+        $entity = $slugModel->entity;
+
         abort_unless($entity->status === EntityStatus::Published, 404);
 
+        return response()->json([
+            'data' => new SeoResource($entity->seo),
+        ]);
+    }
+
+    private function resolverContentEntity (ContentEntity $entity)
+    {
         $entity->load([
-            'seo',
             'seoBlock',
             'media'
         ]);
@@ -72,8 +84,6 @@ class SlugResolverController extends Controller
 
     private function resolverProduct(Product $product)
     {
-        abort_unless($product->status === EntityStatus::Published, 404);
-
         $reviews = $product->reviews()
             ->where('status', ReviewStatus::APPROVED)
             ->whereNull('parent_id')
@@ -104,7 +114,6 @@ class SlugResolverController extends Controller
             'crossSellsLimited.labels',
             'groupProducts.sluggable',
             'groupProducts.labels',
-            'seo',
             'seoBlock',
             'videos',
         ]);
@@ -144,15 +153,12 @@ class SlugResolverController extends Controller
 
     private function resolverFilterPage(FilterPage $filterPage)
     {
-        abort_unless($filterPage->status === EntityStatus::Published, 404);
-
         $category = $filterPage->category;
 
         $selectedFilters = $this->filterService
             ->parseFiltersFromFilterPage($filterPage);
 
         $filterPage->load([
-            'seo',
             'seoBlock',
         ]);
 
@@ -185,7 +191,6 @@ class SlugResolverController extends Controller
         );
 
         $taxonomy->load([
-            'seo',
             'seoBlock',
         ]);
 

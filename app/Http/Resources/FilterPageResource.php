@@ -15,7 +15,6 @@ class FilterPageResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'seo' => new SeoResource($this->whenLoaded('seo')),
             'seo_block' => new SeoBlockResource($this->whenLoaded('seoBlock')),
         ];
     }

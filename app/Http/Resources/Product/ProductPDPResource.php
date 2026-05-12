@@ -53,7 +53,6 @@ class ProductPDPResource extends JsonResource
             'bundles' => BundleResource::collection($this->whenLoaded('bundles')),
             'cross_sells' => ProductCardResource::collection($this->whenLoaded('crossSellsLimited')),
             'group_products' => ProductCardResource::collection($this->whenLoaded('groupProducts')),
-            'seo' => new SeoResource($this->whenLoaded('seo')),
             'seo_block' => new SeoBlockResource($this->whenLoaded('seoBlock')),
         ];
     }
