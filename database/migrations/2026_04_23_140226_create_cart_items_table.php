@@ -13,18 +13,21 @@ return new class extends Migration
     {
         Schema::create('cart_items', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('entity_id');
+            $table->string('entity_type');
             $table->unsignedBigInteger('cart_id');
-            $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('product_variant_id')->nullable();
             $table->unsignedInteger('quantity')->default(1);
             $table->decimal('price', 10, 2);
             $table->timestamps();
 
             $table->foreign('cart_id')->references('id')->on('carts')->onDelete('cascade');
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->foreign('product_variant_id')->references('id')->on('product_variants')->onDelete('cascade');
 
-            $table->unique(['cart_id', 'product_id', 'product_variant_id']);
+            $table->unique(
+                ['cart_id', 'entity_id', 'entity_type', 'product_variant_id'],
+                'cart_entity_variant_unique'
+            );
         });
     }
 

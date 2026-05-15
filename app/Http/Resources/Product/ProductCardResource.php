@@ -20,7 +20,7 @@ class ProductCardResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'slug' => $this->whenLoaded('sluggable')?->slug,
+            'slug' => $this->whenLoaded('sluggable', fn () => $this->sluggable?->slug),
             'price' => $this->price,
             'price_on_sale' => $this->price_on_sale,
             'price_formatted' => $currency->format($this->price)->format(),

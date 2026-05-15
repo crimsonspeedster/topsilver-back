@@ -1,13 +1,19 @@
 <?php
 namespace App\Http\Requests;
 
+use App\Models\Bundle;
 use App\Models\Product;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
 
 class StoreCartItemRequest extends FormRequest
 {
-    private ?Product $product = null;
+    private ?Model $entity = null;
+    private array $allowedEntities = [
+        'product' => Product::class,
+        'bundle' => Bundle::class,
+    ];
 
     public function authorize(): bool
     {
@@ -16,16 +22,23 @@ class StoreCartItemRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $productId = $this->input('product_id');
+        $type = $this->input('entity_type');
+        $id = $this->input('entity_id');
 
-        $this->product = Product::withCount('variants')
-            ->find($productId);
+        if (!isset($this->allowedEntities[$type])) {
+            return;
+        }
+
+        $class = $this->allowedEntities[$type];
+
+        $this->entity = $class::find($id);
     }
 
     public function rules(): array
     {
         return [
-            'product_id' => ['required', 'exists:products,id'],
+            'entity_type' => ['required', 'in:product,bundle'],
+            'entity_id' => ['required', 'integer'],
             'product_variant_id' => ['nullable', 'exists:product_variants,id'],
             'quantity' => ['required', 'integer', 'min:1', 'max:99'],
         ];
@@ -34,15 +47,17 @@ class StoreCartItemRequest extends FormRequest
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
-            $productVariantId = $this->input('product_variant_id');
+            if (!$this->entity) {
+                $validator->errors()->add('entity_id', 'Invalid entity.');
 
-            if (!$this->product) {
                 return;
             }
 
+            $variantId = $this->input('product_variant_id');
             if (
-                $this->product->variants_count > 0 &&
-                !$productVariantId
+                $this->entity instanceof Product &&
+                $this->entity->variants()->exists() &&
+                !$variantId
             ) {
                 $validator->errors()->add(
                     'product_variant_id',

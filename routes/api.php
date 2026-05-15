@@ -3,6 +3,8 @@
 use App\Http\Controllers\Api\V1\Auth\EmailVerificationController;
 use App\Http\Controllers\Api\V1\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\CheckoutController;
+use App\Http\Controllers\Api\V1\CityController;
+use App\Http\Middleware\InjectBearerTokenFromCookie;
 use App\Http\Controllers\Api\V1\LiqPayController;
 use App\Http\Controllers\Api\V1\MenuController;
 use App\Http\Controllers\Api\V1\MonopayController;
@@ -35,6 +37,10 @@ Route::prefix('v1')->group(function () {
 
     Route::get('/taxonomies/filter_page/{filter_page}/products', [FilterPageController::class, 'show']);
     Route::get('/taxonomies/{type}/{id}/products', [TaxonomyController::class, 'show']);
+
+    Route::prefix('reference')->group(function () {
+        Route::get('/cities', [CityController::class, 'cities']);
+    });
 
     Route::get('/menus', [MenuController::class, 'index']);
     Route::get('/menus/{location:name}', [MenuController::class, 'show']);

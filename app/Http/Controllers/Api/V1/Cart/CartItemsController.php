@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api\V1\Cart;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCartItemRequest;
 use App\Http\Resources\CartResource;
+use App\Models\Bundle;
 use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Services\CartService;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -23,22 +25,40 @@ class CartItemsController extends Controller
         $data = $request->validated();
 
         return DB::transaction(function () use ($cart, $data) {
-            $variant = null;
+            $entity = $this->resolveEntity($data['entity_type'], $data['entity_id']);
 
-            if (!empty($data['product_variant_id'])) {
-                $variant = ProductVariant::with('product')
-                    ->lockForUpdate()
-                    ->findOrFail($data['product_variant_id']);
-
-                $product = $variant->product;
-            } else {
-                $product = Product::lockForUpdate()
-                    ->findOrFail($data['product_id']);
+            if (!$entity) {
+                abort(404, 'Entity not found');
             }
 
-            $availableStock = $this->cartService->getAvailableStock($product, $variant);
+            $variant = null;
+            $availableStock = 999;
 
-            $item = $this->cartService->resolveCartItem($cart, $product, $variant)
+            if ($entity instanceof Product) {
+                if (!empty($data['product_variant_id'])) {
+                    $variant = ProductVariant::with('product')
+                        ->lockForUpdate()
+                        ->findOrFail($data['product_variant_id']);
+                }
+
+                $availableStock = $this->cartService->getAvailableStock($entity, $variant);
+            }
+
+            if ($entity instanceof Bundle) {
+                if (!$entity->active) {
+                    abort(422, 'This bundle is not available anymore');
+                }
+            }
+
+            $item = CartItem::query()
+                ->where('cart_id', $cart->id)
+                ->where('entity_id', $entity->id)
+                ->where('entity_type', $entity::class)
+                ->when(
+                    $data['product_variant_id'] ?? null,
+                    fn ($q) => $q->where('product_variant_id', $data['product_variant_id']),
+                    fn ($q) => $q->whereNull('product_variant_id')
+                )
                 ->lockForUpdate()
                 ->first();
 
@@ -54,10 +74,11 @@ class CartItemsController extends Controller
             } else {
                 CartItem::create([
                     'cart_id' => $cart->id,
-                    'product_id' => $product->id,
+                    'entity_id' => $entity->id,
+                    'entity_type' => $entity::class,
                     'product_variant_id' => $variant?->id,
                     'quantity' => $data['quantity'],
-                    'price' => $product->price_on_sale ?? $product->price,
+                    'price' => $this->getEntityPrice($entity, $variant),
                 ]);
             }
 
@@ -80,19 +101,36 @@ class CartItemsController extends Controller
         ]);
 
         return DB::transaction(function () use ($cart, $id, $validated) {
-            $item = CartItem::where('id', $id)
+            $item = CartItem::query()
+                ->where('id', $id)
                 ->where('cart_id', $cart->id)
-                ->with(['product', 'variant'])
+                ->with(['entity'])
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            $product = $item->product;
-            $variant = $item->variant;
+            $entity = $item->entity;
 
-            $availableStock = $this->cartService->getAvailableStock($product, $variant);
+            if (!$entity) {
+                abort(404, 'Cart item entity not found');
+            }
 
-            if ($validated['quantity'] > $availableStock) {
-                abort(422, 'Not enough stock available');
+            if ($entity instanceof Product) {
+                $availableStock = $this->cartService->getAvailableStock(
+                    $entity,
+                    $item->product_variant_id
+                        ? ProductVariant::find($item->product_variant_id)
+                        : null
+                );
+
+                if ($validated['quantity'] > $availableStock) {
+                    abort(422, 'Not enough stock available');
+                }
+            }
+
+            if ($entity instanceof Bundle) {
+                if (!$entity->active) {
+                    abort(422, 'This bundle is not available anymore');
+                }
             }
 
             $item->update([
@@ -129,5 +167,27 @@ class CartItemsController extends Controller
                 ),
             ]);
         });
+    }
+
+    private function resolveEntity(string $type, int $id): ?Model
+    {
+        return match ($type) {
+            'product' => Product::find($id),
+            'bundle' => Bundle::find($id),
+            default => null,
+        };
+    }
+
+    private function getEntityPrice(Model $entity, ?ProductVariant $variant = null): float
+    {
+        if ($entity instanceof Product) {
+            return $variant?->price_on_sale ?? $variant?->price ?? $entity->price_on_sale ?? $entity->price;
+        }
+
+        if ($entity instanceof Bundle) {
+            return $entity->price;
+        }
+
+        return 0;
     }
 }

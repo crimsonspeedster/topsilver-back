@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Enums\StockStatus;
+use App\Models\Bundle;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Certificate;
@@ -17,6 +18,8 @@ use App\Pipelines\Discount\Handlers\CertificateHandler;
 use App\Pipelines\Discount\Handlers\CouponHandler;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\DB;
 
 class CartService
@@ -26,11 +29,12 @@ class CartService
         protected BonusService $bonusService,
     ) {}
 
-    public function resolveCartItem(Cart $cart, Product $product, ProductVariant|null $variant = null): Builder
+    public function resolveCartItem(Cart $cart, Model $entity, ProductVariant|null $variant = null): Builder
     {
         return CartItem::query()
             ->where('cart_id', $cart->id)
-            ->where('product_id', $product->id)
+            ->where('entity_id', $entity->id)
+            ->where('entity_type', $entity::class)
             ->when(
                 $variant,
                 fn ($q) => $q->where('product_variant_id', $variant->id),
@@ -55,7 +59,17 @@ class CartService
     public function loadCartItems(Cart $cart): Cart
     {
         return $cart->fresh([
-            'items.product.sluggable',
+            'items.entity' => function (MorphTo $morphTo) {
+                $morphTo->morphWith([
+                    Product::class => [
+                        'sluggable',
+                    ],
+
+                    Bundle::class => [
+                        'items.product.sluggable',
+                    ],
+                ]);
+            },
             'items.variant',
             'coupon',
             'certificates',
@@ -222,7 +236,8 @@ class CartService
             foreach ($guestCart->items as $guestItem) {
                 $query = CartItem::query()
                     ->where('cart_id', $userCart->id)
-                    ->where('product_id', $guestItem->product_id)
+                    ->where('entity_id', $guestItem->entity_id)
+                    ->where('entity_type', $guestItem->entity_type)
                     ->when(
                         $guestItem->product_variant_id,
                         fn ($q) => $q->where('product_variant_id', $guestItem->product_variant_id),

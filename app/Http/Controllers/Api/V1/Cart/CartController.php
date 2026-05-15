@@ -3,6 +3,9 @@ namespace App\Http\Controllers\Api\V1\Cart;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CartResource;
+use App\Models\Bundle;
+use App\Models\Product;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
@@ -11,7 +14,17 @@ class CartController extends Controller
     {
         $cart = $request->attributes->get('cart')
             ->load([
-                'items.product.sluggable',
+                'items.entity' => function (MorphTo $morphTo) {
+                    $morphTo->morphWith([
+                        Product::class => [
+                            'sluggable',
+                        ],
+
+                        Bundle::class => [
+                            'items.product.sluggable',
+                        ],
+                    ]);
+                },
                 'items.variant',
                 'coupon',
                 'certificates',

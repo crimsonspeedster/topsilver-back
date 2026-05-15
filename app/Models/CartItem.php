@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class CartItem extends Model
 {
     protected $fillable = [
         'cart_id',
-        'product_id',
+        'entity_type',
+        'entity_id',
         'product_variant_id',
         'quantity',
         'price',
@@ -19,10 +21,12 @@ class CartItem extends Model
         'price' => 'decimal:2',
     ];
 
-    public function product (): BelongsTo
+    public function entity (): MorphTo
     {
-        return $this->belongsTo(
-            Product::class,
+        return $this->morphTo(
+            null,
+            'entity_type',
+            'entity_id',
         );
     }
 

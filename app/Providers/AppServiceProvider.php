@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Events\OrderCreated;
 use App\Events\UserRegistered;
 use App\Listeners\AttachOrdersToUser;
 use App\Models\AttributeTerm;
@@ -25,6 +24,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Event;
+use Laravel\Sanctum\PersonalAccessToken;
+use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -41,12 +42,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->sanctumSettings();
         $this->includePolicies();
         $this->configureRoutes();
         $this->configureEmails();
         $this->configureRateLimiting();
         $this->customListeners();
         $this->observeHandle();
+    }
+
+    protected function sanctumSettings(): void
+    {
+        Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
     }
 
     protected function includePolicies (): void
@@ -140,9 +147,6 @@ class AppServiceProvider extends ServiceProvider
 
     protected function customListeners (): void
     {
-        Event::listen([
-            UserRegistered::class,
-            AttachOrdersToUser::class,
-        ]);
+        Event::listen(UserRegistered::class, AttachOrdersToUser::class);
     }
 }

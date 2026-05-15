@@ -9,6 +9,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Enum;
@@ -25,9 +26,8 @@ class RegisterController extends Controller
             ],
             'phone' => [
                 'required',
-                'string',
+                'regex:/^(\+?380)\d{9}$/',
                 'unique:users,phone',
-                'regex:/^\+?[0-9]{9,15}$/',
             ],
             'password' => [
                 'required',
@@ -53,10 +53,7 @@ class RegisterController extends Controller
             'city_id' => ['nullable', 'exists:cities,id'],
         ]);
 
-        $cartToken = $request->cookie('cart_token')
-            ?? $request->header('X-Cart-Token');
-
-        $result = DB::transaction(function () use ($data) {
+        $user = DB::transaction(function () use ($data) {
             $user = User::create([
                 'email' => $data['email'],
                 'phone' => $data['phone'],
@@ -73,35 +70,20 @@ class RegisterController extends Controller
                 'dob' => $data['dob'] ?? null,
                 'city_id' => $data['city_id'] ?? null,
             ]);
-
-            $token = $user->createToken(
-                'site_token',
-                [],
-                now()->addDays(7)
-            )->plainTextToken;
-
-            return compact('user', 'token');
+            return $user;
         });
 
-        event(new Registered($result['user']));
-        event(new UserRegistered($result['user']));
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        event(new Registered($user));
+        event(new UserRegistered($user));
 
         return response()->json([
             'data' => new UserResource(
-                $result['user']->load('profile.city.region')
+                $user->load('profile.city.region')
             ),
         ], 201)
-            ->cookie(
-                'access_token',
-                $result['token'],
-                60 * 24 * 7,
-                '/',
-                null,
-                true,
-                true,
-                false,
-                'Strict'
-            )
             ->cookie(cookie()->forget('cart_token'));
     }
 }
