@@ -7,12 +7,15 @@ use App\Http\Resources\UserResource;
 use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\ValidationException;
 
 class UserUpdateController extends Controller
 {
-    public function __invoke(Request $request)
+    public function profile(Request $request)
     {
         $authUser = $request->user();
 
@@ -60,19 +63,56 @@ class UserUpdateController extends Controller
             $profile = $authUser->profile()->first() ?? new Profile();
 
             $profile->fill([
-                'name' => $data['name'] ?? $profile->name,
-                'surname' => $data['surname'] ?? $profile->surname,
-                'middle_name' => $data['middle_name'] ?? $profile->middle_name,
-                'about' => $data['about'] ?? $profile->about,
-                'sex' => $data['sex'] ?? $profile->sex,
-                'dob' => $data['dob'] ?? $profile->dob,
-                'city_id' => $data['city_id'] ?? $profile->city_id,
+                'name' => $data['name'],
+                'surname' => $data['surname'],
+                'middle_name' => $data['middle_name'],
+                'about' => $data['about'],
+                'sex' => $data['sex'],
+                'dob' => $data['dob'],
+                'city_id' => $data['city_id'],
             ]);
 
             $profile->save();
 
             return $authUser->fresh();
         });
+
+        return response()->json([
+            'data' => new UserResource(
+                $user->load('profile.city.region')
+            ),
+        ]);
+    }
+
+    public function password(Request $request)
+    {
+        $validated = $request->validate([
+            'current_password' => ['required', 'string'],
+            'new_password' => [
+                'required',
+                'string',
+                'min:8',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
+            ],
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($validated['current_password'], $user->password)) {
+            throw ValidationException::withMessages([
+                'current_password' => ['Current password is incorrect.'],
+            ]);
+        }
+
+        $user->update([
+            'password' => Hash::make($validated['new_password']),
+        ]);
+
+        DB::table('sessions')
+            ->where('user_id', $user->id)
+            ->where('id', '!=', session()->getId())
+            ->delete();
 
         return response()->json([
             'data' => new UserResource(

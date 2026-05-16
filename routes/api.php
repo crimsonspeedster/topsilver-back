@@ -89,7 +89,10 @@ Route::prefix('v1')->group(function () {
         Route::post('/logout', LogoutController::class);
         Route::post('/products/{product}/reviews', [ReviewsController::class, 'store']);
 
-        Route::patch('/me', UserUpdateController::class);
+        Route::prefix('me')->group(function () {
+            Route::patch('/profile', [UserUpdateController::class, 'profile']);
+            Route::patch('/password', [UserUpdateController::class, 'password']);
+        });
 
         Route::get('/me', UserController::class);
         Route::get('/me/bonuses', BonusController::class);

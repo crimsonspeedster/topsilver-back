@@ -18,7 +18,7 @@ class ProfileResource extends JsonResource
             'middle_name' => $this->middle_name,
             'about' => $this->about,
             'sex' => $this->sex,
-            'dob' => $this->dob,
+            'dob' => $this->dob?->format('Y-m-d'),
             'city' => new CityResource($this->whenLoaded('city')),
         ];
     }
