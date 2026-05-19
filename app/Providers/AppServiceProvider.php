@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Events\UserRegistered;
 use App\Listeners\AttachOrdersToUser;
+use App\Listeners\MergeCartListener;
 use App\Models\AttributeTerm;
 use App\Models\Category;
 use App\Models\Collection;
@@ -14,6 +15,7 @@ use App\Observers\CategoryObserver;
 use App\Observers\CollectionObserver;
 use App\Observers\ProductObserver;
 use App\Policies\ProductReviewPolicy;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
@@ -148,5 +150,6 @@ class AppServiceProvider extends ServiceProvider
     protected function customListeners (): void
     {
         Event::listen(UserRegistered::class, AttachOrdersToUser::class);
+        Event::listen(Login::class, MergeCartListener::class);
     }
 }

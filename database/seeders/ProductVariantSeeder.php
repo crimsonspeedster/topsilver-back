@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\StockStatus;
 use App\Models\Product;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -44,14 +45,19 @@ class ProductVariantSeeder extends Seeder
 
         foreach ($combinations as $combination) {
             $variantKey = $this->makeVariantKey($combination);
+            $manage_stock = $product->manage_stock;
+            $stock = $manage_stock ? rand(0, $product->stock) : 0;
+            $stock_status = $manage_stock ?
+                $stock > 0 ? StockStatus::InStock : StockStatus::OutOfStock
+                : $product->stock_status;
 
             $variant = $product->variants()->create([
                 'variant_key' => $variantKey,
                 'sku' => Str::uuid(),
                 'price' => rand(1000, 3000),
                 'price_on_sale' => null,
-                'stock' => rand(0, $product->stock),
-                'stock_status' => $product->stock_status,
+                'stock' => $stock,
+                'stock_status' => $stock_status,
             ]);
 
             foreach ($combination as $term) {

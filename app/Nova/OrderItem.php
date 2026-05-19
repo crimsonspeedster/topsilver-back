@@ -7,6 +7,7 @@ use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\KeyValue;
+use Laravel\Nova\Fields\MorphTo;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -25,7 +26,7 @@ class OrderItem extends Resource
      *
      * @var string
      */
-    public static $title = 'product_name';
+    public static $title = 'entity_name';
 
     /**
      * The columns that should be searched.
@@ -34,7 +35,7 @@ class OrderItem extends Resource
      */
     public static $search = [
         'id',
-        'product_name'
+        'entity_name'
     ];
 
     public static $displayInNavigation = false;
@@ -68,16 +69,16 @@ class OrderItem extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('Product Name')
+            Text::make('Entity Name')
                 ->sortable()
                 ->rules('required'),
 
-            Image::make('Product Image')
+            Image::make('Entity Image')
                 ->preview(fn ($value, $disk, $model) => $value)
                 ->thumbnail(fn ($value, $disk, $model) => $value)
                 ->disableDownload(),
 
-            Number::make('Product Price')
+            Number::make('Entity Price')
                 ->rules(
                     'required',
                     'min:0',
@@ -104,7 +105,7 @@ class OrderItem extends Resource
             BelongsTo::make('Order', 'order', Order::class)
                 ->searchable(),
 
-            BelongsTo::make('Product', 'product', Product::class)
+            MorphTo::make('Entity', 'entity')
                 ->searchable()
                 ->nullable(),
         ];

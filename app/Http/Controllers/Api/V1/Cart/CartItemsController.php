@@ -21,7 +21,7 @@ class CartItemsController extends Controller
 
     public function store(StoreCartItemRequest $request)
     {
-        $cart = $request->attributes->get('cart');
+        $cart = $request->attributes->get('cart') ?? $this->cartService->getOrCreateCart($request);
         $data = $request->validated();
 
         return DB::transaction(function () use ($cart, $data) {
@@ -94,7 +94,7 @@ class CartItemsController extends Controller
 
     public function update(int $id, Request $request)
     {
-        $cart = $request->attributes->get('cart');
+        $cart = $request->attributes->get('cart') ?? $this->cartService->getOrCreateCart($request);
 
         $validated = $request->validate([
             'quantity' => ['required', 'integer', 'min:1', 'max:99'],
@@ -149,7 +149,7 @@ class CartItemsController extends Controller
 
     public function destroy(int $id, Request $request)
     {
-        $cart = $request->attributes->get('cart');
+        $cart = $request->attributes->get('cart') ?? $this->cartService->getOrCreateCart($request);
 
         return DB::transaction(function () use ($cart, $id) {
             $item = CartItem::where('id', $id)

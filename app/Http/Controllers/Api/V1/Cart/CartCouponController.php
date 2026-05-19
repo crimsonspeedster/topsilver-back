@@ -21,7 +21,7 @@ class CartCouponController extends Controller
         ]);
 
         $coupon = Coupon::where('code', $request->code)->firstOrFail();
-        $cart = $request->attributes->get('cart');
+        $cart = $request->attributes->get('cart') ?? $this->cartService->getOrCreateCart($request);
 
         try {
             $cart = $this->cartService->addCoupon($cart, $coupon);
@@ -40,7 +40,7 @@ class CartCouponController extends Controller
 
     public function destroy(Request $request)
     {
-        $cart = $request->attributes->get('cart');
+        $cart = $request->attributes->get('cart') ?? $this->cartService->getOrCreateCart($request);
         $cart = $this->cartService->removeCoupon($cart);
 
         return response()->json([

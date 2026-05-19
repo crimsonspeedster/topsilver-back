@@ -20,7 +20,8 @@
         "liqpay/liqpay": "^1.4",
         "mostafaznv/nova-video": "^6.5",
         "predis/predis": "^3.4",
-        "spatie/laravel-medialibrary": "^11.21"
+        "spatie/laravel-medialibrary": "^11.21",
+        "ext-bcmath": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

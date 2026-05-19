@@ -18,19 +18,14 @@ class OrderItemFactory extends Factory
      */
     public function definition(): array
     {
-        $product_id = Product::query()->inRandomOrder()->value('id');
-        $product_id = $this->faker->boolean(70)
-            ? $product_id
-            : null;
-
         $price = $this->faker->numberBetween(1000, 15000);
         $quantity = $this->faker->numberBetween(1, 10);
 
         return [
-            'product_id' => $product_id,
-            'product_name' => $this->faker->name(),
-            'product_image' => $this->faker->imageUrl(),
-            'product_price' => $price,
+            'entity_id' => null,
+            'entity_name' => $this->faker->name(),
+            'entity_image' => $this->faker->imageUrl(),
+            'entity_price' => $price,
             'product_variant' => [],
             'quantity' => $quantity,
             'total' => $price * $quantity,

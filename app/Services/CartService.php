@@ -20,7 +20,10 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class CartService
 {
@@ -28,6 +31,25 @@ class CartService
         protected CouponService $couponService,
         protected BonusService $bonusService,
     ) {}
+
+    public function getOrCreateCart(Request $request): Cart
+    {
+        $user = Auth::user();
+
+        if ($user) {
+            return Cart::firstOrCreate([
+                'user_id' => $user->id,
+            ]);
+        }
+
+        $token = $request->cookie('cart_token')
+            ?? $request->header('X-Cart-Token')
+            ?? (string) Str::uuid();
+
+        return Cart::firstOrCreate([
+            'cart_token' => $token,
+        ]);
+    }
 
     public function resolveCartItem(Cart $cart, Model $entity, ProductVariant|null $variant = null): Builder
     {
@@ -49,7 +71,7 @@ class CartService
             ? min($product->stock, $max)
             : $max;
 
-        if ($variant) {
+        if ($variant && $product->manage_stock) {
             $stock = min($variant->stock, $max);
         }
 

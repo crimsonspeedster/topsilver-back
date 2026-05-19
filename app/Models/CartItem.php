@@ -18,6 +18,7 @@ class CartItem extends Model
     ];
 
     protected $casts = [
+        'quantity' => 'integer',
         'price' => 'decimal:2',
     ];
 
@@ -36,5 +37,10 @@ class CartItem extends Model
             ProductVariant::class,
             'product_variant_id',
         );
+    }
+
+    public function getTotalPriceAttribute(): string
+    {
+        return bcmul($this->price, $this->quantity, 2);
     }
 }

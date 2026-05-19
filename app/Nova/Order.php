@@ -44,6 +44,8 @@ class Order extends Resource
         'id',
         'phone',
         'email',
+        'user.email',
+        'user.phone',
     ];
 
     public static $group = 'Shop';

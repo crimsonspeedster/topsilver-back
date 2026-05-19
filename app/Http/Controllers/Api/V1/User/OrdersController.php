@@ -18,7 +18,7 @@ class OrdersController extends Controller
                 'items.product.sluggable',
             ])
             ->orderBy('created_at', 'desc')
-            ->paginate(5);
+            ->paginate(1);
 
         return response()->json([
             'data' => [

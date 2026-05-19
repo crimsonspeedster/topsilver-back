@@ -18,8 +18,6 @@ class OrderResource extends JsonResource
         return [
             'id' => $this->id,
             'status' => $this->status,
-            'subtotal' => $this->subtotal,
-            'total' => $this->total,
             'total_formatted' => $currency->format($this->total)->format(),
             'subtotal_formatted' => $currency->format($this->subtotal)->format(),
             'paid_at' => $this->paid_at,
@@ -31,8 +29,6 @@ class OrderResource extends JsonResource
             'email' => $this->email,
             'discount_amount' => $this->discount_amount,
             'coupon_code' => $this->coupon_code,
-            'coupon_type' => $this->coupon_type,
-            'coupon_value' => $this->coupon_value,
             'payment_type' => $this->payment_type,
             'payment_data' => $this->payment_data,
             'shipping_type' => $this->shipping_type,

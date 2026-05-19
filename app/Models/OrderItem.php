@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class OrderItem extends Model
 {
@@ -12,10 +13,11 @@ class OrderItem extends Model
 
     protected $fillable = [
         'order_id',
-        'product_id',
-        'product_name',
-        'product_image',
-        'product_price',
+        'entity_id',
+        'entity_type',
+        'entity_name',
+        'entity_image',
+        'entity_price',
         'product_variant',
         'quantity',
         'total',
@@ -33,10 +35,12 @@ class OrderItem extends Model
         );
     }
 
-    public function product (): BelongsTo
+    public function entity (): MorphTo
     {
-        return $this->belongsTo(
-            Product::class,
+        return $this->morphTo(
+            null,
+            'entity_type',
+            'entity_id',
         );
     }
 }

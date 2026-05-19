@@ -26,6 +26,8 @@ class CartItemsResource extends JsonResource
             'quantity' => $this->quantity,
             'price' => $this->price,
             'price_formatted' => $currency->format($this->price)->format(),
+            'total' => $this->total_price,
+            'total_formatted' => $currency->format($this->total_price)->format(),
             'entity' => $this->resolveEntityResource(),
             'product_variant' => new ProductVariantResource($this->whenLoaded('variant')),
         ];

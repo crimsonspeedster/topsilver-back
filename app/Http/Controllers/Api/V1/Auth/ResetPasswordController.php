@@ -19,23 +19,17 @@ class ResetPasswordController extends Controller
 
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user) use ($request) {
+            function ($user, $password) {
                 $user->forceFill([
-                    'password' => Hash::make($request->password),
+                    'password' => Hash::make($password),
                 ])->save();
 
                 event(new PasswordReset($user));
             }
         );
 
-        if ($status !== Password::PASSWORD_RESET) {
-            return response()->json([
-                'message' => __($status),
-            ], 422);
-        }
-
         return response()->json([
             'message' => __($status),
-        ]);
+        ], $status === Password::PASSWORD_RESET ? 200 : 422);
     }
 }

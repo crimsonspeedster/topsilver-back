@@ -6,6 +6,7 @@ use App\Enums\CouponTypes;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethods;
 use App\Enums\ShippingMethods;
+use App\Models\Bundle;
 use App\Models\Cart;
 use App\Models\Coupon;
 use App\Models\NPWarehouse;
@@ -248,23 +249,25 @@ class CheckoutService
     private function createOrderItemsAndUpdateStock(Order $order, Cart $cart): void
     {
         foreach ($cart->items as $item) {
-
-            $product = $item->product;
+            $entity = $item->entity;
             $variant = $item->variant;
 
-            $price = $this->getItemPrice($product, $variant);
+            $price = $this->getItemPrice($entity, $variant);
 
             $order->items()->create([
-                'product_id' => $product->id,
-                'product_name' => $product->title,
-                'product_image' => $product->getFirstMediaUrl('media'),
-                'product_price' => $price,
+                'entity_id' => $entity->id,
+                'entity_type' => $entity->type,
+                'entity_name' => $entity->title,
+                'entity_image' => $entity->getFirstMediaUrl('media'),
+                'entity_price' => $price,
                 'product_variant' => $variant?->toArray() ?? [],
                 'quantity' => $item->quantity,
                 'total' => $price * $item->quantity,
             ]);
 
-            $this->decrementStock($product, $variant, $item->quantity);
+            if ($entity instanceof Product) {
+                $this->decrementStock($entity, $variant, $item->quantity);
+            }
         }
     }
 
@@ -274,13 +277,17 @@ class CheckoutService
         $cart->delete();
     }
 
-    private function getItemPrice(Product $product, ?ProductVariant $variant): float
+    private function getItemPrice(Product|Bundle $entity, ?ProductVariant $variant): float
     {
-        if ($variant) {
-            return $variant->price_on_sale ?? $variant->price;
+        if ($entity instanceof Product ) {
+            if ($variant) {
+                return $variant->price_on_sale ?? $variant->price;
+            }
+
+            return $entity->price_on_sale ?? $entity->price;
         }
 
-        return $product->price_on_sale ?? $product->price;
+        return $entity->price;
     }
 
     private function getAvailableStock(Product $product, ?ProductVariant $variant, int $max): int

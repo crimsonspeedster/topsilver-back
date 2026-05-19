@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('order_id');
-            $table->unsignedBigInteger('product_id')->nullable();
-            $table->string('product_name');
-            $table->string('product_image')->nullable();
-            $table->decimal('product_price', 10, 2);
+            $table->unsignedBigInteger('entity_id')->nullable();
+            $table->string('entity_name');
+            $table->string('entity_type');
+            $table->string('entity_image')->nullable();
+            $table->decimal('entity_price', 10, 2);
             $table->json('product_variant')->nullable();
             $table->integer('quantity')->default(1);
             $table->decimal('total', 10, 2);
@@ -25,7 +26,7 @@ return new class extends Migration
 
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
 
-            $table->index('product_id');
+            $table->index('entity_id');
         });
     }
 

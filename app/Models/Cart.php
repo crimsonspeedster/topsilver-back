@@ -49,4 +49,14 @@ class Cart extends Model
             'certificate_id'
         );
     }
+
+    public function getTotalQtyAttribute(): int
+    {
+        return $this->items->sum('quantity');
+    }
+
+    public function getItemsCountAttribute(): int
+    {
+        return $this->items()->count();
+    }
 }

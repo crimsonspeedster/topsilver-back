@@ -14,15 +14,19 @@ class LoginController extends Controller
 {
     public function __invoke (Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
+        $validated = $request->validate([
+            'login' => 'required|string',
             'password' => 'required'
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $login = $validated['login'];
+        $password = $validated['password'];
+        $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+        $user = User::where($field, $login)->first();
+
+        if (!$user || !Hash::check($password, $user->password)) {
+            return response()->json(['message' => 'Невірний логін або пароль'], 422);
         }
 
         Auth::login($user);

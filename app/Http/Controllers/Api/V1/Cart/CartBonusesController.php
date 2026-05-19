@@ -34,11 +34,9 @@ class CartBonusesController extends Controller
         }
 
         return response()->json([
-            'data' => [
-                'cart' => new CartResource(
-                    $this->cartService->loadCartItems($cart),
-                ),
-            ]
+            'data' => new CartResource(
+                $this->cartService->loadCartItems($cart),
+            ),
         ]);
     }
 }

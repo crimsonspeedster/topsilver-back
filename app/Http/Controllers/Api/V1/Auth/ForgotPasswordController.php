@@ -13,16 +13,10 @@ class ForgotPasswordController extends Controller
             'email' => 'required|email',
         ]);
 
-        $status = Password::sendResetLink($request->only('email'));
-
-        if ($status !== Password::RESET_LINK_SENT) {
-            return response()->json([
-                'message' => __($status),
-            ], 422);
-        }
+        Password::sendResetLink($request->only('email'));
 
         return response()->json([
-            'message' => __($status),
+            'message' => 'Якщо електронна адреса існує, ми надіслали посилання для скидання.',
         ]);
     }
 }

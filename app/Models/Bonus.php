@@ -24,6 +24,7 @@ class Bonus extends Model
         'accrual_from' => 'date',
         'available_from' => 'date',
         'expires_at' => 'date',
+        'amount' => 'decimal:2',
     ];
 
     public function user(): BelongsTo
