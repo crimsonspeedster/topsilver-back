@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\CartResource;
 use App\Models\Bundle;
 use App\Models\Product;
+use App\Services\CartService;
 use App\Services\CurrencyService;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\Request;
@@ -13,6 +14,7 @@ class CartController extends Controller
 {
     public function __construct(
         protected CurrencyService $currencyService,
+        protected CartService $cartService,
     ) {}
 
     public function show(Request $request)
@@ -39,25 +41,10 @@ class CartController extends Controller
             ]);
         }
 
-        $cart->load([
-            'items.entity' => function (MorphTo $morphTo) {
-                $morphTo->morphWith([
-                    Product::class => [
-                        'sluggable',
-                    ],
-
-                    Bundle::class => [
-                        'items.product.sluggable',
-                    ],
-                ]);
-            },
-            'items.variant',
-            'coupon',
-            'certificates',
-        ]);
-
         return response()->json([
-            'data' => new CartResource($cart),
+            'data' => new CartResource(
+                $this->cartService->loadCartItems($cart),
+            ),
         ]);
     }
 }

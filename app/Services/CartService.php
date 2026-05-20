@@ -92,7 +92,7 @@ class CartService
                     ],
                 ]);
             },
-            'items.variant',
+            'items.variant.attributeTerms',
             'coupon',
             'certificates',
         ]);

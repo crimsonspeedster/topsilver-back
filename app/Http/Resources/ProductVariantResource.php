@@ -25,6 +25,7 @@ class ProductVariantResource extends JsonResource
             'price_on_sale_formatted' => $this->price_on_sale ? $currency->format($this->price_on_sale)->format(): null,
             'stock' => $this->stock,
             'stock_status' => $this->stock_status,
+            'attribute_terms' => AttributeTermResource::collection($this->whenLoaded('attributeTerms')),
         ];
     }
 }
