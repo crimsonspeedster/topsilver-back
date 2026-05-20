@@ -16,8 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('product_id')->index();
             $table->unsignedBigInteger('category_id')->nullable()->index();
             $table->unsignedBigInteger('collection_id')->nullable()->index();
-            $table->unsignedBigInteger('attribute_id')->index();
-            $table->unsignedBigInteger('attribute_term_id')->index();
+            $table->unsignedBigInteger('attribute_id')->nullable()->index();
+            $table->unsignedBigInteger('attribute_term_id')->nullable()->index();
             $table->boolean('is_variant')->default(false);
             $table->decimal('price', 8, 2)->nullable()->index();
             $table->string('stock_status')->default('stock_status')->index();

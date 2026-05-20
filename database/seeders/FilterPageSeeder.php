@@ -7,6 +7,7 @@ use App\Models\FilterPage;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class FilterPageSeeder extends Seeder
 {
@@ -20,6 +21,8 @@ class FilterPageSeeder extends Seeder
         foreach ($categories as $categoryId) {
             $attributeIds = DB::table('product_filter_index')
                 ->where('category_id', $categoryId)
+                ->whereNotNull('attribute_id')
+                ->whereNotNull('attribute_term_id')
                 ->distinct()
                 ->pluck('attribute_id');
 

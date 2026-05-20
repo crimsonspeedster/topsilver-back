@@ -18,19 +18,39 @@ class ProductFilterIndexService
             $categoryIds = $categoryIds->isEmpty() ? [null] : $categoryIds;
             $collectionIds = $collectionIds->isEmpty() ? [null] : $collectionIds;
 
-            foreach ($product->attributeTerms as $term) {
+            $terms = $product->attributeTerms;
+
+            if ($terms->isEmpty()) {
                 foreach ($categoryIds as $categoryId) {
                     foreach ($collectionIds as $collectionId) {
                         ProductFilterIndex::create([
                             'product_id' => $product->id,
                             'category_id' => $categoryId,
                             'collection_id' => $collectionId,
-                            'attribute_id' => $term->attribute_id,
-                            'attribute_term_id' => $term->id,
+                            'attribute_id' => null,
+                            'attribute_term_id' => null,
                             'price' => $product->price_on_sale ?? $product->price,
                             'stock_status' => $product->stock_status,
                             'is_variant' => false,
                         ]);
+                    }
+                }
+            }
+            else {
+                foreach ($product->attributeTerms as $term) {
+                    foreach ($categoryIds as $categoryId) {
+                        foreach ($collectionIds as $collectionId) {
+                            ProductFilterIndex::create([
+                                'product_id' => $product->id,
+                                'category_id' => $categoryId,
+                                'collection_id' => $collectionId,
+                                'attribute_id' => $term->attribute_id,
+                                'attribute_term_id' => $term->id,
+                                'price' => $product->price_on_sale ?? $product->price,
+                                'stock_status' => $product->stock_status,
+                                'is_variant' => false,
+                            ]);
+                        }
                     }
                 }
             }
