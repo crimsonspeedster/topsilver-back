@@ -73,18 +73,14 @@ class User extends Resource
 
             Email::make('Email')
                 ->sortable()
-                ->rules(
-                    'required',
-                    'unique:users,email',
-                ),
+                ->rules('required')
+                ->creationRules('unique:users,email')
+                ->updateRules('unique:users,email,{{resourceId}}'),
 
             Text::make('Phone')
-                ->rules(
-                    'required',
-                    'unique:users,phone',
-                    'regex:/^\+?[0-9]{9,15}$/'
-                )
-                ->sortable(),
+                ->rules('required', 'regex:/^\+?[0-9]{9,15}$/')
+                ->creationRules('unique:users,phone')
+                ->updateRules('unique:users,phone,{{resourceId}}'),
 
             Select::make('Role')
                 ->options(UserRoles::options())
