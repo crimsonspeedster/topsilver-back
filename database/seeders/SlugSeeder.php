@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\FilterPage;
+use App\Models\Page;
 use App\Models\Post;
 use App\Models\Product;
 use App\Models\Slug;
@@ -20,6 +21,7 @@ class SlugSeeder extends Seeder
         $this->seedSlugs(Collection::pluck('id'), Collection::class, 'collection');
         $this->seedSlugs(FilterPage::pluck('id'), FilterPage::class, 'filter_page');
         $this->seedSlugs(Post::pluck('id'), Post::class, 'post');
+        $this->seedSlugs(Page::pluck('id'), Page::class, 'page');
     }
 
     private function seedSlugs($ids, string $type, string $base): void

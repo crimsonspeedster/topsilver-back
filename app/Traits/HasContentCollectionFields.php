@@ -2,6 +2,7 @@
 namespace App\Traits;
 
 use App\Enums\EntityStatus;
+use App\Nova\Flexible\Presets\PagePreset;
 use App\Nova\Seo;
 use App\Nova\SeoBlock;
 use App\Nova\Slug;
@@ -12,6 +13,7 @@ use Laravel\Nova\Fields\MorphOne;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Textarea;
+use Whitecube\NovaFlexibleContent\Flexible;
 
 trait HasContentCollectionFields
 {
@@ -25,6 +27,9 @@ trait HasContentCollectionFields
                 ->rules('required'),
 
             TextArea::make('Short Description'),
+
+            Flexible::make('Content')
+                ->preset(PagePreset::class),
 
             Select::make('Status')
                 ->options(EntityStatus::options())

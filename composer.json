@@ -10,6 +10,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "ext-bcmath": "*",
         "ext-openssl": "*",
         "ardenthq/nova-image-gallery-field": "dev-nova5",
         "darkaonline/l5-swagger": "^11.0",
@@ -19,9 +20,10 @@
         "laravel/tinker": "^3.0",
         "liqpay/liqpay": "^1.4",
         "mostafaznv/nova-video": "^6.5",
+        "outl1ne/nova-multiselect-field": "^5.1",
         "predis/predis": "^3.4",
         "spatie/laravel-medialibrary": "^11.21",
-        "ext-bcmath": "*"
+        "whitecube/nova-flexible-content": "^2.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

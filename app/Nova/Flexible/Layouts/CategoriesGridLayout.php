@@ -1,0 +1,21 @@
+<?php
+namespace App\Nova\Flexible\Layouts;
+
+use Laravel\Nova\Fields\Text;
+use Whitecube\NovaFlexibleContent\Flexible;
+use Whitecube\NovaFlexibleContent\Layouts\Layout;
+
+class CategoriesGridLayout extends Layout
+{
+    protected $name = 'categories-grid';
+
+    protected $title = 'Categories Grid';
+
+    public function fields(): array
+    {
+        return [
+            Flexible::make('Categories')
+                ->addLayout(CategoriesGridItemLayout::class),
+        ];
+    }
+}

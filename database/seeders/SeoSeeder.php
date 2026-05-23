@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\FilterPage;
+use App\Models\Page;
 use App\Models\Product;
 use App\Models\Seo;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -21,6 +22,7 @@ class SeoSeeder extends Seeder
         $categories = Category::pluck('id');
         $collections = Collection::pluck('id');
         $filterPages = FilterPage::pluck('id');
+        $pages = Page::pluck('id');
 
         foreach ($categories as $categoryId) {
             Seo::factory()->create([
@@ -47,6 +49,13 @@ class SeoSeeder extends Seeder
             Seo::factory()->create([
                 'entity_id' => $filterPageId,
                 'entity_type' => FilterPage::class,
+            ]);
+        }
+
+        foreach ($pages as $pageId) {
+            Seo::factory()->create([
+                'entity_id' => $pageId,
+                'entity_type' => Page::class,
             ]);
         }
     }
