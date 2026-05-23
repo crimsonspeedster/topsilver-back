@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('shipping_methods', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->text('description')->nullable();
             $table->string('type');
             $table->longText('config')->nullable();
             $table->boolean('active')->default(false);

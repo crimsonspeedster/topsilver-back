@@ -71,8 +71,6 @@ class ShippingMethod extends Resource
                 ->rules('required')
                 ->sortable(),
 
-            Textarea::make('Description'),
-
             Select::make('Type')
                 ->options(ShippingMethods::options())
                 ->displayUsingLabels()
