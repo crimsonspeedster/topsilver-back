@@ -31,6 +31,8 @@ use App\Http\Controllers\Api\V1\TaxonomyController;
 use App\Http\Controllers\Api\V1\FilterPageController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\PaymentMethodsController;
+use App\Http\Controllers\Api\V1\ShippingMethodsController;
 
 Route::prefix('v1')->group(function () {
     Route::get('/slug-resolver/{slug}', [SlugResolverController::class, 'resolver']);
@@ -42,6 +44,8 @@ Route::prefix('v1')->group(function () {
     Route::prefix('reference')->group(function () {
         Route::get('/cities', [CityController::class, 'cities']);
         Route::get('/categories', [CategoryController::class, 'categories']);
+        Route::get('/payment-methods', PaymentMethodsController::class);
+        Route::get('/shipping-methods', ShippingMethodsController::class);
     });
 
     Route::get('/menus', [MenuController::class, 'index']);
