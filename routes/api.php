@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\Auth\EmailVerificationController;
 use App\Http\Controllers\Api\V1\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\CheckoutController;
 use App\Http\Controllers\Api\V1\CityController;
+use App\Http\Controllers\Api\V1\ShopsController;
 use App\Http\Middleware\InjectBearerTokenFromCookie;
 use App\Http\Controllers\Api\V1\LiqPayController;
 use App\Http\Controllers\Api\V1\MenuController;
@@ -38,6 +39,8 @@ use App\Http\Controllers\Api\V1\ShopsPickupController;
 Route::prefix('v1')->group(function () {
     Route::get('/slug-resolver/{slug}', [SlugResolverController::class, 'resolver']);
     Route::get('/slug-resolver/{slug}/seo', [SlugResolverController::class, 'seo']);
+
+    Route::get('/shops', [ShopsController::class, 'index']);
 
     Route::get('/taxonomies/filter_page/{filter_page}/products', [FilterPageController::class, 'show']);
     Route::get('/taxonomies/{type}/{id}/products', [TaxonomyController::class, 'show']);

@@ -8,6 +8,7 @@ use App\Models\FilterPage;
 use App\Models\Page;
 use App\Models\Product;
 use App\Models\Seo;
+use App\Models\Shop;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -23,11 +24,19 @@ class SeoSeeder extends Seeder
         $collections = Collection::pluck('id');
         $filterPages = FilterPage::pluck('id');
         $pages = Page::pluck('id');
+        $shops = Shop::pluck('id');
 
         foreach ($categories as $categoryId) {
             Seo::factory()->create([
                 'entity_id' => $categoryId,
                 'entity_type' => Category::class,
+            ]);
+        }
+
+        foreach ($shops as $shopId) {
+            Seo::factory()->create([
+                'entity_id' => $shopId,
+                'entity_type' => Shop::class,
             ]);
         }
 

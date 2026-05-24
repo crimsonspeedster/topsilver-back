@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\EntityStatus;
@@ -8,13 +7,12 @@ use App\Enums\TaxonomySort;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ContentEntityResource;
 use App\Http\Resources\FilterPageResource;
-use App\Http\Resources\MediaResource;
 use App\Http\Resources\PaginationResource;
 use App\Http\Resources\Product\ProductCardResource;
 use App\Http\Resources\Product\ProductPDPResource;
 use App\Http\Resources\ProductReviewResource;
 use App\Http\Resources\SeoPageResource;
-use App\Http\Resources\SeoResource;
+use App\Http\Resources\ShopSingleResource;
 use App\Http\Resources\TaxonomyResource;
 use App\Models\Category;
 use App\Models\Collection;
@@ -22,11 +20,13 @@ use App\Models\ContentEntity;
 use App\Models\FilterPage;
 use App\Models\Page;
 use App\Models\Product;
+use App\Models\Shop;
 use App\Models\Slug;
 use App\Models\TaxonomyEntity;
 use App\Services\FilterService;
 use App\Services\ProductService;
 use App\Services\TaxonomyService;
+
 
 class SlugResolverController extends Controller
 {
@@ -46,6 +46,8 @@ class SlugResolverController extends Controller
         return match (true) {
             $entity instanceof Product => $this->resolverProduct($entity),
 
+            $entity instanceof Shop => $this->resolverShopEntity($entity),
+
             $entity instanceof Page => $this->resolverContentEntity($entity),
 
             $entity instanceof Category,
@@ -64,7 +66,6 @@ class SlugResolverController extends Controller
 
         $entity->load([
             'seo',
-            'media',
         ]);
 
         return response()->json([
@@ -72,11 +73,24 @@ class SlugResolverController extends Controller
         ]);
     }
 
+    private function resolverShopEntity (Shop $entity)
+    {
+        $entity->load([
+            'seoBlock',
+        ]);
+
+        return response()->json([
+            'data' => [
+                'type' => $entity->getType(),
+                'entity' => new ShopSingleResource($entity),
+            ],
+        ]);
+    }
+
     private function resolverContentEntity (ContentEntity $entity)
     {
         $entity->load([
             'seoBlock',
-            'media'
         ]);
 
         return response()->json([

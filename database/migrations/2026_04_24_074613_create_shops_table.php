@@ -13,7 +13,11 @@ return new class extends Migration
     {
         Schema::create('shops', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('title');
+            $table->text('short_description')->nullable();
+            $table->json('content')->nullable();
+            $table->string('status')->default('draft');
+            $table->timestamp('published_at')->nullable();
             $table->unsignedBigInteger('city_id');
             $table->string('address');
             $table->string('address_link');

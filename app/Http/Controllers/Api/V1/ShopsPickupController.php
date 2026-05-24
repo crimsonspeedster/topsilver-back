@@ -2,7 +2,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ShopResource;
+use App\Http\Resources\ShopPickupResource;
 use App\Models\Shop;
 
 class ShopsPickupController extends Controller
@@ -12,7 +12,7 @@ class ShopsPickupController extends Controller
         $shops = Shop::with('city.region')->get();
 
         return response()->json([
-            'data' => ShopResource::collection($shops),
+            'data' => ShopPickupResource::collection($shops),
         ]);
     }
 }

@@ -7,6 +7,7 @@ use App\Models\Collection;
 use App\Models\FilterPage;
 use App\Models\Page;
 use App\Models\Product;
+use App\Models\Shop;
 use App\Models\Slug;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -20,6 +21,7 @@ class SlugSeeder extends Seeder
         $this->seedSlugs(Collection::pluck('id'), Collection::class, 'collection');
         $this->seedSlugs(FilterPage::pluck('id'), FilterPage::class, 'filter_page');
         $this->seedSlugs(Page::pluck('id'), Page::class, 'page');
+        $this->seedSlugs(Shop::pluck('id'), Shop::class, 'shop');
     }
 
     private function seedSlugs($ids, string $type, string $base): void

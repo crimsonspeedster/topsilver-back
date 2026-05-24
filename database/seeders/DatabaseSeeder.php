@@ -26,9 +26,6 @@ class DatabaseSeeder extends Seeder
             ProductRelationSeeder::class,
             FilterPageSeeder::class,
             PageSeeder::class,
-            SlugSeeder::class,
-            SeoSeeder::class,
-            SeoBlockSeeder::class,
             BonusSeeder::class,
             RegionSeeder::class,
             CitySeeder::class,
@@ -42,6 +39,9 @@ class DatabaseSeeder extends Seeder
             ProductReviewSeeder::class,
             CouponSeeder::class,
             CertificateSeeder::class,
+            SlugSeeder::class,
+            SeoSeeder::class,
+            SeoBlockSeeder::class,
         ]);
     }
 }
