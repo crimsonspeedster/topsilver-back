@@ -21,7 +21,6 @@ use App\Models\Collection;
 use App\Models\ContentEntity;
 use App\Models\FilterPage;
 use App\Models\Page;
-use App\Models\Post;
 use App\Models\Product;
 use App\Models\Slug;
 use App\Models\TaxonomyEntity;
@@ -47,7 +46,6 @@ class SlugResolverController extends Controller
         return match (true) {
             $entity instanceof Product => $this->resolverProduct($entity),
 
-            $entity instanceof Post,
             $entity instanceof Page => $this->resolverContentEntity($entity),
 
             $entity instanceof Category,

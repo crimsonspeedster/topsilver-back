@@ -1,11 +1,11 @@
 <?php
 namespace App\Http\Resources;
 
-use App\Models\Post;
+use App\Models\Page;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin Post
+ * @mixin Page
  */
 class ContentEntityCollectionResource extends JsonResource
 {

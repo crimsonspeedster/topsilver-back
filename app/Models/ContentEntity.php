@@ -26,18 +26,26 @@ abstract class ContentEntity extends Model implements HasMedia, ContentEntityInt
         'status' => EntityStatus::class,
     ];
 
-    protected $fillable = [
-        'title',
-        'short_description',
-        'content',
-        'status',
-        'published_at',
-    ];
-
     public function registerMediaCollections(): void
     {
         $this
             ->addMediaCollection('media')
             ->singleFile();
+    }
+
+    protected function baseFillable(): array
+    {
+        return [
+            'title',
+            'short_description',
+            'content',
+            'status',
+            'published_at',
+        ];
+    }
+
+    public function getFillable(): array
+    {
+        return $this->baseFillable();
     }
 }
