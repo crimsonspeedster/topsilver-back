@@ -75,6 +75,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/areas', [NPController::class, 'areas']);
         Route::get('/areas/{areaRef}/cities', [NPController::class, 'citiesByArea']);
         Route::get('/cities/{cityRef}/warehouses', [NPController::class, 'warehousesByCity']);
+
+        Route::get('/locality', [NPController::class, 'localities']);
+        Route::get('/locality/{localityRef}/streets', [NPController::class, 'streetsByCity']);
     });
 
     Route::middleware([ResolveCart::class])->group(function () {

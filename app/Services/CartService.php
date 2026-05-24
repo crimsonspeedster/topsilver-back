@@ -32,23 +32,36 @@ class CartService
         protected BonusService $bonusService,
     ) {}
 
-    public function getOrCreateCart(Request $request): Cart
+    public function getOrCreateCart(Request $request): array
     {
         $user = Auth::user();
 
         if ($user) {
-            return Cart::firstOrCreate([
-                'user_id' => $user->id,
-            ]);
+            return [
+                'cart' => Cart::firstOrCreate([
+                    'user_id' => $user->id,
+                ]),
+                'new_token' => null,
+            ];
         }
 
-        $token = $request->cookie('cart_token')
-            ?? $request->header('X-Cart-Token')
-            ?? (string) Str::uuid();
+        $token = $request->cookie('cart_token');
 
-        return Cart::firstOrCreate([
+        $isNew = false;
+
+        if (!$token) {
+            $token = (string) Str::uuid();
+            $isNew = true;
+        }
+
+        $cart = Cart::firstOrCreate([
             'cart_token' => $token,
         ]);
+
+        return [
+            'cart' => $cart,
+            'new_token' => $isNew ? $token : null,
+        ];
     }
 
     public function resolveCartItem(Cart $cart, Model $entity, ProductVariant|null $variant = null): Builder

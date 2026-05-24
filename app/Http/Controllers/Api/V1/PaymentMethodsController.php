@@ -10,7 +10,7 @@ class PaymentMethodsController extends Controller
     public function __invoke()
     {
         $methods = PaymentMethod::active()
-            ->orderBy('name')
+            ->orderBy('id')
             ->get();
 
         return response()->json([

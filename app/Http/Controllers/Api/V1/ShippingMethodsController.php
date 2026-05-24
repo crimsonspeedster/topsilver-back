@@ -10,7 +10,7 @@ class ShippingMethodsController extends Controller
     public function __invoke()
     {
         $methods = ShippingMethod::active()
-            ->orderBy('name')
+            ->orderBy('id')
             ->get();
 
         return response()->json([

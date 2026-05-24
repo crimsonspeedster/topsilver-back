@@ -20,7 +20,7 @@ Schedule::call(function () {
         new SyncWarehousesStartJob(),
     ])->dispatch();
 })
-    ->dailyAt('09:57')
+    ->dailyAt('13:26')
     ->timezone('Europe/Warsaw');;
 
 //Schedule::call(function () {

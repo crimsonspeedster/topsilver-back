@@ -21,10 +21,11 @@ class CartItemsController extends Controller
 
     public function store(StoreCartItemRequest $request)
     {
-        $cart = $request->attributes->get('cart') ?? $this->cartService->getOrCreateCart($request);
+        $cartObject = $this->cartService->getOrCreateCart($request);
+        $cart = $cartObject['cart'];
         $data = $request->validated();
 
-        return DB::transaction(function () use ($cart, $data) {
+        $cart = DB::transaction(function () use ($cart, $data) {
             $entity = $this->resolveEntity($data['entity_type'], $data['entity_id']);
 
             if (!$entity) {
@@ -82,25 +83,35 @@ class CartItemsController extends Controller
                 ]);
             }
 
-            $cart = $this->cartService->recalculateCart($cart);
-
-            return response()->json([
-                'data' => new CartResource(
-                    $this->cartService->loadCartItems($cart),
-                ),
-            ]);
+            return $this->cartService->recalculateCart($cart);
         });
+
+        $response = response()->json([
+            'data' => new CartResource(
+                $this->cartService->loadCartItems($cart),
+            ),
+        ]);
+
+        if ($cartObject['new_token']) {
+            $response->cookie(
+                'cart_token',
+                $cartObject['new_token'],
+                60 * 24 * 3,
+            );
+        }
+
+        return $response;
     }
 
     public function update(int $id, Request $request)
     {
-        $cart = $request->attributes->get('cart') ?? $this->cartService->getOrCreateCart($request);
+        $cart = $request->attributes->get('cart');
 
         $validated = $request->validate([
             'quantity' => ['required', 'integer', 'min:1', 'max:99'],
         ]);
 
-        return DB::transaction(function () use ($cart, $id, $validated) {
+        $cart = DB::transaction(function () use ($cart, $id, $validated) {
             $item = CartItem::query()
                 ->where('id', $id)
                 ->where('cart_id', $cart->id)
@@ -137,21 +148,21 @@ class CartItemsController extends Controller
                 'quantity' => $validated['quantity'],
             ]);
 
-            $cart = $this->cartService->recalculateCart($cart);
-
-            return response()->json([
-                'data' => new CartResource(
-                    $this->cartService->loadCartItems($cart),
-                ),
-            ]);
+            return $this->cartService->recalculateCart($cart);
         });
+
+        return response()->json([
+            'data' => new CartResource(
+                $this->cartService->loadCartItems($cart),
+            ),
+        ]);
     }
 
     public function destroy(int $id, Request $request)
     {
-        $cart = $request->attributes->get('cart') ?? $this->cartService->getOrCreateCart($request);
+        $cart = $request->attributes->get('cart');
 
-        return DB::transaction(function () use ($cart, $id) {
+        $cart = DB::transaction(function () use ($cart, $id) {
             $item = CartItem::where('id', $id)
                 ->where('cart_id', $cart->id)
                 ->lockForUpdate()
@@ -159,14 +170,14 @@ class CartItemsController extends Controller
 
             $item->delete();
 
-            $cart = $this->cartService->recalculateCart($cart);
-
-            return response()->json([
-                'data' => new CartResource(
-                    $this->cartService->loadCartItems($cart),
-                ),
-            ]);
+            return $this->cartService->recalculateCart($cart);
         });
+
+        return response()->json([
+            'data' => new CartResource(
+                $this->cartService->loadCartItems($cart),
+            ),
+        ]);
     }
 
     private function resolveEntity(string $type, int $id): ?Model
