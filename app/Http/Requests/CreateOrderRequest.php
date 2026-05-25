@@ -5,6 +5,7 @@ use App\Enums\ShippingMethods;
 use App\Models\ShippingMethod;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class CreateOrderRequest extends FormRequest
@@ -71,6 +72,7 @@ class CreateOrderRequest extends FormRequest
 
                     return $shippingMethod?->type === ShippingMethods::NOVA_POSHTA_WAREHOUSE;
                 }),
+                'nullable',
                 'string',
                 'exists:np_warehouses,ref'
             ],
@@ -81,6 +83,7 @@ class CreateOrderRequest extends FormRequest
 
                     return $shippingMethod?->type === ShippingMethods::NOVA_POSHTA_COURIER;
                 }),
+                'nullable',
                 'string',
             ],
             'np_street' => [
@@ -90,6 +93,7 @@ class CreateOrderRequest extends FormRequest
 
                     return $shippingMethod?->type === ShippingMethods::NOVA_POSHTA_COURIER;
                 }),
+                'nullable',
                 'string',
             ],
             'np_house_number' => [
@@ -99,6 +103,7 @@ class CreateOrderRequest extends FormRequest
 
                     return $shippingMethod?->type === ShippingMethods::NOVA_POSHTA_COURIER;
                 }),
+                'nullable',
                 'integer',
             ],
             'np_apartment_number' => [

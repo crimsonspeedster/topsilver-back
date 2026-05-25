@@ -16,7 +16,9 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\ShippingMethod;
 use App\Models\Shop;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class CheckoutService
@@ -24,7 +26,22 @@ class CheckoutService
     public function checkout(Cart $cart, array $data): Order
     {
         return DB::transaction(function () use ($cart, $data) {
-            $cart->load('items.product', 'items.variant', 'coupon');
+            $cart->load([
+                'items.entity' => function (MorphTo $morphTo) {
+                    $morphTo->morphWith([
+                        Product::class => [
+                            'sluggable',
+                        ],
+
+                        Bundle::class => [
+                            'items.product.sluggable',
+                        ],
+                    ]);
+                },
+                'items.variant.attributeTerms',
+                'coupon',
+                'certificates',
+            ]);
 
             if ($cart->items->isEmpty()) {
                 throw ValidationException::withMessages([
@@ -67,19 +84,32 @@ class CheckoutService
         $max = 999;
 
         foreach ($cart->items as $item) {
-            $product = Product::where('id', $item->product_id)
-                ->lockForUpdate()
-                ->first();
+            $entity = null;
 
-            if (!$product) {
+            switch ($item->entity_type) {
+                case Bundle::class:
+                    $entity = Bundle::where('id', $item->entity_id)
+                        ->lockForUpdate()
+                        ->first();
+                    break;
+                case Product::class:
+                    $entity = Product::where('id', $item->entity_id)
+                        ->lockForUpdate()
+                        ->first();
+                    break;
+                default:
+                    break;
+            }
+
+            if (!$entity) {
                 throw ValidationException::withMessages([
-                    'product' => "Product {$item->product_id} not found",
+                    'product' => "Entity {$item->entity_id} not found",
                 ]);
             }
 
             $variant = null;
 
-            if ($item->product_variant_id) {
+            if ($item->entity_type === Product::class && $item->product_variant_id) {
                 $variant = ProductVariant::where('id', $item->product_variant_id)
                     ->lockForUpdate()
                     ->first();
@@ -91,15 +121,15 @@ class CheckoutService
                 }
             }
 
-            $available = $this->getAvailableStock($product, $variant, $max);
+            $available = $this->getAvailableStock($entity, $variant, $max);
 
             if ($item->quantity > $available) {
                 throw ValidationException::withMessages([
-                    'stock' => "Not enough stock for product {$product->id}",
+                    'stock' => "Not enough stock for entity {$entity->id}",
                 ]);
             }
 
-            $price = $this->getItemPrice($product, $variant);
+            $price = $this->getItemPrice($entity, $variant);
             $subtotal += $price * $item->quantity;
         }
 
@@ -254,19 +284,34 @@ class CheckoutService
 
             $price = $this->getItemPrice($entity, $variant);
 
-            $order->items()->create([
-                'entity_id' => $entity->id,
-                'entity_type' => $entity->type,
-                'entity_name' => $entity->title,
-                'entity_image' => $entity->getFirstMediaUrl('media'),
-                'entity_price' => $price,
-                'product_variant' => $variant?->toArray() ?? [],
-                'quantity' => $item->quantity,
-                'total' => $price * $item->quantity,
-            ]);
+            switch ($item->entity_type) {
+                case Product::class:
+                    $order->items()->create([
+                        'entity_id' => $entity->id,
+                        'entity_type' => $item->entity_type,
+                        'entity_name' => $entity->title,
+                        'entity_image' => $entity->getFirstMediaUrl('media'),
+                        'entity_price' => $price,
+                        'product_variant' => $variant?->toArray() ?? [],
+                        'quantity' => $item->quantity,
+                        'total' => $price * $item->quantity,
+                    ]);
 
-            if ($entity instanceof Product) {
-                $this->decrementStock($entity, $variant, $item->quantity);
+                    $this->decrementStock($entity, $variant, $item->quantity);
+                    break;
+
+                case Bundle::class:
+                    $order->items()->create([
+                        'entity_id' => $entity->id,
+                        'entity_type' => $item->entity_type,
+                        'entity_name' => $entity->title,
+                        'entity_image' => $entity->getFirstMediaUrl('media'),
+                        'entity_price' => $price,
+                        'product_variant' => [],
+                        'quantity' => $item->quantity,
+                        'total' => $price * $item->quantity,
+                    ]);
+                    break;
             }
         }
     }
@@ -290,13 +335,17 @@ class CheckoutService
         return $entity->price;
     }
 
-    private function getAvailableStock(Product $product, ?ProductVariant $variant, int $max): int
+    private function getAvailableStock(Product|Bundle $entity, ?ProductVariant $variant, int $max): int
     {
-        if ($variant) {
-            return $product->manage_stock ? min($variant->stock, $max) : $max;
+        if ($entity instanceof Product ) {
+            if ($variant) {
+                return $entity->manage_stock ? min($variant->stock, $max) : $max;
+            }
+
+            return $entity->manage_stock ? min($entity->stock, $max) : $max;
         }
 
-        return $product->manage_stock ? min($product->stock, $max) : $max;
+        return 0;
     }
 
     private function decrementStock(Product $product, ?ProductVariant $variant, int $qty): void

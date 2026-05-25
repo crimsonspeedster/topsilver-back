@@ -6,9 +6,12 @@ use App\Events\OrderCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateOrderRequest;
 use App\Http\Resources\OrderResource;
+use App\Models\Bundle;
+use App\Models\Product;
 use App\Services\CheckoutService;
 use App\Services\LiqPayService;
 use App\Services\MonobankPay;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Validation\ValidationException;
 
 class CheckoutController extends Controller
@@ -57,7 +60,19 @@ class CheckoutController extends Controller
 
         return response()->json([
             'data' => new OrderResource(
-                $order->load('items.product.sluggable')
+                $order->load([
+                    'items.entity' => function (MorphTo $morphTo) {
+                        $morphTo->morphWith([
+                            Product::class => [
+                                'sluggable',
+                            ],
+
+                            Bundle::class => [
+                                'items.product.sluggable',
+                            ],
+                        ]);
+                    },
+                ])
             ),
             'payment' => $payment,
         ])->cookie(cookie()->forget('cart_token'));
