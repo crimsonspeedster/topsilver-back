@@ -5,7 +5,6 @@ use App\Http\Controllers\Api\V1\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\CheckoutController;
 use App\Http\Controllers\Api\V1\CityController;
 use App\Http\Controllers\Api\V1\ShopsController;
-use App\Http\Middleware\InjectBearerTokenFromCookie;
 use App\Http\Controllers\Api\V1\LiqPayController;
 use App\Http\Controllers\Api\V1\MenuController;
 use App\Http\Controllers\Api\V1\MonopayController;
@@ -35,6 +34,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\PaymentMethodsController;
 use App\Http\Controllers\Api\V1\ShippingMethodsController;
 use App\Http\Controllers\Api\V1\ShopsPickupController;
+use App\Http\Controllers\Api\V1\CollectionsController;
+
 
 Route::prefix('v1')->group(function () {
     Route::get('/slug-resolver/{slug}', [SlugResolverController::class, 'resolver']);
@@ -43,7 +44,8 @@ Route::prefix('v1')->group(function () {
     Route::get('/shops', [ShopsController::class, 'index']);
 
     Route::get('/taxonomies/filter_page/{filter_page}/products', [FilterPageController::class, 'show']);
-    Route::get('/taxonomies/{type}/{id}/products', [TaxonomyController::class, 'show']);
+    Route::get('/taxonomies/{type}/products/{id}', [TaxonomyController::class, 'show']);
+    Route::get('/taxonomies/{type}/collections', [TaxonomyController::class, 'index']);
 
     Route::prefix('reference')->group(function () {
         Route::get('/cities', [CityController::class, 'cities']);

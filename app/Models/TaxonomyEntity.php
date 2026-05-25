@@ -6,6 +6,8 @@ use App\Traits\HasSeo;
 use App\Traits\HasSeoBlock;
 use App\Traits\HasSlug;
 use App\Traits\HasTaxonomyHierarchy;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Interfaces\ContentEntityInterface;
@@ -63,5 +65,21 @@ abstract class TaxonomyEntity extends Model implements ContentEntityInterface, H
         $this
             ->addMediaCollection('media')
             ->singleFile();
+    }
+
+    #[Scope]
+    protected function scopeParents (Builder $query): Builder
+    {
+        return $query->whereNull('parent_id');
+    }
+
+    #[Scope]
+    protected function scopePublished (Builder $query): Builder
+    {
+        return $query->where(
+            'status',
+            '=',
+            EntityStatus::Published
+        );
     }
 }

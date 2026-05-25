@@ -10,7 +10,8 @@ class ShopsController extends Controller
 {
     public function index()
     {
-        $shops = Shop::with([
+        $shops = Shop::published()
+            ->with([
                 'sluggable',
             ])
             ->orderBy('created_at', 'desc')
