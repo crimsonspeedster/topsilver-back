@@ -9,7 +9,7 @@ use Whitecube\NovaFlexibleContent\Layouts\Layout;
 
 class ProductsGrid extends Layout
 {
-    protected $name = 'products-grid';
+    protected $name = 'ProductsGrid';
 
     protected $title = 'Products Grid';
 

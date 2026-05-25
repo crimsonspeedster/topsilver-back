@@ -1,6 +1,7 @@
 <?php
 namespace App\Nova\Flexible\Layouts;
 
+use App\Http\Resources\TaxonomyCollectionResource;
 use App\Nova\Category;
 use Laravel\Nova\Fields\Image;
 use Outl1ne\MultiselectField\Multiselect;
@@ -8,20 +9,30 @@ use Whitecube\NovaFlexibleContent\Layouts\Layout;
 
 class CategoriesGridItemLayout extends Layout
 {
-    protected $name = 'categories-grid-item';
-
+    protected $name = 'CategoriesGridItem';
     protected $title = 'Categories Grid Item';
 
     public function fields(): array
     {
         return [
-            Image::make('Image')
-                ->required(),
+            Image::make('Image')->required(),
 
             Multiselect::make('Category')
-            ->singleSelect()
-            ->asyncResource(Category::class)
-            ->required(),
+                ->singleSelect()
+                ->asyncResource(Category::class)
+                ->required(),
+        ];
+    }
+
+    public static function relations(): array
+    {
+        return [
+            'category' => [
+                'model' => Category::class,
+                'multiple' => false,
+                'resource' => TaxonomyCollectionResource::class,
+                'with' => ['sluggable'],
+            ],
         ];
     }
 }

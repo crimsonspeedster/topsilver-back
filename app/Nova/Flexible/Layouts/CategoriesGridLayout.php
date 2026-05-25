@@ -7,7 +7,7 @@ use Whitecube\NovaFlexibleContent\Layouts\Layout;
 
 class CategoriesGridLayout extends Layout
 {
-    protected $name = 'categories-grid';
+    protected $name = 'CategoriesGrid';
 
     protected $title = 'Categories Grid';
 
