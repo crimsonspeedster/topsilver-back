@@ -214,25 +214,35 @@ class FilterService
     public function parseFilters(): array
     {
         $filters = request('filters', []);
-
         $result = [];
 
-        foreach ($filters as $attributeId => $value) {
-
-            $termIds = array_filter(
+        foreach ($filters as $id => $value) {
+            $ids = array_filter(
                 explode(',', $value),
                 fn($v) => is_numeric($v)
             );
 
-            if (!empty($termIds)) {
-                $result[(int)$attributeId] = array_map(
+            if (!empty($ids)) {
+                $result[(int)$id] = array_map(
                     'intval',
-                    $termIds
+                    $ids
                 );
             }
         }
 
         return $result;
+    }
+
+    public function parseTaxonomies(
+        string $key,
+    ): array
+    {
+        return collect(request($key, []))
+            ->filter(fn ($id) => is_numeric($id))
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->toArray();
     }
 
     public function parseFiltersFromFilterPage(FilterPage $filterPage): array

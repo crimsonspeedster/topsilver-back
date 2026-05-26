@@ -12,8 +12,8 @@ class ProductCatalogService
     public function buildCatalogQuery(
         ?ContentEntityInterface $taxonomy = null,
         ?string $search = null,
-        ?int $categoryId = null,
-        ?int $collectionId = null,
+        array $categoryIds = [],
+        array $collectionIds = [],
     ): Builder
     {
         $query = Product::query()
@@ -23,20 +23,11 @@ class ProductCatalogService
                 'labels',
             ]);
 
-        if ($categoryId) {
-            $query->whereHas('categories', function ($q) use ($categoryId) {
-                $q->where('categories.id', $categoryId);
-            });
-        }
-
-        if ($collectionId) {
-            $query->whereHas('collections', function ($q) use ($collectionId) {
-                $q->where('collections.id', $collectionId);
-            });
-        }
-
         if ($taxonomy) {
-            $query = $this->applyTaxonomy($query, $taxonomy);
+            $query = $this->applyTaxonomy(
+                $query,
+                $taxonomy,
+            );
         }
 
         if ($search) {
@@ -44,6 +35,26 @@ class ProductCatalogService
                 'title',
                 'like',
                 '%' . trim($search) . '%'
+            );
+        }
+
+        if (!empty($categoryIds)) {
+            $query->whereHas(
+                'categories',
+                fn ($q) => $q->whereIn(
+                    'categories.id',
+                    $categoryIds
+                )
+            );
+        }
+
+        if (!empty($collectionIds)) {
+            $query->whereHas(
+                'collections',
+                fn ($q) => $q->whereIn(
+                    'collections.id',
+                    $collectionIds
+                )
             );
         }
 
