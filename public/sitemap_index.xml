@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
-    <url>
-    <loc>http://localhost:3000/sitemaps/pages.xml</loc>
-            </url>
-    <url>
-    <loc>http://localhost:3000/sitemaps/collections.xml</loc>
-            </url>
-    <url>
-    <loc>http://localhost:3000/sitemaps/categories.xml</loc>
-            </url>
-    <url>
-    <loc>http://localhost:3000/sitemaps/filter-pages.xml</loc>
-            </url>
-    <url>
-    <loc>http://localhost:3000/sitemaps/products.xml</loc>
-            </url>
-    <url>
-    <loc>http://localhost:3000/sitemaps/shops.xml</loc>
-            </url>
-</urlset>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <sitemap>
+        <loc>http://localhost:3000/sitemaps/pages.xml</loc>
+            <lastmod>2026-05-26T11:21:12+03:00</lastmod>
+    </sitemap>
+    <sitemap>
+        <loc>http://localhost:3000/sitemaps/products.xml</loc>
+            <lastmod>2026-05-26T11:21:18+03:00</lastmod>
+    </sitemap>
+    <sitemap>
+        <loc>http://localhost:3000/sitemaps/shops.xml</loc>
+            <lastmod>2026-05-26T11:21:29+03:00</lastmod>
+    </sitemap>
+    <sitemap>
+        <loc>http://localhost:3000/sitemaps/categories.xml</loc>
+            <lastmod>2026-05-26T11:20:50+03:00</lastmod>
+    </sitemap>
+    <sitemap>
+        <loc>http://localhost:3000/sitemaps/filter-pages.xml</loc>
+            <lastmod>2026-05-26T11:21:04+03:00</lastmod>
+    </sitemap>
+</sitemapindex>
