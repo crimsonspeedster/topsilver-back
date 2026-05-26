@@ -28,13 +28,12 @@ use App\Http\Controllers\Api\V1\Cart\CartCouponController;
 use App\Http\Controllers\Api\V1\Cart\CartCertificateController;
 use App\Http\Controllers\Api\V1\Cart\CartBonusesController;
 use App\Http\Controllers\Api\V1\TaxonomyController;
-use App\Http\Controllers\Api\V1\FilterPageController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\PaymentMethodsController;
 use App\Http\Controllers\Api\V1\ShippingMethodsController;
 use App\Http\Controllers\Api\V1\ShopsPickupController;
-use App\Http\Controllers\Api\V1\CollectionsController;
+use App\Http\Controllers\Api\V1\SearchController;
 
 
 Route::prefix('v1')->group(function () {
@@ -43,9 +42,10 @@ Route::prefix('v1')->group(function () {
 
     Route::get('/shops', [ShopsController::class, 'index']);
 
-    Route::get('/taxonomies/filter_page/{filter_page}/products', [FilterPageController::class, 'show']);
     Route::get('/taxonomies/{type}/products/{id}', [TaxonomyController::class, 'show']);
     Route::get('/taxonomies/{type}/collections', [TaxonomyController::class, 'index']);
+
+    Route::get('/search', [SearchController::class, 'index']);
 
     Route::prefix('reference')->group(function () {
         Route::get('/cities', [CityController::class, 'cities']);

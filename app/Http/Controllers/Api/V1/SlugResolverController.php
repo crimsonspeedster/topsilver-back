@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\EntityStatus;
@@ -13,6 +14,7 @@ use App\Http\Resources\Product\ProductPDPResource;
 use App\Http\Resources\ProductReviewResource;
 use App\Http\Resources\SeoPageResource;
 use App\Http\Resources\ShopSingleResource;
+use App\Http\Resources\TaxonomyCollectionResource;
 use App\Http\Resources\TaxonomyResource;
 use App\Models\Category;
 use App\Models\Collection;
@@ -24,6 +26,7 @@ use App\Models\Shop;
 use App\Models\Slug;
 use App\Models\TaxonomyEntity;
 use App\Services\FilterService;
+use App\Services\ProductCatalogService;
 use App\Services\ProductService;
 use App\Services\TaxonomyService;
 
@@ -31,12 +34,12 @@ use App\Services\TaxonomyService;
 class SlugResolverController extends Controller
 {
     public function __construct(
-        private readonly TaxonomyService $taxonomyService,
-        private readonly FilterService $filterService,
-        private readonly ProductService $productService,
+        private readonly ProductCatalogService $catalogService,
+        private readonly FilterService         $filterService,
+        private readonly ProductService        $productService,
     ) {}
 
-    public function resolver (string $slug)
+    public function resolver(string $slug)
     {
         $slugModel = Slug::where('slug', $slug)->firstOrFail();
         $entity = $slugModel->entity;
@@ -73,7 +76,7 @@ class SlugResolverController extends Controller
         ]);
     }
 
-    private function resolverShopEntity (Shop $entity)
+    private function resolverShopEntity(Shop $entity)
     {
         $entity->load([
             'seoBlock',
@@ -87,7 +90,7 @@ class SlugResolverController extends Controller
         ]);
     }
 
-    private function resolverContentEntity (ContentEntity $entity)
+    private function resolverContentEntity(ContentEntity $entity)
     {
         $entity->load([
             'seoBlock',
@@ -170,12 +173,14 @@ class SlugResolverController extends Controller
         );
     }
 
-    private function resolverFilterPage(FilterPage $filterPage)
+    private function resolverFilterPage(
+        FilterPage $filterPage,
+    )
     {
-        $category = $filterPage->category;
+        $category = $filterPage->category->load(['sluggable']);
 
         $selectedFilters = $this->filterService
-            ->parseFiltersFromFilterPage($filterPage);
+            ->resolveSelectedFiltersFromFilterPage($filterPage);
 
         $filterPage->load([
             'seoBlock',
@@ -187,6 +192,7 @@ class SlugResolverController extends Controller
             sort: TaxonomySort::NEWEST,
             extra: [
                 'entity' => new FilterPageResource($filterPage),
+                'category' => new TaxonomyCollectionResource($category),
                 'type' => 'filter_page',
             ]
         );
@@ -194,20 +200,35 @@ class SlugResolverController extends Controller
 
     private function resolveTaxonomyBase(
         TaxonomyEntity $taxonomy,
-        array $selectedFilters = [],
-        TaxonomySort $sort = TaxonomySort::NEWEST,
-        array $extra = []
-    ) {
-        $products = $this->taxonomyService->getProducts(
-            $taxonomy,
-            $sort,
-            $selectedFilters
-        );
+        array          $selectedFilters = [],
+        TaxonomySort   $sort = TaxonomySort::NEWEST,
+        array          $extra = [],
+    )
+    {
+        $baseQuery = $this->catalogService
+            ->buildCatalogQuery(
+                taxonomy: $taxonomy,
+            );
 
-        $filters = $this->filterService->getFilters(
-            $taxonomy,
-            $selectedFilters
-        );
+        $filters = $this->filterService
+            ->getFilters(
+                baseQuery: $baseQuery,
+                selectedFilters: $selectedFilters,
+            );
+
+        $query = $this->filterService
+            ->applyFiltersToQuery(
+                query: $baseQuery,
+                selectedFilters: $selectedFilters,
+            );
+
+        $query = $this->catalogService
+            ->applySorting(
+                query: $query,
+                sort: $sort,
+            );
+
+        $products = $query->paginate(12);
 
         $taxonomy->load([
             'seoBlock',
@@ -216,9 +237,15 @@ class SlugResolverController extends Controller
         return response()->json([
             'data' => array_merge([
                 'type' => $taxonomy->getType(),
-                'entity' => new TaxonomyResource($taxonomy),
-                'products' => ProductCardResource::collection($products->items()),
-                'pagination' => new PaginationResource($products),
+                'entity' => new TaxonomyResource(
+                    $taxonomy
+                ),
+                'products' => ProductCardResource::collection(
+                    $products->items()
+                ),
+                'pagination' => new PaginationResource(
+                    $products
+                ),
                 'filters' => $filters,
             ], $extra),
         ]);
