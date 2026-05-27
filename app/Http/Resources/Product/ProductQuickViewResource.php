@@ -45,6 +45,7 @@ class ProductQuickViewResource extends JsonResource
             'labels' => LabelResource::collection($this->whenLoaded('labels')),
             'categories' => TaxonomyCollectionResource::collection($this->whenLoaded('categories')),
             'collections' => TaxonomyCollectionResource::collection($this->whenLoaded('collections')),
+            'promotions' => TaxonomyCollectionResource::collection($this->whenLoaded('promotions')),
         ];
     }
 }

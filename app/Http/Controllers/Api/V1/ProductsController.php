@@ -20,6 +20,7 @@ class ProductsController extends Controller
             'labels',
             'categories.sluggable',
             'collections.sluggable',
+            'promotions.sluggable',
         ]);
 
         $type = $request->input('type', 'quick_view');
