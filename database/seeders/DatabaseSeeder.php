@@ -43,6 +43,9 @@ class DatabaseSeeder extends Seeder
             SlugSeeder::class,
             SeoSeeder::class,
             SeoBlockSeeder::class,
+            LocationSeeder::class,
+            MenuSeeder::class,
+            MenuItemSeeder::class,
         ]);
     }
 }

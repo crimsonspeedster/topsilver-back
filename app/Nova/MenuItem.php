@@ -88,6 +88,8 @@ class MenuItem extends Resource
                     Collection::class,
                     FilterPage::class,
                     Page::class,
+                    Promotion::class,
+                    Shop::class,
                 ])
                 ->hide()
                 ->searchable()

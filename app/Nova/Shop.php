@@ -23,7 +23,7 @@ class Shop extends Resource
      *
      * @var string
      */
-    public static $title = 'name';
+    public static $title = 'title';
 
     /**
      * The columns that should be searched.
@@ -32,7 +32,7 @@ class Shop extends Resource
      */
     public static $search = [
         'id',
-        'name',
+        'title',
         'address',
         'phone',
     ];
@@ -51,7 +51,7 @@ class Shop extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('Name')
+            Text::make('Title')
                 ->sortable()
                 ->rules('required'),
 
