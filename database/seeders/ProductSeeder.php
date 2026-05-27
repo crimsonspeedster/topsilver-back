@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Label;
 use App\Models\Product;
+use App\Models\Promotion;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -22,7 +23,6 @@ class ProductSeeder extends Seeder
             ->count(200)
             ->create()
             ->each(function($product) {
-//                $this->attachMedia($product);
                 $this->attachRelations($product);
             });
 
@@ -51,6 +51,13 @@ class ProductSeeder extends Seeder
 
         $product->collections()->syncWithoutDetaching(
             Collection::inRandomOrder()
+                ->take(rand(1,3))
+                ->pluck('id')
+                ->toArray()
+        );
+
+        $product->promotions()->syncWithoutDetaching(
+            Promotion::inRandomOrder()
                 ->take(rand(1,3))
                 ->pluck('id')
                 ->toArray()

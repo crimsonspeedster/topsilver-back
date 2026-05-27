@@ -7,6 +7,7 @@ use App\Models\Collection;
 use App\Models\FilterPage;
 use App\Models\Page;
 use App\Models\Product;
+use App\Models\Promotion;
 use App\Models\Seo;
 use App\Models\Shop;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -22,6 +23,7 @@ class SeoSeeder extends Seeder
         $products = Product::pluck('id');
         $categories = Category::pluck('id');
         $collections = Collection::pluck('id');
+        $promotions = Promotion::pluck('id');
         $filterPages = FilterPage::pluck('id');
         $pages = Page::pluck('id');
         $shops = Shop::pluck('id');
@@ -51,6 +53,13 @@ class SeoSeeder extends Seeder
             Seo::factory()->create([
                 'entity_id' => $collectionId,
                 'entity_type' => Collection::class,
+            ]);
+        }
+
+        foreach ($promotions as $promotionId) {
+            Seo::factory()->create([
+                'entity_id' => $promotionId,
+                'entity_type' => Promotion::class,
             ]);
         }
 

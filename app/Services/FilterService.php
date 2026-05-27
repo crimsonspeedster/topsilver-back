@@ -1,10 +1,7 @@
 <?php
 namespace App\Services;
 
-use App\Interfaces\ContentEntityInterface;
 use App\Models\AttributeTerm;
-use App\Models\Category;
-use App\Models\Collection;
 use App\Models\FilterPage;
 use App\Models\ProductFilterIndex;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,7 +13,6 @@ class FilterService
     public function applyFiltersToQuery(
         Builder $query,
         array   $selectedFilters = [],
-        ?ContentEntityInterface $taxonomy = null,
     ): Builder
     {
         $selectedFilters = $selectedFilters ?: $this->parseFilters();
@@ -28,17 +24,7 @@ class FilterService
             return $query;
         }
 
-        $productIdsQuery = ProductFilterIndex::query();
-
-        if ($taxonomy instanceof Category) {
-            $productIdsQuery->where('category_id', $taxonomy->id);
-        }
-
-        if ($taxonomy instanceof Collection) {
-            $productIdsQuery->where('collection_id', $taxonomy->id);
-        }
-
-        $productIdsQuery = $productIdsQuery
+        $productIdsQuery = ProductFilterIndex::query()
             ->select('product_id');
 
         foreach ($selectedFilters as $attributeId => $termIds) {

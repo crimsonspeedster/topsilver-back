@@ -14,6 +14,7 @@ class ProductCatalogService
         ?string $search = null,
         array $categoryIds = [],
         array $collectionIds = [],
+        array $promotionIds = [],
     ): Builder
     {
         $query = Product::query()
@@ -58,6 +59,16 @@ class ProductCatalogService
             );
         }
 
+        if (!empty($promotionIds)) {
+            $query->whereHas(
+                'promotions',
+                fn ($q) => $q->whereIn(
+                    'promotions.id',
+                    $collectionIds
+                )
+            );
+        }
+
         return $query;
     }
 
@@ -75,6 +86,11 @@ class ProductCatalogService
             'collection' => $query->whereHas(
                 'collections',
                 fn ($q) => $q->where('collections.id', $taxonomy->id)
+            ),
+
+            'promotion' => $query->whereHas(
+                'promotions',
+                fn ($q) => $q->where('promotions.id', $taxonomy->id)
             ),
 
             default => $query,

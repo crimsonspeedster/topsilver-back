@@ -50,6 +50,7 @@ class ProductPDPResource extends JsonResource
             'labels' => LabelResource::collection($this->whenLoaded('labels')),
             'categories' => TaxonomyCollectionResource::collection($this->whenLoaded('categories')),
             'collections' => TaxonomyCollectionResource::collection($this->whenLoaded('collections')),
+            'promotions' => TaxonomyCollectionResource::collection($this->whenLoaded('promotions')),
             'bundles' => BundleResource::collection($this->whenLoaded('bundles')),
             'cross_sells' => ProductCardResource::collection($this->whenLoaded('crossSellsLimited')),
             'group_products' => ProductCardResource::collection($this->whenLoaded('groupProducts')),

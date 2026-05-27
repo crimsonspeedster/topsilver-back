@@ -22,13 +22,13 @@ use App\Models\ContentEntity;
 use App\Models\FilterPage;
 use App\Models\Page;
 use App\Models\Product;
+use App\Models\Promotion;
 use App\Models\Shop;
 use App\Models\Slug;
 use App\Models\TaxonomyEntity;
 use App\Services\FilterService;
 use App\Services\ProductCatalogService;
 use App\Services\ProductService;
-use App\Services\TaxonomyService;
 
 
 class SlugResolverController extends Controller
@@ -53,6 +53,7 @@ class SlugResolverController extends Controller
 
             $entity instanceof Page => $this->resolverContentEntity($entity),
 
+            $entity instanceof Promotion,
             $entity instanceof Category,
             $entity instanceof Collection => $this->resolverTaxonomy($entity),
 
@@ -126,6 +127,7 @@ class SlugResolverController extends Controller
             ->count();
 
         $product->load([
+            'promotions.sluggable',
             'categories.sluggable',
             'collections.sluggable',
             'labels',

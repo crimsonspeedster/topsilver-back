@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             AttributeTermSeeder::class,
             CategorySeeder::class,
             CollectionSeeder::class,
+            PromotionSeeder::class,
             LabelSeeder::class,
             ProductSeeder::class,
             ProductVariantSeeder::class,

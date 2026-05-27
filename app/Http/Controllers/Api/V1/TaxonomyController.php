@@ -8,6 +8,7 @@ use App\Http\Resources\Product\ProductCardResource;
 use App\Http\Resources\TaxonomyCollectionResource;
 use App\Models\Category;
 use App\Models\Collection;
+use App\Models\Promotion;
 use App\Services\FilterService;
 use App\Services\ProductCatalogService;
 use Illuminate\Http\Request;
@@ -110,6 +111,7 @@ class TaxonomyController extends Controller
         return match ($type) {
             'category' => Category::class,
             'collection' => Collection::class,
+            'promotion' => Promotion::class,
             default => null,
         };
     }

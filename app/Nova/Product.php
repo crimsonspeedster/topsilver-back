@@ -163,6 +163,8 @@ class Product extends Resource
 
             BelongsToMany::make('Collections', 'collections', Collection::class),
 
+            BelongsToMany::make('Promotions', 'promotions', Promotion::class),
+
             BelongsToMany::make('Bundles', 'bundles', Bundle::class),
 
             BelongsToMany::make('Attribute Terms', 'attributeTerms', AttributeTerm::class),
