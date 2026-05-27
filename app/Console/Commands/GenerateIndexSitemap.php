@@ -62,6 +62,14 @@ class GenerateIndexSitemap extends Command
                     )
             )
             ->add(
+                Sitemap::create(frontend_url('/sitemaps/promotions.xml'))
+                    ->setLastModificationDate(
+                        now()->setTimestamp(
+                            File::lastModified(public_path('sitemaps/promotions.xml'))
+                        )
+                    )
+            )
+            ->add(
                 Sitemap::create(frontend_url('/sitemaps/filter-pages.xml'))
                     ->setLastModificationDate(
                         now()->setTimestamp(

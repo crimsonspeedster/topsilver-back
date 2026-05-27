@@ -17,6 +17,10 @@
             <lastmod>2026-05-26T11:20:50+03:00</lastmod>
     </sitemap>
     <sitemap>
+        <loc>http://localhost:3000/sitemaps/promotions.xml</loc>
+            <lastmod>2026-05-27T05:02:59+03:00</lastmod>
+    </sitemap>
+    <sitemap>
         <loc>http://localhost:3000/sitemaps/filter-pages.xml</loc>
             <lastmod>2026-05-26T11:21:04+03:00</lastmod>
     </sitemap>

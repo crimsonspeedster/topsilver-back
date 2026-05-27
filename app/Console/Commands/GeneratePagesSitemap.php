@@ -37,6 +37,20 @@ class GeneratePagesSitemap extends Command
                 ->setPriority(0.8)
         );
 
+        $sitemap->add(
+            Url::create(frontend_url("/promotions"))
+                ->setLastModificationDate(now())
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                ->setPriority(0.8)
+        );
+
+        $sitemap->add(
+            Url::create(frontend_url("/collections"))
+                ->setLastModificationDate(now())
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                ->setPriority(0.8)
+        );
+
         Page::query()
             ->with('sluggable')
             ->where('status', EntityStatus::Published)
