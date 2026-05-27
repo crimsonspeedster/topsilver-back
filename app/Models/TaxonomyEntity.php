@@ -29,12 +29,14 @@ abstract class TaxonomyEntity extends Model implements ContentEntityInterface, H
     protected $fillable = [
         'title',
         'parent_id',
+        'content',
         'description',
     ];
 
     protected $casts = [
         'status' => EntityStatus::class,
         'published_at' => 'datetime',
+        'content' => 'array',
     ];
 
     public function parent(): BelongsTo

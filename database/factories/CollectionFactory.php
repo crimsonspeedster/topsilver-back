@@ -21,6 +21,7 @@ class CollectionFactory extends Factory
         return [
             'title' => $this->faker->name(),
             'description' => $this->faker->text(),
+            'content' => [],
             'status' => EntityStatus::Published,
             'published_at' => now(),
             'parent_id' => null,

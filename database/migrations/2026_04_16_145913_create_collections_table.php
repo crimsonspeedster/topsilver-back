@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('status')->default('draft');
             $table->text('description')->nullable();
+            $table->json('content')->nullable();
             $table->unsignedInteger('parent_id')->nullable();
             $table->timestamp('published_at')->nullable();
             $table->timestamps();

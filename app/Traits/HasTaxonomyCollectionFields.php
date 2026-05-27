@@ -2,6 +2,7 @@
 namespace App\Traits;
 
 use App\Enums\EntityStatus;
+use App\Nova\Flexible\Presets\PagePreset;
 use App\Nova\Product;
 use App\Nova\Seo;
 use App\Nova\SeoBlock;
@@ -15,6 +16,7 @@ use Laravel\Nova\Fields\Markdown;
 use Laravel\Nova\Fields\MorphOne;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
+use Whitecube\NovaFlexibleContent\Flexible;
 
 trait HasTaxonomyCollectionFields
 {
@@ -27,6 +29,9 @@ trait HasTaxonomyCollectionFields
                 ->rules('required'),
 
             Markdown::make('Description'),
+
+            Flexible::make('Content')
+                ->preset(PagePreset::class),
 
             Select::make('Status')
                 ->options(EntityStatus::options())

@@ -21,6 +21,7 @@ class CategoryFactory extends Factory
         return [
             'title' => $this->faker->title(),
             'description' => $this->faker->text(),
+            'content' => [],
             'status' => EntityStatus::Published,
             'published_at' => now(),
             'parent_id' => null,
