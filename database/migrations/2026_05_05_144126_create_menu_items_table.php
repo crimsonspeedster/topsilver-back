@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('menu_items', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('menu_id');
+            $table->unsignedBigInteger('menu_id')->nullable();
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->string('title');
             $table->string('type')->default('entity');

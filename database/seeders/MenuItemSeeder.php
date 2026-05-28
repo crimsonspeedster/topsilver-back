@@ -14,12 +14,24 @@ class MenuItemSeeder extends Seeder
      */
     public function run(): void
     {
-        $menus = Menu::pluck('id')->toArray();
+        $menus = Menu::all();
 
-        foreach ($menus as $menuId) {
-            MenuItem::factory()->count(rand(3, 7))->create([
-                'menu_id' => $menuId,
-            ]);
+        foreach ($menus as $menu) {
+            $parents = MenuItem::factory()
+                ->count(rand(3, 7))
+                ->create([
+                    'menu_id' => $menu->id,
+                    'parent_id' => null,
+                ]);
+
+            foreach ($parents as $parent) {
+                MenuItem::factory()
+                    ->count(rand(2, 5))
+                    ->create([
+                        'menu_id' => null,
+                        'parent_id' => $parent->id,
+                    ]);
+            }
         }
     }
 }

@@ -23,7 +23,7 @@ class MenuController extends Controller
     public function show(Location $location)
     {
         $menu = Menu::where('location_id', $location->id)
-            ->with(['items.children', 'location'])
+            ->with(['items.children'])
             ->firstOrFail();
 
         return response()->json([

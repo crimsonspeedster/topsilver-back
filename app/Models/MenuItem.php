@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\MenuItemTypes;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -60,6 +62,12 @@ class MenuItem extends Model
             'parent_id',
         )
             ->orderBy('order');
+    }
+
+    #[Scope]
+    protected function scopeParents(Builder $query): Builder
+    {
+        return $query->whereNull('parent_id');
     }
 
     public function getLinkAttribute(): string
