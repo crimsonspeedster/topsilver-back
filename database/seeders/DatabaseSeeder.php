@@ -46,6 +46,7 @@ class DatabaseSeeder extends Seeder
             LocationSeeder::class,
             MenuSeeder::class,
             MenuItemSeeder::class,
+            SettingsSeeder::class,
         ]);
     }
 }

@@ -15,7 +15,10 @@ class LocationSeeder extends Seeder
     {
         $locations = [
             'header',
-            'footer',
+            'mobile',
+            'footer_first',
+            'footer_second',
+            'footer_third',
         ];
 
         foreach ($locations as $location) {
