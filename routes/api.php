@@ -34,6 +34,7 @@ use App\Http\Controllers\Api\V1\PaymentMethodsController;
 use App\Http\Controllers\Api\V1\ShippingMethodsController;
 use App\Http\Controllers\Api\V1\ShopsPickupController;
 use App\Http\Controllers\Api\V1\SearchController;
+use App\Http\Controllers\Api\V1\SubscribersController;
 
 
 Route::prefix('v1')->group(function () {
@@ -46,6 +47,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/taxonomies/{type}/collections', [TaxonomyController::class, 'index']);
 
     Route::get('/search', [SearchController::class, 'index']);
+
+    Route::post('/subscribe', [SubscribersController::class, 'store']);
+    Route::get('/unsubscribe/{token}', [SubscribersController::class, 'unsubscribe']);
 
     Route::prefix('reference')->group(function () {
         Route::get('/cities', [CityController::class, 'cities']);
