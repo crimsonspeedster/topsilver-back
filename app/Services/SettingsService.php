@@ -11,7 +11,7 @@ class SettingsService
         return Cache::rememberForever("settings:$key", function () use ($key, $default) {
             $setting = Setting::where('key', $key)->first();
 
-            return $setting?->value ?? $default;
+            return data_get($setting?->value, 'data', $default);
         });
     }
 

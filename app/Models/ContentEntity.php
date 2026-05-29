@@ -31,6 +31,10 @@ abstract class ContentEntity extends Model implements HasMedia, ContentEntityInt
         $this
             ->addMediaCollection('media')
             ->singleFile();
+
+        $this
+            ->addMediaCollection('banner')
+            ->singleFile();
     }
 
     protected function baseFillable(): array

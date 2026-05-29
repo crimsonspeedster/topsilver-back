@@ -70,6 +70,7 @@ class ContentEntityResource extends JsonResource
             'content' => $this->transformFlexibleContent($this->content),
             'seo_block' => new SeoBlockResource($this->whenLoaded('seoBlock')),
             'media' => new MediaResource($this->getFirstMedia('media')),
+            'banner' => new MediaResource($this->getFirstMedia('banner')),
         ];
     }
 

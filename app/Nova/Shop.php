@@ -2,6 +2,7 @@
 
 namespace App\Nova;
 
+use App\Traits\HasContentCollectionFields;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\ID;
@@ -11,6 +12,8 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Shop extends Resource
 {
+    use HasContentCollectionFields;
+
     /**
      * The model the resource corresponds to.
      *
@@ -49,11 +52,7 @@ class Shop extends Resource
     public function fields(NovaRequest $request): array
     {
         return [
-            ID::make()->sortable(),
-
-            Text::make('Title')
-                ->sortable()
-                ->rules('required'),
+            ...$this->commonFields(),
 
             Textarea::make('Address')
                 ->rules('required'),

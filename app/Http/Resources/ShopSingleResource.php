@@ -24,6 +24,7 @@ class ShopSingleResource extends JsonResource
             'city' => new CityResource($this->whenLoaded('city')),
             'seo_block' => new SeoBlockResource($this->whenLoaded('seoBlock')),
             'media' => new MediaResource($this->getFirstMedia('media')),
+            'banner' => new MediaResource($this->getFirstMedia('banner')),
         ];
     }
 }

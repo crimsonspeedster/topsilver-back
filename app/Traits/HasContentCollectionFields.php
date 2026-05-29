@@ -49,6 +49,18 @@ trait HasContentCollectionFields
                 ->thumbnail(fn ($value, $disk, $model) => $model->getFirstMediaUrl('media'))
                 ->disableDownload(),
 
+            Image::make('Banner')
+                ->store(function ($request, $model, $attribute) {
+                    if ($request->hasFile($attribute)) {
+                        $model->addMediaFromRequest($attribute)->toMediaCollection('banner');
+                    }
+
+                    return [];
+                })
+                ->preview(fn ($value, $disk, $model) => $model->getFirstMediaUrl('banner'))
+                ->thumbnail(fn ($value, $disk, $model) => $model->getFirstMediaUrl('banner'))
+                ->disableDownload(),
+
             DateTime::make('Published At', 'published_at')
                 ->exceptOnForms()
                 ->readonly()

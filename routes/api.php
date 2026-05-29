@@ -35,11 +35,15 @@ use App\Http\Controllers\Api\V1\ShippingMethodsController;
 use App\Http\Controllers\Api\V1\ShopsPickupController;
 use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\SubscribersController;
+use App\Http\Controllers\Api\V1\PageController;
 
 
 Route::prefix('v1')->group(function () {
     Route::get('/slug-resolver/{slug}', [SlugResolverController::class, 'resolver']);
     Route::get('/slug-resolver/{slug}/seo', [SlugResolverController::class, 'seo']);
+
+    Route::get('/home', [PageController::class, 'home']);
+    Route::get('/home/seo', [PageController::class, 'home_seo']);
 
     Route::get('/shops', [ShopsController::class, 'index']);
 

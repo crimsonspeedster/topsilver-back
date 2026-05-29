@@ -68,9 +68,14 @@ class Seo extends Model
 
     public function resolveDefaultRobots(): SeoRobotTypes
     {
-        return settings('seo.robots')
-            ?? (config('app.env') === 'production'
-                ? SeoRobotTypes::INDEX_FOLLOW
-                : SeoRobotTypes::NOINDEX_NOFOLLOW);
+        $value = settings('seo_robots');
+
+        if ($value) {
+            return SeoRobotTypes::from($value);
+        }
+
+        return config('app.env') === 'production'
+            ? SeoRobotTypes::INDEX_FOLLOW
+            : SeoRobotTypes::NOINDEX_NOFOLLOW;
     }
 }
