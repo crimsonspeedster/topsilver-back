@@ -18,6 +18,7 @@ use App\Policies\ProductReviewPolicy;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -84,16 +85,11 @@ class AppServiceProvider extends ServiceProvider
     protected function configureEmails () : void
     {
         VerifyEmail::createUrlUsing(function ($notifiable) {
-            $url = URL::temporarySignedRoute(
-                'verification.verify',
-                now()->addMinutes(60),
-                [
-                    'id'   => $notifiable->getKey(),
-                    'hash' => sha1($notifiable->getEmailForVerification()),
-                ]
-            );
-
-            return config('app.frontend_url') . '/verify-email?url=' . urlencode($url);
+            return config('app.frontend_url') . '/verify-email?' . http_build_query([
+                'email' => $notifiable->getEmailForVerification(),
+                'id' => $notifiable->getKey(),
+                'hash' => sha1($notifiable->getEmailForVerification()),
+            ]);
         });
 
         ResetPassword::createUrlUsing(function ($user, string $token) {
@@ -141,8 +137,8 @@ class AppServiceProvider extends ServiceProvider
             $key = $request->user()?->id ?: $request->ip();
 
             return [
-                Limit::perMinute(5)->by($key),
-                Limit::perHour(10)->by($key),
+                Limit::perMinute(2)->by($key),
+                Limit::perHour(20)->by($key),
             ];
         });
     }

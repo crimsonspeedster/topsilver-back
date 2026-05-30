@@ -1,41 +1,42 @@
 <?php
 
-use App\Http\Controllers\Api\V1\Auth\EmailVerificationController;
+use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
+use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\LogoutController;
+use App\Http\Controllers\Api\V1\Auth\RegisterController;
+use App\Http\Controllers\Api\V1\Auth\ResetPasswordController;
+use App\Http\Controllers\Api\V1\Cart\CartBonusesController;
+use App\Http\Controllers\Api\V1\Cart\CartCertificateController;
+use App\Http\Controllers\Api\V1\Cart\CartController;
+use App\Http\Controllers\Api\V1\Cart\CartCouponController;
+use App\Http\Controllers\Api\V1\Cart\CartItemsController;
+use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\CheckoutController;
 use App\Http\Controllers\Api\V1\CityController;
-use App\Http\Controllers\Api\V1\ShopsController;
 use App\Http\Controllers\Api\V1\LiqPayController;
 use App\Http\Controllers\Api\V1\MenuController;
 use App\Http\Controllers\Api\V1\MonopayController;
 use App\Http\Controllers\Api\V1\NPController;
-use App\Http\Controllers\Api\V1\ReviewsController;
-use App\Http\Controllers\Api\V1\User\OrdersController;
-use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
-use App\Http\Controllers\Api\V1\Auth\LoginController;
-use App\Http\Controllers\Api\V1\SettingsController;
-use App\Http\Controllers\Api\V1\Auth\RegisterController;
-use App\Http\Controllers\Api\V1\Auth\ResetPasswordController;
-use App\Http\Controllers\Api\V1\SlugResolverController;
-use App\Http\Controllers\Api\V1\User\BonusController;
-use App\Http\Controllers\Api\V1\User\UserController;
+use App\Http\Controllers\Api\V1\PageController;
+use App\Http\Controllers\Api\V1\PaymentMethodsController;
 use App\Http\Controllers\Api\V1\ProductsController;
+use App\Http\Controllers\Api\V1\EmailVerificationController;
+use App\Http\Controllers\Api\V1\ResendEmailVerificationController;
+use App\Http\Controllers\Api\V1\ReviewsController;
+use App\Http\Controllers\Api\V1\SearchController;
+use App\Http\Controllers\Api\V1\SettingsController;
+use App\Http\Controllers\Api\V1\ShippingMethodsController;
+use App\Http\Controllers\Api\V1\ShopsController;
+use App\Http\Controllers\Api\V1\ShopsPickupController;
+use App\Http\Controllers\Api\V1\SlugResolverController;
+use App\Http\Controllers\Api\V1\SubscribersController;
+use App\Http\Controllers\Api\V1\TaxonomyController;
+use App\Http\Controllers\Api\V1\User\BonusController;
+use App\Http\Controllers\Api\V1\User\OrdersController;
+use App\Http\Controllers\Api\V1\User\UserController;
 use App\Http\Controllers\Api\V1\User\UserUpdateController;
 use App\Http\Middleware\ResolveCart;
-use App\Http\Controllers\Api\V1\Cart\CartController;
-use App\Http\Controllers\Api\V1\Cart\CartItemsController;
-use App\Http\Controllers\Api\V1\Cart\CartCouponController;
-use App\Http\Controllers\Api\V1\Cart\CartCertificateController;
-use App\Http\Controllers\Api\V1\Cart\CartBonusesController;
-use App\Http\Controllers\Api\V1\TaxonomyController;
-use App\Http\Controllers\Api\V1\CategoryController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\V1\PaymentMethodsController;
-use App\Http\Controllers\Api\V1\ShippingMethodsController;
-use App\Http\Controllers\Api\V1\ShopsPickupController;
-use App\Http\Controllers\Api\V1\SearchController;
-use App\Http\Controllers\Api\V1\SubscribersController;
-use App\Http\Controllers\Api\V1\PageController;
 
 
 Route::prefix('v1')->group(function () {
@@ -93,6 +94,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/locality/{localityRef}/streets', [NPController::class, 'streetsByCity']);
     });
 
+    Route::middleware('throttle:email-verify')
+        ->post('/email/verify', EmailVerificationController::class);
+    Route::middleware('throttle:6,1')
+        ->post('/email/resend', ResendEmailVerificationController::class);
+
     Route::middleware([ResolveCart::class])->group(function () {
         Route::get('/cart', [CartController::class, 'show']);
         Route::post('/cart/items', [CartItemsController::class, 'store']);
@@ -106,10 +112,6 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::middleware(['auth:sanctum'])->group(function () {
-        Route::middleware('throttle:email-verify')
-            ->get('/email/verify/{id}/{hash}', EmailVerificationController::class)
-            ->name('verification.verify');
-
         Route::post('/logout', LogoutController::class);
         Route::post('/products/{product}/reviews', [ReviewsController::class, 'store']);
 
