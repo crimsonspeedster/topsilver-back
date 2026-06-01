@@ -5,6 +5,7 @@ namespace App\Nova;
 use App\Enums\InstagramPostTypes;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\ID;
+use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -51,11 +52,17 @@ class InstagramPost extends Resource
             Text::make('Link')
                 ->required(),
 
-            Select::make('Status')
-                ->options(InstagramPostTypes::options())
-                ->displayUsingLabels()
-                ->sortable()
-                ->rules('required'),
+            Image::make('Image')
+                ->store(function ($request, $model, $attribute) {
+                    if ($request->hasFile($attribute)) {
+                        $model->addMediaFromRequest($attribute)->toMediaCollection('media');
+                    }
+
+                    return [];
+                })
+                ->preview(fn ($value, $disk, $model) => $model->getFirstMediaUrl('media'))
+                ->thumbnail(fn ($value, $disk, $model) => $model->getFirstMediaUrl('media'))
+                ->disableDownload(),
         ];
     }
 

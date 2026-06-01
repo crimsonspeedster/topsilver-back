@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\EntityStatus;
+use App\Factories\Blocks\FlexibleContentBuilder;
 use App\Models\Page;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,7 +23,7 @@ class PageFactory extends Factory
             'title' => $this->faker->sentence(),
             'short_description' => $this->faker->paragraph(2),
             'status' => EntityStatus::Published,
-            'content' => [],
+            'content' => FlexibleContentBuilder::make(),
             'published_at' => now(),
         ];
     }

@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             ProductVariantSeeder::class,
             ProductRelationSeeder::class,
             FilterPageSeeder::class,
+            InstagramPostSeeder::class,
             PageSeeder::class,
             BonusSeeder::class,
             RegionSeeder::class,
