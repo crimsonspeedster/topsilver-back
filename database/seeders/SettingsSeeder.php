@@ -21,14 +21,12 @@ class SettingsSeeder extends Seeder
         $logo_path = $this->fakeLogo();
         $fake_image_path = $this->fakeImage();
 
-        $home_page = Page::inRandomOrder()->first();
-
         $this->createImageSetting('logo', $logo_path);
         $this->createTextSetting('top_banner_text', fake()->sentence());
         $this->createTextSetting('subscribe_text', fake()->text());
         $this->createSocialLinksSetting('social_links', 4, $fake_image_path);
         $this->createContactSetting('contacts', 4, $fake_image_path);
-        $this->createRelationSetting('home_page', $home_page);
+        $this->createRelationPageSetting('home_page', Page::inRandomOrder()->first());
         $this->createSeoRobotsSetting();
     }
 
@@ -65,17 +63,14 @@ class SettingsSeeder extends Seeder
         ]);
     }
 
-    private function createRelationSetting (string $key, Model $model): void
+    private function createRelationPageSetting (string $key, Model $model): void
     {
         Setting::create([
             'key' => $key,
             'value' => [
-                'data' => [
-                    'model_type' => $model->getMorphClass(),
-                    'model_id' => $model->getKey(),
-                ],
+                'data' => $model->getKey(),
             ],
-            'type' => 'relation'
+            'type' => 'relation_page'
         ]);
     }
 
@@ -85,14 +80,28 @@ class SettingsSeeder extends Seeder
 
         for ($i = 0; $i < $amount; $i++) {
             $type = fake()->randomElement(['text', 'link']);
-            $link = $type === 'link' ? fake()->url() : null;
 
-            $contacts[] = [
-                'title' => fake()->sentence(),
-                'link' => $link,
-                'type' => $type,
-                'image' => Storage::disk('public')->url($image_path),
-            ];
+            if ($type === 'link') {
+                $contacts[] = [
+                    'key' => Str::uuid()->toString(),
+                    'layout' => 'ContactItemLink',
+                    'attributes' => [
+                        'title' => fake()->sentence(),
+                        'link' => fake()->url(),
+                        'image' => Storage::disk('public')->url($image_path),
+                    ],
+                ];
+            }
+            else {
+                $contacts[] = [
+                    'key' => Str::uuid()->toString(),
+                    'layout' => 'ContactItemText',
+                    'attributes' => [
+                        'title' => fake()->sentence(),
+                        'image' => Storage::disk('public')->url($image_path),
+                    ],
+                ];
+            }
         }
 
         Setting::create([
@@ -109,15 +118,13 @@ class SettingsSeeder extends Seeder
         $links = [];
 
         for ($i = 0; $i < $amount; $i++) {
-            $type = 'image';
-            $image = $type === 'image' ? Storage::disk('public')->url($image_path) : null;
-            $title = $type === 'text' ? fake()->word() : null;
-
             $links[] = [
-                'link' => fake()->url(),
-                'type' => $type,
-                'image' => $image,
-                'title' => $title,
+                'key' => Str::uuid()->toString(),
+                'layout' => 'SocialLinkItem',
+                'attributes' => [
+                    'link' => fake()->url(),
+                    'image' => Storage::disk('public')->url($image_path),
+                ],
             ];
         }
 

@@ -2,32 +2,28 @@
 
 namespace App\Nova;
 
-use App\Nova\SettingsBlocks\SettingFieldsRegistry;
+use App\Enums\InstagramPostTypes;
 use Illuminate\Http\Request;
-use App\Models\Page;
-use Laravel\Nova\Fields\Field;
-use Laravel\Nova\Fields\FormData;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class Setting extends Resource
+class InstagramPost extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\App\Models\Setting>
+     * @var class-string<\App\Models\InstagramPost>
      */
-    public static $model = \App\Models\Setting::class;
+    public static $model = \App\Models\InstagramPost::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
      *
      * @var string
      */
-    public static $title = 'key';
+    public static $title = 'id';
 
     /**
      * The columns that should be searched.
@@ -36,27 +32,11 @@ class Setting extends Resource
      */
     public static $search = [
         'id',
-        'key'
     ];
 
     public static $group = 'Content';
 
     public static $showColumnBorders = true;
-
-    public static function authorizedToCreate(Request $request): bool
-    {
-        return $request->user()?->canAccessNovaGeneralSettings() ?? false;
-    }
-
-    public function authorizedToUpdate(Request $request): bool
-    {
-        return $request->user()?->canAccessNovaGeneralSettings() ?? false;
-    }
-
-    public function authorizedToDelete(Request $request): bool
-    {
-        return $request->user()?->canAccessNovaGeneralSettings() ?? false;
-    }
 
     /**
      * Get the fields displayed by the resource.
@@ -68,43 +48,15 @@ class Setting extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('Key')
-                ->required()
-                ->creationRules('unique:settings,key')
-                ->updateRules('unique:settings,key,{{resourceId}}'),
-
-            Select::make('Type')
-                ->options($this->getTypes())
-                ->displayUsingLabels()
+            Text::make('Link')
                 ->required(),
 
-            ...$this->dynamicValueFields(),
+            Select::make('Status')
+                ->options(InstagramPostTypes::options())
+                ->displayUsingLabels()
+                ->sortable()
+                ->rules('required'),
         ];
-    }
-
-    protected function getTypes(): array
-    {
-        return collect(SettingFieldsRegistry::all())
-            ->mapWithKeys(fn ($class) => [
-                $class::type() => ucfirst($class::type()),
-            ])
-            ->toArray();
-    }
-
-    protected function dynamicValueFields(): array
-    {
-        $type = request('type')
-            ?? $this->type;
-
-        if (!$type) {
-            return [];
-        }
-
-        $class = SettingFieldsRegistry::resolve($type);
-
-        return $class
-            ? $class::fields()
-            : [];
     }
 
     /**

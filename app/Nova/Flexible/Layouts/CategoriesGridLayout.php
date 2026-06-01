@@ -1,7 +1,6 @@
 <?php
 namespace App\Nova\Flexible\Layouts;
 
-use Laravel\Nova\Fields\Text;
 use Whitecube\NovaFlexibleContent\Flexible;
 use Whitecube\NovaFlexibleContent\Layouts\Layout;
 
