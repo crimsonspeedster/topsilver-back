@@ -3,6 +3,7 @@ namespace App\Nova\Flexible\Presets;
 
 use App\Nova\Flexible\Layouts\AdvantagesLayout;
 use App\Nova\Flexible\Layouts\BannersLayout;
+use App\Nova\Flexible\Layouts\BannersSliderLayout;
 use App\Nova\Flexible\Layouts\CategoriesGridLayout;
 use App\Nova\Flexible\Layouts\ContentBlockLayout;
 use App\Nova\Flexible\Layouts\InstagramGridLayout;
@@ -22,5 +23,6 @@ class PagePreset extends Preset
         $field->addLayout(InstagramGridLayout::class);
         $field->addLayout(ContentBlockLayout::class);
         $field->addLayout(ProductsGridWithTabsLayout::class);
+        $field->addLayout(BannersSliderLayout::class);
     }
 }
