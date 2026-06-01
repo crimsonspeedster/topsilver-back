@@ -3,6 +3,7 @@ namespace App\Models;
 
 use App\Enums\EntityStatus;
 use App\Interfaces\ContentEntityInterface;
+use App\Services\ContentResolver;
 use App\Traits\HasSeo;
 use App\Traits\HasSeoBlock;
 use App\Traits\HasSlug;
@@ -51,5 +52,10 @@ abstract class ContentEntity extends Model implements HasMedia, ContentEntityInt
     public function getFillable(): array
     {
         return $this->baseFillable();
+    }
+
+    public function getBlocksAttribute(): array
+    {
+        return app(ContentResolver::class)->resolve($this->content);
     }
 }

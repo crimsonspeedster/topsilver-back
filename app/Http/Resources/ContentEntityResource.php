@@ -20,7 +20,7 @@ class ContentEntityResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'short_description' => $this->short_description,
-            'content' => $this->content,
+            'blocks' => $this->blocks,
             'seo_block' => new SeoBlockResource($this->whenLoaded('seoBlock')),
             'media' => new MediaResource($this->getFirstMedia('media')),
             'banner' => new MediaResource($this->getFirstMedia('banner')),

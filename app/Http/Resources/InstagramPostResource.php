@@ -15,7 +15,6 @@ class InstagramPostResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'type' => $this->type,
             'link' => $this->link,
             'media' => new MediaResource($this->getFirstMedia('media')),
         ];

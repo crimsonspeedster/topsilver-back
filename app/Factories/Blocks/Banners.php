@@ -2,6 +2,7 @@
 namespace App\Factories\Blocks;
 
 use App\Interfaces\Block;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Banners implements Block
@@ -24,6 +25,7 @@ class Banners implements Block
     private static function blocks(int $max): array
     {
         $blocks = [];
+        $fake_image_path = self::fakeImage();
 
         for ($i = 1; $i <= $max; $i++) {
             $blocks[] = [
@@ -36,12 +38,26 @@ class Banners implements Block
                     'title' => fake()->title(),
                     'subtitle' => fake()->title(),
                     'link' => fake()->url(),
-                    'image' => fake()->imageUrl(),
+                    'link_type' => 'external',
+                    'image' => Storage::disk('public')->url($fake_image_path),
                     'type' => fake()->randomElement(['bottom', 'center']),
                 ],
             ];
         }
 
         return $blocks;
+    }
+
+    private static function fakeImage(): string
+    {
+        $source = base_path('resources/src/img/fake.png');
+        $fileName = 'settings/' . Str::uuid() . '.png';
+
+        Storage::disk('public')->put(
+            $fileName,
+            file_get_contents($source)
+        );
+
+        return $fileName;
     }
 }

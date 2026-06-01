@@ -33,6 +33,13 @@ class BannersItemLayout extends Layout
 
             Text::make('Subtitle'),
 
+            Select::make('Link type', 'link_type')
+                ->options([
+                    'external' => 'External',
+                    'internal' => 'Internal',
+                ])
+                ->required(),
+
             Text::make('Link')
                 ->required(),
 
