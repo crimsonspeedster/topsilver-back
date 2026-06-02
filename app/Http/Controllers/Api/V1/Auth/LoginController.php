@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Api\V1\Auth;
 
+use App\Events\UserLoggedIn;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\Cart;
@@ -32,11 +33,18 @@ class LoginController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
+        event(new UserLoggedIn(
+            $user,
+            $request->cookie('wishlist_token') ?? $request->header('X-Wishlist-Token'),
+            $request->cookie('cart_token') ?? $request->header('X-Cart-Token')
+        ));
+
         return response()->json([
             'data' => new UserResource(
                 $user->load('profile.city.region')
             ),
         ])
-            ->cookie(cookie()->forget('cart_token'));
+            ->cookie(cookie()->forget('cart_token'))
+            ->cookie(cookie()->forget('wishlist_token'));
     }
 }

@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Events\UserLoggedIn;
 use App\Events\UserRegistered;
 use App\Listeners\AttachOrdersToUser;
 use App\Listeners\MergeCartListener;
+use App\Listeners\MergeWishlistListener;
 use App\Models\AttributeTerm;
 use App\Models\Category;
 use App\Models\Collection;
@@ -146,6 +148,7 @@ class AppServiceProvider extends ServiceProvider
     protected function customListeners (): void
     {
         Event::listen(UserRegistered::class, AttachOrdersToUser::class);
-        Event::listen(Login::class, MergeCartListener::class);
+        Event::listen(UserLoggedIn::class, MergeCartListener::class);
+        Event::listen(UserLoggedIn::class, MergeWishlistListener::class);
     }
 }

@@ -35,7 +35,9 @@ use App\Http\Controllers\Api\V1\User\BonusController;
 use App\Http\Controllers\Api\V1\User\OrdersController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use App\Http\Controllers\Api\V1\User\UserUpdateController;
+use App\Http\Controllers\Api\V1\WishlistController;
 use App\Http\Middleware\ResolveCart;
+use App\Http\Middleware\ResolveWishlist;
 use Illuminate\Support\Facades\Route;
 
 
@@ -111,19 +113,27 @@ Route::prefix('v1')->group(function () {
         Route::post('/checkout', CheckoutController::class);
     });
 
+    Route::middleware([ResolveWishlist::class])->group(function () {
+        Route::get('/wishlist', [WishlistController::class, 'show']);
+        Route::post('/wishlist/items', [WishlistController::class, 'store']);
+        Route::delete('/wishlist/items/{product_id}', [WishlistController::class, 'destroy']);
+    });
+
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/logout', LogoutController::class);
         Route::post('/products/{product}/reviews', [ReviewsController::class, 'store']);
 
         Route::prefix('me')->group(function () {
+            Route::get('/', UserController::class);
+
             Route::patch('/profile', [UserUpdateController::class, 'profile']);
             Route::patch('/password', [UserUpdateController::class, 'password']);
-        });
 
-        Route::get('/me', UserController::class);
-        Route::get('/me/bonuses', BonusController::class);
-        Route::get('/me/orders', [OrdersController::class, 'index']);
-        Route::get('/me/orders/{order}', [OrdersController::class, 'show']);
+            Route::get('/bonuses', BonusController::class);
+
+            Route::get('/orders', [OrdersController::class, 'index']);
+            Route::get('/orders/{order}', [OrdersController::class, 'show']);
+        });
     });
 
     Route::middleware(['auth:sanctum', ResolveCart::class])->group(function () {

@@ -45,7 +45,8 @@ class CartService
             ];
         }
 
-        $token = $request->cookie('cart_token');
+        $token = $request->cookie('cart_token')
+            ?? $request->header('X-Cart-Token');
 
         $isNew = false;
 

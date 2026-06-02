@@ -162,6 +162,8 @@ class CartItemsController extends Controller
     {
         $cart = $request->attributes->get('cart');
 
+        abort_if(!$cart, 404);
+
         $cart = DB::transaction(function () use ($cart, $id) {
             $item = CartItem::where('id', $id)
                 ->where('cart_id', $cart->id)
