@@ -13,8 +13,8 @@ class ProductsGrid implements Block
             'key' => Str::uuid()->toString(),
             'layout' => 'ProductsGrid',
             'attributes' => [
-                'title' => fake()->title(),
-                'description' => fake()->title(),
+                'title' => 'Products grid',
+                'description' => 'subtitle',
                 'products' => json_encode(
                     fake()->randomElements(
                         Product::pluck('id')->all(),

@@ -24,14 +24,13 @@ class CategoriesGrid implements Block
         $blocks = [];
         $fake_image_path = self::fakeImage();
 
-        for ($i = 1; $i <= 4; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             $blocks[] = [
                 'key' => Str::uuid()->toString(),
                 'layout' => 'CategoriesGridItem',
                 'attributes' => [
                     'image' => Storage::disk('public')->url($fake_image_path),
                     'category' => Category::inRandomOrder()->first()->id,
-                    'position' => fake()->numberBetween(1, 5),
                 ],
             ];
         }

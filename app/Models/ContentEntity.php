@@ -58,4 +58,13 @@ abstract class ContentEntity extends Model implements HasMedia, ContentEntityInt
     {
         return app(ContentResolver::class)->resolve($this->content);
     }
+
+    public function getIsHomePageAttribute(): bool
+    {
+        $home_page_relation = settings('home_page');
+
+        if (!$home_page_relation) return false;
+
+        return $this->id === $home_page_relation['model_id'];
+    }
 }

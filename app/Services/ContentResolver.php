@@ -7,6 +7,7 @@ use App\Http\Resources\TaxonomyCollectionResource;
 use App\Models\Category;
 use App\Models\InstagramPost;
 use App\Models\Product;
+use App\Models\Promotion;
 
 class ContentResolver
 {
@@ -19,10 +20,25 @@ class ContentResolver
                 'CategoriesGrid' => $this->resolveCategoriesGrid($block),
                 'ProductsGrid' => $this->resolveProductsGrid($block),
                 'ProductsGridWithTabs' => $this->resolveProductsGridWithTabs($block),
+                'LatestPromotions' => $this->resolveLatestPromotions($block),
                 default => $block,
             };
 
         })->toArray();
+    }
+
+    private function resolveLatestPromotions(array $block): array
+    {
+        $ids = json_decode($block['attributes']['promotions'] ?? '[]', true);
+        $posts = Promotion::whereIn('id', $ids)
+            ->get()
+            ->load([
+                'sluggable',
+            ]);
+
+        $block['attributes']['promotions'] = TaxonomyCollectionResource::collection($posts);
+
+        return $block;
     }
 
     private function resolveProductsGrid(array $block): array

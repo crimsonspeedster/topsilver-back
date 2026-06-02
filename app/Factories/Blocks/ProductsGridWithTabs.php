@@ -13,8 +13,8 @@ class ProductsGridWithTabs implements Block
             'key' => Str::uuid()->toString(),
             'layout' => 'ProductsGridWithTabs',
             'attributes' => [
-                'title' => fake()->title(),
-                'description' => fake()->text(),
+                'title' => 'Products Grid with tabs',
+                'description' =>'subtitle',
                 'blocks' => self::blocks(),
             ],
         ];
@@ -25,7 +25,7 @@ class ProductsGridWithTabs implements Block
         $blocks = [];
 
         for ($i = 1; $i <= 4; $i++) {
-            $tab_name = fake()->word();
+            $tab_name = 'Tab ' . $i;
 
             $blocks[] = [
                 'key' => Str::uuid()->toString(),

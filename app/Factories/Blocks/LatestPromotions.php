@@ -2,21 +2,23 @@
 namespace App\Factories\Blocks;
 
 use App\Interfaces\Block;
-use App\Models\InstagramPost;
+use App\Models\Promotion;
 use Illuminate\Support\Str;
 
-class InstagramGrid implements Block
+
+class LatestPromotions implements Block
 {
     public static function make(): array
     {
         return [
             'key' => Str::uuid()->toString(),
-            'layout' => 'InstagramGrid',
+            'layout' => 'LatestPromotions',
             'attributes' => [
-                'title' => 'Instagram title',
-                'posts' => json_encode(
+                'title' => 'Latest Promotions',
+                'description' => 'subtitle',
+                'promotions' => json_encode(
                     fake()->randomElements(
-                        InstagramPost::pluck('id')->all(),
+                        Promotion::pluck('id')->all(),
                         rand(2, 5)
                     )
                 ),

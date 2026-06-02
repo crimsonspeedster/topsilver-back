@@ -1,17 +1,18 @@
 <?php
 namespace App\Nova\Flexible\Layouts;
 
-use App\Nova\Product;
+use App\Nova\Promotion;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Textarea;
 use Outl1ne\MultiselectField\Multiselect;
 use Whitecube\NovaFlexibleContent\Layouts\Layout;
 
-class ProductsGrid extends Layout
-{
-    protected $name = 'ProductsGrid';
 
-    protected $title = 'Products Grid';
+class LatestPromotionsLayout extends Layout
+{
+    protected $name = 'LatestPromotions';
+
+    protected $title = 'Latest Promotions';
 
     public function fields(): array
     {
@@ -21,8 +22,8 @@ class ProductsGrid extends Layout
 
             Textarea::make('Description'),
 
-            Multiselect::make('Products')
-                ->asyncResource(Product::class)
+            Multiselect::make('Promotions')
+                ->asyncResource(Promotion::class)
                 ->required(),
         ];
     }

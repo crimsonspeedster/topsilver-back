@@ -4,14 +4,16 @@ namespace App\Factories\Blocks;
 class FlexibleContentBuilder
 {
     protected static array $blocks = [
+        BannersSlider::class,
         CategoriesGrid::class,
         ProductsGrid::class,
-        Advantages::class,
         Banners::class,
-        InstagramGrid::class,
-        ContentBlock::class,
         ProductsGridWithTabs::class,
-        BannersSlider::class,
+        Banners::class,
+        LatestPromotions::class,
+        InstagramGrid::class,
+        Advantages::class,
+        ContentBlock::class,
     ];
 
     public static function make(int $min = 2, int $max = 10): array
@@ -19,8 +21,12 @@ class FlexibleContentBuilder
         $count = rand($min, $max);
         $content = [];
 
-        for ($i = 0; $i < $count; $i++) {
-            $block = fake()->randomElement(self::$blocks);
+//        for ($i = 0; $i < $count; $i++) {
+//            $block = fake()->randomElement(self::$blocks);
+//            $content[] = $block::make();
+//        }
+
+        foreach (self::$blocks as $block) {
             $content[] = $block::make();
         }
 

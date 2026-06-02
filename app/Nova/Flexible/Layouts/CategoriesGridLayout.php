@@ -14,7 +14,8 @@ class CategoriesGridLayout extends Layout
     {
         return [
             Flexible::make('Categories')
-                ->addLayout(CategoriesGridItemLayout::class),
+                ->addLayout(CategoriesGridItemLayout::class)
+                ->rules('required', 'min:5'),
         ];
     }
 }

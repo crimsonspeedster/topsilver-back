@@ -24,6 +24,7 @@ class ContentEntityResource extends JsonResource
             'seo_block' => new SeoBlockResource($this->whenLoaded('seoBlock')),
             'media' => new MediaResource($this->getFirstMedia('media')),
             'banner' => new MediaResource($this->getFirstMedia('banner')),
+            'is_home_page' => $this->is_home_page,
         ];
     }
 }

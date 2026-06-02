@@ -33,7 +33,7 @@ class BannersSlider implements Block
                     'text_color' => 'white',
                     'title_tag' => fake()->randomElement(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
                     'position' => fake()->randomElement(['left', 'center']),
-                    'button' => self::button(),
+                    'button' => [self::button()],
                     'image' => Storage::disk('public')->url($fake_image_path),
                 ],
             ];

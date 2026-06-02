@@ -50,7 +50,7 @@ class BannersSliderItemLayout extends Layout
 
             Flexible::make('Button')
                 ->addLayout(ButtonLayout::class)
-                ->required(),
+                ->rules('required', 'max:1'),
 
             Image::make('Image')
                 ->required(),

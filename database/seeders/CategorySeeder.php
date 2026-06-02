@@ -13,7 +13,7 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        Category::factory()->count(3)->create()
+        Category::factory()->count(7)->create()
             ->each(function (Category $category) {
                 $this->attachMedia($category);
             });
