@@ -12,8 +12,8 @@ class FlexibleContentBuilder
         Banners::class,
         LatestPromotions::class,
         InstagramGrid::class,
-        Advantages::class,
         ContentBlock::class,
+        Advantages::class,
     ];
 
     public static function make(int $min = 2, int $max = 10): array
