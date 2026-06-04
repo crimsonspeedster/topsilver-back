@@ -50,11 +50,12 @@ class ProductVariantSeeder extends Seeder
             $stock_status = $manage_stock ?
                 $stock > 0 ? StockStatus::InStock : StockStatus::OutOfStock
                 : $product->stock_status;
+            $price = rand(1000, 3000);
 
             $variant = $product->variants()->create([
                 'variant_key' => $variantKey,
                 'sku' => Str::uuid(),
-                'price' => rand(1000, 3000),
+                'price' => $price,
                 'price_on_sale' => null,
                 'stock' => $stock,
                 'stock_status' => $stock_status,
@@ -64,6 +65,11 @@ class ProductVariantSeeder extends Seeder
                 $variant->attributeTerms()->attach($term->id);
             }
         }
+
+        $product->update([
+            'price_on_sale' => null,
+            'price' => $product->variants()->min('price'),
+        ]);
     }
 
     private function cartesian(array $input): array
