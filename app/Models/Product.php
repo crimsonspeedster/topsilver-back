@@ -108,6 +108,13 @@ class Product extends Model implements HasMedia
         );
     }
 
+    public function subscribers(): HasMany
+    {
+        return $this->hasMany(
+            ProductSubscriber::class,
+        );
+    }
+
     public function collections (): BelongsToMany
     {
         return $this->belongsToMany(

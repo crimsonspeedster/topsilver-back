@@ -2,6 +2,8 @@
 
 namespace App\Observers;
 
+use App\Enums\StockStatus;
+use App\Jobs\NotifyProductBackInStockJob;
 use App\Jobs\RebuildProductFilterIndexJob;
 use App\Models\Product;
 
@@ -30,7 +32,13 @@ class ProductObserver
      */
     public function updated(Product $product): void
     {
-        //
+        if (
+            $product->wasChanged('stock_status')
+            && $product->getOriginal('stock_status') === StockStatus::OutOfStock
+            && $product->stock_status === StockStatus::InStock
+        ) {
+            NotifyProductBackInStockJob::dispatch($product->id);
+        }
     }
 
     /**

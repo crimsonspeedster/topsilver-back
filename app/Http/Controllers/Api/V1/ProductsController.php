@@ -7,6 +7,7 @@ use App\Http\Requests\ProductsBatchRequest;
 use App\Http\Resources\Product\ProductCardResource;
 use App\Http\Resources\Product\ProductQuickShopResource;
 use App\Http\Resources\Product\ProductQuickViewResource;
+use App\Models\ProductSubscriber;
 use Illuminate\Http\Request;
 use App\Models\Product;
 
@@ -50,6 +51,23 @@ class ProductsController extends Controller
 
         return response()->json([
             'data' => ProductCardResource::collection($products),
+        ]);
+    }
+
+    public function notifications(Product $product, Request $request)
+    {
+        $data = $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        $email = $data['email'];
+
+        ProductSubscriber::firstOrCreate(
+            ['email' => $email, 'product_id' => $product->id],
+        );
+
+        return response()->json([
+            'message' => 'Ви отримаєте сповіщення електронною поштою, коли цей товар знову буде в наявності.',
         ]);
     }
 }

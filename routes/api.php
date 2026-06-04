@@ -74,6 +74,7 @@ Route::prefix('v1')->group(function () {
 
     Route::get('/products/batch', [ProductsController::class, 'batch']);
     Route::get('/products/{product}', [ProductsController::class, 'preview']);
+    Route::post('/products/{product}/notifications', [ProductsController::class, 'notifications']);
     Route::get('/products/{product}/reviews', [ReviewsController::class, 'index']);
     Route::get('/reviews/{review}', [ReviewsController::class, 'replies']);
 
