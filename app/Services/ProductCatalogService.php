@@ -97,11 +97,23 @@ class ProductCatalogService
         };
     }
 
+    private function applyStockPriority(Builder $query): Builder
+    {
+        return $query->orderByRaw("
+            CASE
+                WHEN stock_status = 'in_stock' THEN 0
+                WHEN stock_status = 'out_of_stock' THEN 1
+            END
+        ");
+    }
+
     public function applySorting(
         Builder $query,
         TaxonomySort $sort,
     ): Builder
     {
+        $query = $this->applyStockPriority($query);
+
         return match ($sort) {
             TaxonomySort::NEWEST => $query->orderBy('created_at', 'desc'),
             TaxonomySort::OLDEST => $query->orderBy('created_at', 'asc'),

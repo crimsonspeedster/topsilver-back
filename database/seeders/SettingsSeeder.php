@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\SeoRobotTypes;
+use App\Factories\Blocks\Advantages;
 use App\Models\Page;
 use App\Models\Setting;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -27,6 +28,7 @@ class SettingsSeeder extends Seeder
         $this->createSocialLinksSetting('social_links', 4, $fake_image_path);
         $this->createContactSetting('contacts', 4, $fake_image_path);
         $this->createRelationPageSetting('home_page', Page::inRandomOrder()->first());
+        $this->createProductAdvantagesSetting('product_advantages');
         $this->createSeoRobotsSetting();
     }
 
@@ -71,6 +73,19 @@ class SettingsSeeder extends Seeder
                 'data' => $model->getKey(),
             ],
             'type' => 'relation_page'
+        ]);
+    }
+
+    private function createProductAdvantagesSetting(string $key): void
+    {
+        $advantages = Advantages::make();
+
+        Setting::create([
+            'key' => $key,
+            'value' => [
+                'data' => $advantages,
+            ],
+            'type' => 'product_advantages',
         ]);
     }
 
