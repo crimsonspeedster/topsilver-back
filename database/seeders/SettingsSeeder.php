@@ -25,6 +25,8 @@ class SettingsSeeder extends Seeder
         $this->createImageSetting('logo', $logo_path);
         $this->createTextSetting('top_banner_text', fake()->sentence());
         $this->createTextSetting('subscribe_text', fake()->text());
+        $this->createTextSetting('delivery_and_return', fake()->realText(2000));
+        $this->createTextSetting('size_guide', fake()->realText(1500));
         $this->createSocialLinksSetting('social_links', 4, $fake_image_path);
         $this->createContactSetting('contacts', 4, $fake_image_path);
         $this->createRelationPageSetting('home_page', Page::inRandomOrder()->first());
