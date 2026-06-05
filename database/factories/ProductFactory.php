@@ -42,6 +42,9 @@ class ProductFactory extends Factory
             'price' => $price,
             'price_on_sale' => $price_on_sale,
             'selling_count' => $this->faker->numberBetween(100, 3000),
+            'rating_distribution' => [],
+            'rating_count' => 0,
+            'rating_avg' => 0,
         ];
     }
 }

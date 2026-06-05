@@ -34,6 +34,7 @@ class Product extends Model implements HasMedia
         'rating_avg' => 'decimal:2',
         'rating_count' => 'integer',
         'selling_count' => 'integer',
+        'rating_distribution' => 'array',
     ];
 
     protected $fillable = [
@@ -52,6 +53,7 @@ class Product extends Model implements HasMedia
         'rating_avg',
         'rating_count',
         'selling_count',
+        'rating_distribution',
     ];
 
     public function registerMediaCollections(): void

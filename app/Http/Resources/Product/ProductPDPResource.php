@@ -44,6 +44,7 @@ class ProductPDPResource extends JsonResource
             'sku' => $this->sku,
             'rating_avg' => $this->rating_avg,
             'rating_count' => $this->rating_count,
+            'rating_distribution' => $this->rating_distribution,
             'type' => $this->variants()->exists() ? ProductTypes::VARIABLE : ProductTypes::SIMPLE,
             'variant_attributes' => $this->variant_attributes,
             'variants' => ProductVariantResource::collection($this->whenLoaded('variants')),

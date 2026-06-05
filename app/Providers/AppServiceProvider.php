@@ -16,6 +16,7 @@ use App\Observers\AttributeTermObserver;
 use App\Observers\CategoryObserver;
 use App\Observers\CollectionObserver;
 use App\Observers\ProductObserver;
+use App\Observers\ProductReviewObserver;
 use App\Policies\ProductReviewPolicy;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -72,6 +73,7 @@ class AppServiceProvider extends ServiceProvider
         AttributeTerm::observe(AttributeTermObserver::class);
         Collection::observe(CollectionObserver::class);
         Category::observe(CategoryObserver::class);
+        ProductReview::observe(ProductReviewObserver::class);
     }
 
     protected function configureRoutes (): void

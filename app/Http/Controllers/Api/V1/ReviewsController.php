@@ -93,7 +93,8 @@ class ReviewsController extends Controller
 
         Gate::authorize('createForProduct', [ProductReview::class, $product]);
 
-        $orderItem = OrderItem::where('product_id', $product->id)
+        $orderItem = OrderItem::where('entity_id', $product->id)
+            ->where('entity_type', Product::class)
             ->whereHas('order', function ($q) use ($user) {
                 $q->where('user_id', $user->id)
                     ->where('status', '!=', OrderStatus::CANCELLED);
