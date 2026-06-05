@@ -1,8 +1,10 @@
 <?php
 namespace App\Http\Resources\Product;
 
+use App\Enums\ProductTypes;
 use App\Http\Resources\LabelResource;
 use App\Http\Resources\MediaResource;
+use App\Http\Resources\ProductVariantResource;
 use App\Models\Product;
 use App\Services\CurrencyService;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -31,6 +33,9 @@ class ProductCardResource extends JsonResource
             'stock_status' => $this->stock_status,
             'stock' => $this->stock,
             'manage_stock' => $this->manage_stock,
+            'type' => $this->variants()->exists() ? ProductTypes::VARIABLE : ProductTypes::SIMPLE,
+            'variant_attributes' => $this->variant_attributes,
+            'variants' => ProductVariantResource::collection($this->whenLoaded('variants')),
         ];
     }
 }

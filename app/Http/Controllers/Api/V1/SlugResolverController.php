@@ -132,6 +132,7 @@ class SlugResolverController extends Controller
             'collections.sluggable',
             'labels',
             'bundles.items.product.sluggable',
+            'bundles.items.product.variants',
             'variants',
             'attributeTerms.attribute',
             'crossSellsLimited.sluggable',
