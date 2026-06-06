@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\CouponTypes;
+use App\Enums\OneClickOrderStatus;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethods;
 use App\Enums\ShippingMethods;
@@ -10,6 +11,7 @@ use App\Models\Bundle;
 use App\Models\Cart;
 use App\Models\Coupon;
 use App\Models\NPWarehouse;
+use App\Models\OneClickRequest;
 use App\Models\Order;
 use App\Models\PaymentMethod;
 use App\Models\Product;
@@ -24,6 +26,31 @@ use Illuminate\Validation\ValidationException;
 
 class CheckoutService
 {
+    public function createOrderInOneClick(array $data): OneClickRequest
+    {
+        return DB::transaction(function () use ($data) {
+            $product = Product::query()->findOrFail($data['product_id']);
+            $variant = null;
+
+            if (!empty($data['variant_id'])) {
+                $variant = ProductVariant::query()
+                    ->where('id', $data['variant_id'])
+                    ->where('product_id', $product->id)
+                    ->firstOrFail();
+            }
+
+            return OneClickRequest::create([
+                'product_id' => $product->id,
+                'product_variant_id' => $variant?->id,
+                'name' => $data['name'],
+                'phone' => $data['phone'],
+                'email' => $data['email'] ?? null,
+                'comment' => $data['comment'] ?? null,
+                'status' => OneClickOrderStatus::CREATED,
+            ]);
+        });
+    }
+
     public function checkout(Cart $cart, array $data): Order
     {
         return DB::transaction(function () use ($cart, $data) {

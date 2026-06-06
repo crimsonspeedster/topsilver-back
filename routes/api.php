@@ -37,6 +37,7 @@ use App\Http\Controllers\Api\V1\User\OrdersController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use App\Http\Controllers\Api\V1\User\UserUpdateController;
 use App\Http\Controllers\Api\V1\WishlistController;
+use App\Http\Controllers\Api\V1\BuyInOneClickController;
 use App\Http\Middleware\ResolveCart;
 use App\Http\Middleware\ResolveWishlist;
 use Illuminate\Support\Facades\Route;
@@ -79,6 +80,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/products/{product}/reviews', [ReviewsController::class, 'index']);
     Route::get('/reviews/{review}', [ReviewsController::class, 'replies']);
     Route::get('/checkout/success/{token}', [CheckoutSuccessController::class, 'show']);
+    Route::post('/buy-in-one-click', BuyInOneClickController::class);
 
     Route::middleware('throttle:login')->post('/login', LoginController::class);
     Route::middleware('throttle:register')->post('/register', RegisterController::class);

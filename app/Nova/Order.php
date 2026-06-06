@@ -59,7 +59,7 @@ class Order extends Resource
 
     public function authorizedToUpdate(Request $request): bool
     {
-        return true;
+        return false;
     }
 
     public function authorizedToDelete(Request $request): bool
