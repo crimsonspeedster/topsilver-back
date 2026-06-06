@@ -10,11 +10,13 @@ use App\Listeners\MergeWishlistListener;
 use App\Models\AttributeTerm;
 use App\Models\Category;
 use App\Models\Collection;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductReview;
 use App\Observers\AttributeTermObserver;
 use App\Observers\CategoryObserver;
 use App\Observers\CollectionObserver;
+use App\Observers\OrderObserver;
 use App\Observers\ProductObserver;
 use App\Observers\ProductReviewObserver;
 use App\Policies\ProductReviewPolicy;
@@ -74,6 +76,7 @@ class AppServiceProvider extends ServiceProvider
         Collection::observe(CollectionObserver::class);
         Category::observe(CategoryObserver::class);
         ProductReview::observe(ProductReviewObserver::class);
+        Order::observe(OrderObserver::class);
     }
 
     protected function configureRoutes (): void
