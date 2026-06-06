@@ -31,7 +31,7 @@ class OrdersController extends Controller
                 },
             ])
             ->orderBy('created_at', 'desc')
-            ->paginate(1);
+            ->paginate(10);
 
         return response()->json([
             'data' => [

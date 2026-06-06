@@ -318,7 +318,7 @@ class CheckoutService
                         'entity_id' => $entity->id,
                         'entity_type' => $item->entity_type,
                         'entity_name' => $entity->title,
-                        'entity_image' => $entity->getFirstMediaUrl('media'),
+                        'entity_image' => null,
                         'entity_price' => $price,
                         'product_variant' => [],
                         'quantity' => $item->quantity,
@@ -357,8 +357,9 @@ class CheckoutService
 
             return $entity->manage_stock ? min($entity->stock, $max) : $max;
         }
-
-        return 0;
+        else {
+            return $entity->active ? $max : 0;
+        }
     }
 
     private function decrementStock(Product $product, ?ProductVariant $variant, int $qty): void
