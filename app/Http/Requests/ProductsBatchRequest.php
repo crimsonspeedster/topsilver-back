@@ -48,7 +48,7 @@ class ProductsBatchRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             validator($this->all(), [
-                'ids' => ['required', 'array', 'max:50'],
+                'ids' => ['required', 'array', 'max:15'],
                 'ids.*' => ['integer', 'exists:products,id'],
             ])->validate();
         });

@@ -107,7 +107,7 @@ class AppServiceProvider extends ServiceProvider
     protected function configureRateLimiting (): void
     {
         RateLimiter::for('login', function (Request $request) {
-            $email = strtolower((string) $request->input('email'));
+            $email = strtolower($request->input('email') ?? '') ?: $request->ip();
 
             return [
                 Limit::perMinute(10)->by($request->ip()),
@@ -124,7 +124,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('forgot-password', function (Request $request) {
-            $email = strtolower((string) $request->input('email'));
+            $email = strtolower($request->input('email') ?? '') ?: $request->ip();
 
             return [
                 Limit::perMinute(5)->by($request->ip()),
@@ -146,6 +146,69 @@ class AppServiceProvider extends ServiceProvider
             return [
                 Limit::perMinute(2)->by($key),
                 Limit::perHour(20)->by($key),
+            ];
+        });
+
+        RateLimiter::for('api', function (Request $request) {
+            $key = $request->user()?->id ?: $request->ip();
+
+            return Limit::perMinute(120)->by($key);
+        });
+
+        RateLimiter::for('cart', function (Request $request) {
+            $key = $request->user()?->id ?: $request->ip();
+
+            return Limit::perMinute(30)->by($key);
+        });
+
+        RateLimiter::for('coupon', function (Request $request) {
+            $key = $request->user()?->id ?: $request->ip();
+
+            return [
+                Limit::perMinutes(15, 5)->by($key),
+                Limit::perHour(20)->by($key),
+            ];
+        });
+
+        RateLimiter::for('checkout', function (Request $request) {
+            $key = $request->user()?->id ?: $request->ip();
+
+            return Limit::perMinute(5)->by($key);
+        });
+
+        RateLimiter::for('search', function (Request $request) {
+            return Limit::perMinute(30)->by($request->ip());
+        });
+
+        RateLimiter::for('subscribe', function (Request $request) {
+            $email = strtolower($request->input('email') ?? '') ?: $request->ip();
+
+            return [
+                Limit::perHour(10)->by($request->ip()),
+                Limit::perHour(3)->by($email),
+            ];
+        });
+
+        RateLimiter::for('notifications', function (Request $request) {
+            $key = $request->user()?->id
+                ?: strtolower($request->input('email') ?? '')
+                    ?: $request->ip();
+
+            return Limit::perHour(20)->by($key);
+        });
+
+        RateLimiter::for('wishlist', function (Request $request) {
+            $key = $request->user()?->id ?: $request->ip();
+
+            return Limit::perMinute(30)->by($key);
+        });
+
+        RateLimiter::for('buy_in_one_click', function (Request $request) {
+            $key = $request->input('phone') ?? $request->ip();
+
+            return [
+                Limit::perMinute(3)->by($request->ip()),
+                Limit::perHour(5)->by($key),
             ];
         });
     }

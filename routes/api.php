@@ -44,43 +44,57 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::prefix('v1')->group(function () {
-    Route::get('/slug-resolver/{slug}', [SlugResolverController::class, 'resolver']);
-    Route::get('/slug-resolver/{slug}/seo', [SlugResolverController::class, 'seo']);
+    Route::middleware('throttle:api')->group(function () {
+        Route::get('/slug-resolver/{slug}', [SlugResolverController::class, 'resolver']);
+        Route::get('/slug-resolver/{slug}/seo', [SlugResolverController::class, 'seo']);
 
-    Route::get('/home', [PageController::class, 'home']);
-    Route::get('/home/seo', [PageController::class, 'home_seo']);
+        Route::get('/home', [PageController::class, 'home']);
+        Route::get('/home/seo', [PageController::class, 'home_seo']);
 
-    Route::get('/shops', [ShopsController::class, 'index']);
+        Route::get('/shops', [ShopsController::class, 'index']);
 
-    Route::get('/taxonomies/{type}/products/{id}', [TaxonomyController::class, 'show']);
-    Route::get('/taxonomies/{type}/collections', [TaxonomyController::class, 'index']);
+        Route::get('/taxonomies/{type}/products/{id}', [TaxonomyController::class, 'show']);
+        Route::get('/taxonomies/{type}/collections', [TaxonomyController::class, 'index']);
 
-    Route::get('/search', [SearchController::class, 'index']);
+        Route::prefix('reference')->group(function () {
+            Route::get('/cities', [CityController::class, 'cities']);
+            Route::get('/categories', [CategoryController::class, 'categories']);
+            Route::get('/payment-methods', PaymentMethodsController::class);
+            Route::get('/shipping-methods', ShippingMethodsController::class);
+            Route::get('/shops-pickup', ShopsPickupController::class);
+        });
 
-    Route::post('/subscribe', [SubscribersController::class, 'store']);
-    Route::get('/unsubscribe/{token}', [SubscribersController::class, 'unsubscribe']);
+        Route::get('/menus', [MenuController::class, 'index']);
+        Route::get('/menus/{location:name}', [MenuController::class, 'show']);
 
-    Route::prefix('reference')->group(function () {
-        Route::get('/cities', [CityController::class, 'cities']);
-        Route::get('/categories', [CategoryController::class, 'categories']);
-        Route::get('/payment-methods', PaymentMethodsController::class);
-        Route::get('/shipping-methods', ShippingMethodsController::class);
-        Route::get('/shops-pickup', ShopsPickupController::class);
+        Route::get('/settings', [SettingsController::class, 'index']);
+        Route::get('/settings/{key}', [SettingsController::class, 'show']);
+
+        Route::get('/products/batch', [ProductsController::class, 'batch']);
+
+        Route::get('/products/{product}', [ProductsController::class, 'preview']);
+        Route::get('/products/{product}/reviews', [ReviewsController::class, 'index']);
+        Route::get('/reviews/{review}', [ReviewsController::class, 'replies']);
+        Route::get('/checkout/success/{token}', [CheckoutSuccessController::class, 'show']);
+
+        Route::prefix('nova-poshta')->group(function () {
+            Route::get('/areas', [NPController::class, 'areas']);
+            Route::get('/areas/{areaRef}/cities', [NPController::class, 'citiesByArea']);
+            Route::get('/cities/{cityRef}/warehouses', [NPController::class, 'warehousesByCity']);
+
+            Route::get('/locality', [NPController::class, 'localities']);
+            Route::get('/locality/{localityRef}/streets', [NPController::class, 'streetsByCity']);
+        });
     });
 
-    Route::get('/menus', [MenuController::class, 'index']);
-    Route::get('/menus/{location:name}', [MenuController::class, 'show']);
+    Route::middleware('throttle:search')->get('/search', [SearchController::class, 'index']);
 
-    Route::get('/settings', [SettingsController::class, 'index']);
-    Route::get('/settings/{key}', [SettingsController::class, 'show']);
+    Route::middleware('throttle:subscribe')->post('/subscribe', [SubscribersController::class, 'store']);
+    Route::get('/unsubscribe/{token}', [SubscribersController::class, 'unsubscribe']);
 
-    Route::get('/products/batch', [ProductsController::class, 'batch']);
-    Route::get('/products/{product}', [ProductsController::class, 'preview']);
-    Route::post('/products/{product}/notifications', [ProductsController::class, 'notifications']);
-    Route::get('/products/{product}/reviews', [ReviewsController::class, 'index']);
-    Route::get('/reviews/{review}', [ReviewsController::class, 'replies']);
-    Route::get('/checkout/success/{token}', [CheckoutSuccessController::class, 'show']);
-    Route::post('/buy-in-one-click', BuyInOneClickController::class);
+    Route::middleware('throttle:notifications')->post('/products/{product}/notifications', [ProductsController::class, 'notifications']);
+
+    Route::middleware('throttle:buy_in_one_click')->post('/buy-in-one-click', BuyInOneClickController::class);
 
     Route::middleware('throttle:login')->post('/login', LoginController::class);
     Route::middleware('throttle:register')->post('/register', RegisterController::class);
@@ -92,15 +106,6 @@ Route::prefix('v1')->group(function () {
     Route::post('/payments/monobank/callback', [MonopayController::class, 'callback'])
         ->name('payments.monobank.callback');
 
-    Route::prefix('nova-poshta')->group(function () {
-        Route::get('/areas', [NPController::class, 'areas']);
-        Route::get('/areas/{areaRef}/cities', [NPController::class, 'citiesByArea']);
-        Route::get('/cities/{cityRef}/warehouses', [NPController::class, 'warehousesByCity']);
-
-        Route::get('/locality', [NPController::class, 'localities']);
-        Route::get('/locality/{localityRef}/streets', [NPController::class, 'streetsByCity']);
-    });
-
     Route::middleware('throttle:email-verify')
         ->post('/email/verify', EmailVerificationController::class);
     Route::middleware('throttle:6,1')
@@ -108,20 +113,28 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware([ResolveCart::class])->group(function () {
         Route::get('/cart', [CartController::class, 'show']);
-        Route::post('/cart/items', [CartItemsController::class, 'store']);
-        Route::patch('/cart/items/{id}', [CartItemsController::class, 'update']);
-        Route::delete('/cart/items/{id}', [CartItemsController::class, 'destroy']);
 
-        Route::post('/cart/coupon', [CartCouponController::class, 'store']);
-        Route::delete('/cart/coupon', [CartCouponController::class, 'destroy']);
+        Route::middleware('throttle:cart')->group(function () {
+            Route::post('/cart/items', [CartItemsController::class, 'store']);
+            Route::patch('/cart/items/{id}', [CartItemsController::class, 'update']);
+            Route::delete('/cart/items/{id}', [CartItemsController::class, 'destroy']);
+        });
 
-        Route::post('/checkout', CheckoutController::class);
+        Route::middleware('throttle:coupon')->group(function () {
+            Route::post('/cart/coupon', [CartCouponController::class, 'store']);
+            Route::delete('/cart/coupon', [CartCouponController::class, 'destroy']);
+        });
+
+        Route::middleware('throttle:checkout')->post('/checkout', CheckoutController::class);
     });
 
     Route::middleware([ResolveWishlist::class])->group(function () {
         Route::get('/wishlist', [WishlistController::class, 'show']);
-        Route::post('/wishlist/items', [WishlistController::class, 'store']);
-        Route::delete('/wishlist/items/{product_id}', [WishlistController::class, 'destroy']);
+
+        Route::middleware('throttle:wishlist')->group(function () {
+            Route::post('/wishlist/items', [WishlistController::class, 'store']);
+            Route::delete('/wishlist/items/{product_id}', [WishlistController::class, 'destroy']);
+        });
     });
 
     Route::middleware(['auth:sanctum'])->group(function () {
@@ -141,7 +154,7 @@ Route::prefix('v1')->group(function () {
         });
     });
 
-    Route::middleware(['auth:sanctum', ResolveCart::class])->group(function () {
+    Route::middleware(['auth:sanctum', ResolveCart::class, 'throttle:cart'])->group(function () {
         Route::patch('/cart/bonuses', [CartBonusesController::class, 'apply']);
 
         Route::post('/cart/certificates', [CartCertificateController::class, 'store']);
