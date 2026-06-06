@@ -10,6 +10,19 @@ use Illuminate\Validation\Rule;
 
 class CreateOrderRequest extends FormRequest
 {
+    protected ?ShippingMethod $shippingMethod = null;
+
+    protected function shippingMethod(): ?ShippingMethod
+    {
+        if ($this->shippingMethod) {
+            return $this->shippingMethod;
+        }
+
+        return $this->shippingMethod = ShippingMethod::find(
+            $this->input('shipping_method_id')
+        );
+    }
+
     public function authorize(): bool
     {
         return true;
@@ -55,57 +68,46 @@ class CreateOrderRequest extends FormRequest
                 Rule::exists('shipping_methods', 'id')
                     ->where('active', true),
             ],
-            'shop_id' => [
-                Rule::requiredIf(function () {
-                    $shippingMethodId = $this->input('shipping_method_id');
-                    $shippingMethod = ShippingMethod::find($shippingMethodId);
-
-                    return $shippingMethod?->type === ShippingMethods::LOCAL_PICKUP;
-                }),
-                'integer',
-                'exists:shops,id'
-            ],
-            'np_warehouse_ref' => [
-                Rule::requiredIf(function () {
-                    $shippingMethodId = $this->input('shipping_method_id');
-                    $shippingMethod = ShippingMethod::find($shippingMethodId);
-
-                    return $shippingMethod?->type === ShippingMethods::NOVA_POSHTA_WAREHOUSE;
-                }),
-                'nullable',
-                'string',
-                'exists:np_warehouses,ref'
-            ],
-            'np_city' => [
-                Rule::requiredIf(function () {
-                    $shippingMethodId = $this->input('shipping_method_id');
-                    $shippingMethod = ShippingMethod::find($shippingMethodId);
-
-                    return $shippingMethod?->type === ShippingMethods::NOVA_POSHTA_COURIER;
-                }),
-                'nullable',
-                'string',
-            ],
-            'np_street' => [
-                Rule::requiredIf(function () {
-                    $shippingMethodId = $this->input('shipping_method_id');
-                    $shippingMethod = ShippingMethod::find($shippingMethodId);
-
-                    return $shippingMethod?->type === ShippingMethods::NOVA_POSHTA_COURIER;
-                }),
-                'nullable',
-                'string',
-            ],
-            'np_house_number' => [
-                Rule::requiredIf(function () {
-                    $shippingMethodId = $this->input('shipping_method_id');
-                    $shippingMethod = ShippingMethod::find($shippingMethodId);
-
-                    return $shippingMethod?->type === ShippingMethods::NOVA_POSHTA_COURIER;
-                }),
-                'nullable',
-                'integer',
-            ],
+            'shop_id' => Rule::when(
+                fn () => $this->shippingMethod()?->type === ShippingMethods::LOCAL_PICKUP,
+                ['required', 'integer', 'exists:shops,id'],
+                ['nullable']
+            ),
+            'np_warehouse_ref' => Rule::when(
+                fn () => $this->shippingMethod()?->type === ShippingMethods::NOVA_POSHTA_WAREHOUSE,
+                ['required', 'string', 'exists:np_warehouses,ref'],
+                ['nullable']
+            ),
+            'np_city_ref' => Rule::when(
+                fn () => $this->shippingMethod()?->type === ShippingMethods::NOVA_POSHTA_WAREHOUSE,
+                ['required', 'string', 'exists:np_cities,ref'],
+                ['nullable']
+            ),
+            'np_street_ref' => Rule::when(
+                fn () => $this->shippingMethod()?->type === ShippingMethods::NOVA_POSHTA_COURIER,
+                ['required', 'string'],
+                ['nullable']
+            ),
+            'np_street_name' => Rule::when(
+                fn () => $this->shippingMethod()?->type === ShippingMethods::NOVA_POSHTA_COURIER,
+                ['required', 'string'],
+                ['nullable']
+            ),
+            'np_locality_ref' => Rule::when(
+                fn () => $this->shippingMethod()?->type === ShippingMethods::NOVA_POSHTA_COURIER,
+                ['required', 'string'],
+                ['nullable']
+            ),
+            'np_locality_name' => Rule::when(
+                fn () => $this->shippingMethod()?->type === ShippingMethods::NOVA_POSHTA_COURIER,
+                ['required', 'string'],
+                ['nullable']
+            ),
+            'np_house_number' => Rule::when(
+                fn () => $this->shippingMethod()?->type === ShippingMethods::NOVA_POSHTA_COURIER,
+                ['required', 'integer'],
+                ['nullable']
+            ),
             'np_apartment_number' => [
                 'nullable',
                 'string',

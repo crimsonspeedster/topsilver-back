@@ -169,8 +169,10 @@ class CheckoutService
                 $shippingData['np_warehouse_type'] = $warehouse->type;
                 break;
             case ShippingMethods::NOVA_POSHTA_COURIER:
-                $shippingData['np_city'] = $data['np_city'];
-                $shippingData['np_street'] = $data['np_street'];
+                $shippingData['np_street_ref'] = $data['np_street_ref'];
+                $shippingData['np_street_name'] = $data['np_street_name'];
+                $shippingData['np_locality_ref'] = $data['np_locality_ref'];
+                $shippingData['np_locality_name'] = $data['np_locality_name'];
                 $shippingData['np_house_number'] = $data['np_house_number'];
                 $shippingData['np_apartment_number'] = $data['np_apartment_number'];
                 break;
