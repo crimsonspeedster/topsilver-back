@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Log;
 
 class MergeWishlistListener implements ShouldQueue
 {
+    public int $tries = 3;
+
+    public int $timeout = 10;
+
     public function __construct()
     {
 

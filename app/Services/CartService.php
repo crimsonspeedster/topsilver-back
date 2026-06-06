@@ -246,7 +246,9 @@ class CartService
 
     public function mergeGuestCartWithUser(string $cartToken, User $user): void
     {
-        $guestCart = Cart::where('cart_token', $cartToken)->first();
+        $guestCart = Cart::where('cart_token', $cartToken)
+            ->whereNull('merged_at')
+            ->first();
 
         if (!$guestCart) {
             return;
@@ -269,6 +271,13 @@ class CartService
     public function mergeCart(Cart $guestCart, Cart $userCart): Cart
     {
         DB::transaction(function () use ($guestCart, $userCart) {
+            if ($guestCart->merged_at) {
+                return;
+            }
+
+            $guestCart->merged_at = now();
+            $guestCart->save();
+
             foreach ($guestCart->items as $guestItem) {
                 $query = CartItem::query()
                     ->where('cart_id', $userCart->id)

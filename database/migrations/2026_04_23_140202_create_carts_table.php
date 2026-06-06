@@ -24,6 +24,7 @@ return new class extends Migration
             $table->decimal('total', 10, 2)->default(0);
 
             $table->timestamp('last_modified')->nullable();
+            $table->timestamp('merged_at')->nullable();
 
             $table->timestamps();
 

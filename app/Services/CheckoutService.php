@@ -284,7 +284,7 @@ class CheckoutService
     {
         foreach ($cart->items as $item) {
             $entity = $item->entity;
-            $variant = $item->variant->loadMissing(['attributeTerms.attribute']);
+            $variant = $item->variant?->loadMissing(['attributeTerms.attribute']);
             $price = $this->getItemPrice($entity, $variant);
             $variantObject = [];
 

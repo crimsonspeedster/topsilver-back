@@ -9,6 +9,10 @@ use Illuminate\Queue\InteractsWithQueue;
 
 class AttachOrdersToUser implements ShouldQueue
 {
+    public int $tries = 3;
+
+    public int $timeout = 10;
+
     /**
      * Create the event listener.
      */
@@ -29,6 +33,7 @@ class AttachOrdersToUser implements ShouldQueue
             ->where('phone', $user->phone)
             ->update([
                 'user_id' => $user->id,
+                'updated_at' => now(),
             ]);
     }
 }

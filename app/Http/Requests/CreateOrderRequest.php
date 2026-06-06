@@ -41,7 +41,7 @@ class CreateOrderRequest extends FormRequest
             'first_name' => $first_name ? trim($first_name) : null,
             'last_name' => $last_name ? trim($last_name) : null,
             'middle_name' => $middle_name ? trim($middle_name) : null,
-            'phone' => $phone ? preg_replace('/\D/', '', $phone) : null,
+            'phone' => $phone ? $this->normalize_phone($phone) : null,
             'email' => $email ? strtolower(trim($email)) : null,
             'notes' => $notes ? trim($notes) : null,
         ]);
@@ -53,7 +53,7 @@ class CreateOrderRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:50'],
             'last_name' => ['required', 'string', 'max:50'],
             'middle_name' => ['nullable', 'string', 'max:50'],
-            'phone' => ['required', 'regex:/^380\d{9}$/'],
+            'phone' => ['required', 'regex:/^(\+?380)\d{9}$/'],
             'email' => ['nullable', 'email', 'max:100'],
             'notes' => ['nullable', 'string', 'max:500'],
             'payment_method_id' => [
@@ -113,5 +113,16 @@ class CreateOrderRequest extends FormRequest
                 'string',
             ]
         ];
+    }
+
+    private function normalize_phone(string $phone): string
+    {
+        $phone = preg_replace('/\D/', '', $phone);
+
+        if (!str_starts_with($phone, '+')) {
+            return '+' . $phone;
+        }
+
+        return $phone;
     }
 }

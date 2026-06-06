@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Api\V1\User;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
 use App\Http\Resources\PaginationResource;
+use App\Models\Bundle;
 use App\Models\Order;
+use App\Models\Product;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\Request;
 
 class OrdersController extends Controller
@@ -15,7 +18,17 @@ class OrdersController extends Controller
         $orders = $user
             ->orders()
             ->with([
-                'items.product.sluggable',
+                'items.entity' => function (MorphTo $morphTo) {
+                    $morphTo->morphWith([
+                        Product::class => [
+                            'sluggable',
+                        ],
+
+                        Bundle::class => [
+                            'items.product.sluggable',
+                        ],
+                    ]);
+                },
             ])
             ->orderBy('created_at', 'desc')
             ->paginate(1);
@@ -33,7 +46,17 @@ class OrdersController extends Controller
         abort_unless($order->user_id === $request->user()->id, 404);
 
         $order->load([
-            'items.product.sluggable',
+            'items.entity' => function (MorphTo $morphTo) {
+                $morphTo->morphWith([
+                    Product::class => [
+                        'sluggable',
+                    ],
+
+                    Bundle::class => [
+                        'items.product.sluggable',
+                    ],
+                ]);
+            },
         ]);
 
         return response()->json([

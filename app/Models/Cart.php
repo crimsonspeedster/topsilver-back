@@ -16,6 +16,7 @@ class Cart extends Model
         'total',
         'last_modified',
         'coupon_id',
+        'merged_at',
         'bonuses_used',
     ];
 
@@ -23,6 +24,7 @@ class Cart extends Model
         'subtotal' => 'decimal:2',
         'total' => 'decimal:2',
         'last_modified' => 'datetime',
+        'merged_at' => 'datetime',
         'bonuses_used' => 'integer',
     ];
 

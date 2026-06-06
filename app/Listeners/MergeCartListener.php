@@ -9,6 +9,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class MergeCartListener implements ShouldQueue
 {
+    public int $tries = 3;
+
+    public int $timeout = 10;
+
     public function __construct()
     {
 
