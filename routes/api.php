@@ -118,9 +118,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/cart/items', [CartItemsController::class, 'store']);
             Route::patch('/cart/items/{id}', [CartItemsController::class, 'update']);
             Route::delete('/cart/items/{id}', [CartItemsController::class, 'destroy']);
-        });
 
-        Route::middleware('throttle:coupon')->group(function () {
             Route::post('/cart/coupon', [CartCouponController::class, 'store']);
             Route::delete('/cart/coupon', [CartCouponController::class, 'destroy']);
         });
@@ -157,7 +155,8 @@ Route::prefix('v1')->group(function () {
     Route::middleware(['auth:sanctum', ResolveCart::class, 'throttle:cart'])->group(function () {
         Route::patch('/cart/bonuses', [CartBonusesController::class, 'apply']);
 
-        Route::post('/cart/certificates', [CartCertificateController::class, 'store']);
+        Route::middleware('throttle:certificates')->post('/cart/certificates', [CartCertificateController::class, 'store']);
+
         Route::delete('/cart/certificates/{certificate}', [CartCertificateController::class, 'destroy']);
     });
 });

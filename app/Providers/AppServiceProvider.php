@@ -161,7 +161,7 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(30)->by($key);
         });
 
-        RateLimiter::for('coupon', function (Request $request) {
+        RateLimiter::for('certificates', function (Request $request) {
             $key = $request->user()?->id ?: $request->ip();
 
             return [
