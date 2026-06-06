@@ -14,9 +14,25 @@ class ShippingMethodSeeder extends Seeder
      */
     public function run(): void
     {
-        foreach (ShippingMethods::cases() as $method) {
+        $methods = [
+            [
+                'type' => ShippingMethods::NOVA_POSHTA_COURIER,
+                'name' => "Нова пошта (кур'єр)"
+            ],
+            [
+                'type' => ShippingMethods::NOVA_POSHTA_WAREHOUSE,
+                'name' => 'Нова пошта (до відділення)',
+            ],
+            [
+                'type' => ShippingMethods::LOCAL_PICKUP,
+                'name' => 'Самовивіз',
+            ],
+        ];
+
+        foreach ($methods as $method) {
             ShippingMethod::factory()->create([
-                'type' => $method,
+                'name' => $method['name'],
+                'type' => $method['type'],
             ]);
         }
     }

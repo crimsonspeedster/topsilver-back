@@ -23,6 +23,7 @@ class Order extends Model
         'paid_at',
         'notes',
         'first_name',
+        'public_token',
         'last_name',
         'middle_name',
         'phone',

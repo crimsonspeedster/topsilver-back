@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
 
+            $table->string('public_token', 64)->unique();
+
             $table->string('status');
 
             $table->decimal('subtotal', 10, 2);
@@ -48,6 +50,7 @@ return new class extends Migration
             $table->index('status');
             $table->index('paid_at');
             $table->index('user_id');
+            $table->index('public_token');
         });
     }
 

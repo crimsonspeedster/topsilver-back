@@ -14,9 +14,25 @@ class PaymentMethodSeeder extends Seeder
      */
     public function run(): void
     {
-        foreach (PaymentMethods::cases() as $method) {
+        $methods = [
+            [
+                'type' => PaymentMethods::COD,
+                'name' => 'Оплата при отриманні товару'
+            ],
+            [
+                'type' => PaymentMethods::PLATA_BY_MONO,
+                'name' => 'Оплата Online by Mono',
+            ],
+            [
+                'type' => PaymentMethods::LIQPAY,
+                'name' => 'Оплата Online by Liqpay',
+            ],
+        ];
+
+        foreach ($methods as $method) {
             PaymentMethod::factory()->create([
-                'type' => $method,
+                'name' => $method['name'],
+                'type' => $method['type'],
             ]);
         }
     }

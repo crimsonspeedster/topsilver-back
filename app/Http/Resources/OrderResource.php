@@ -17,7 +17,8 @@ class OrderResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'status' => $this->status,
+            'public_token' => $this->public_token,
+            'status' => $this->status->label(),
             'total_formatted' => $currency->format($this->total)->format(),
             'subtotal_formatted' => $currency->format($this->subtotal)->format(),
             'paid_at' => $this->paid_at,

@@ -18,12 +18,8 @@ class PaymentMethodFactory extends Factory
      */
     public function definition(): array
     {
-        $type = $this->faker->randomElement(PaymentMethods::cases());
-
         return [
-            'name' => $type->value,
             'description' => $this->faker->text(),
-            'type' => $type,
             'active' => true,
         ];
     }

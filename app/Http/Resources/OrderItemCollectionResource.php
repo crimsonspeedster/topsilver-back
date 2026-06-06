@@ -2,7 +2,9 @@
 namespace App\Http\Resources;
 
 use App\Http\Resources\Product\ProductCardResource;
+use App\Models\Bundle;
 use App\Models\OrderItem;
+use App\Models\Product;
 use App\Services\CurrencyService;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,15 +19,24 @@ class OrderItemCollectionResource extends JsonResource
         $currency = app(CurrencyService::class);
 
         return [
-            'product_name' => $this->product_name,
-            'product_image' => $this->product_image,
-            'product_price' => $this->product_price,
-            'product_price_formatted' => $currency->format($this->product_price)->format(),
+            'entity_name' => $this->entity_name,
+            'entity_type' => $this->resolveEntityResource(),
+            'entity_image' => $this->entity_image,
+            'entity_price' => $this->entity_price,
+            'entity_price_formatted' => $currency->format($this->entity_price)->format(),
             'product_variant' => $this->product_variant,
             'quantity' => $this->quantity,
             'total' => $this->total,
             'total_formatted' => $currency->format($this->total)->format(),
-            'product' => new ProductCardResource($this->whenLoaded('product')),
         ];
+    }
+
+    private function resolveEntityResource(): string | null
+    {
+        return match (true) {
+            $this->entity instanceof Product => "product",
+            $this->entity instanceof Bundle => "bundle",
+            default => null,
+        };
     }
 }

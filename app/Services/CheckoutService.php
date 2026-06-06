@@ -19,6 +19,7 @@ use App\Models\Shop;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class CheckoutService
@@ -143,6 +144,7 @@ class CheckoutService
         $shippingData = [
             'shipping_method_id' => $shippingMethod->id,
             'shipping_method_name' => $shippingMethod->name,
+            'shipping_method_type' => $shippingMethod->type->value,
         ];
 
         switch ($shippingMethod->type) {
@@ -150,11 +152,9 @@ class CheckoutService
                 $shop = Shop::with(['city.region'])
                     ->findOrFail($data['shop_id']);
 
-                $shippingData['shop_id'] = $data['shop_id'];
-                $shippingData['region'] = $shop->city?->region?->name;
-                $shippingData['city'] = $shop->city?->name;
-                $shippingData['shop_name'] = $shop->name;
-                $shippingData['shop_address'] = $shop->address;
+                $shippingData['shop_address'] = $shop->title . ' (' . $shop->address . ') (' . $shop->city->name . ') (' . $shop->city->region->name . ')';
+                $shippingData['shop_link'] = $shop->address_link;
+                $shippingData['shop_phone'] = $shop->phone;
                 break;
             case ShippingMethods::NOVA_POSHTA_WAREHOUSE:
                 $warehouse = NPWarehouse::query()
@@ -248,6 +248,8 @@ class CheckoutService
         array $couponData,
     ): Order {
         return Order::create([
+            'public_token' => Str::random(64),
+
             'status' => $status,
             'subtotal' => $subtotal,
             'total' => $total,
@@ -280,9 +282,18 @@ class CheckoutService
     {
         foreach ($cart->items as $item) {
             $entity = $item->entity;
-            $variant = $item->variant;
-
+            $variant = $item->variant->loadMissing(['attributeTerms.attribute']);
             $price = $this->getItemPrice($entity, $variant);
+            $variantObject = [];
+
+            if ($variant) {
+                foreach ($variant->attributeTerms as $attributeTerm) {
+                    $variantObject[] = [
+                        'attribute_name' => $attributeTerm->attribute->title,
+                        'attribute_value' => $attributeTerm->title,
+                    ];
+                }
+            }
 
             switch ($item->entity_type) {
                 case Product::class:
@@ -292,7 +303,7 @@ class CheckoutService
                         'entity_name' => $entity->title,
                         'entity_image' => $entity->getFirstMediaUrl('media'),
                         'entity_price' => $price,
-                        'product_variant' => $variant?->toArray() ?? [],
+                        'product_variant' => $variantObject,
                         'quantity' => $item->quantity,
                         'total' => $price * $item->quantity,
                     ]);

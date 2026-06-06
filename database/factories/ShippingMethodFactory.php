@@ -18,11 +18,7 @@ class ShippingMethodFactory extends Factory
      */
     public function definition(): array
     {
-        $type = $this->faker->randomElement(ShippingMethods::cases());
-
         return [
-            'name' => $type->value,
-            'type' => $type,
             'active' => true,
         ];
     }

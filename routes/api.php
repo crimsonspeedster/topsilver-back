@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\Cart\CartItemsController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\CheckoutController;
 use App\Http\Controllers\Api\V1\CityController;
+use App\Http\Controllers\Api\V1\CheckoutSuccessController;
 use App\Http\Controllers\Api\V1\LiqPayController;
 use App\Http\Controllers\Api\V1\MenuController;
 use App\Http\Controllers\Api\V1\MonopayController;
@@ -77,6 +78,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/products/{product}/notifications', [ProductsController::class, 'notifications']);
     Route::get('/products/{product}/reviews', [ReviewsController::class, 'index']);
     Route::get('/reviews/{review}', [ReviewsController::class, 'replies']);
+    Route::get('/checkout/success/{token}', [CheckoutSuccessController::class, 'show']);
 
     Route::middleware('throttle:login')->post('/login', LoginController::class);
     Route::middleware('throttle:register')->post('/register', RegisterController::class);
