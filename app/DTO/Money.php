@@ -10,6 +10,6 @@ class Money
 
     public function format(): string
     {
-        return "{$this->currency}" . number_format($this->amount, 0, '.', '');
+        return number_format($this->amount, 0, '.', '') . "{$this->currency}";
     }
 }

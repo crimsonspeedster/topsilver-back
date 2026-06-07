@@ -20,6 +20,7 @@ class SettingsSeeder extends Seeder
     public function run(): void
     {
         $logo_path = $this->fakeLogo();
+        $banner_path = $this->fakeBanner();
 
         $home_page = Page::where('id', 1)->first();
         $rules_page = Page::where('id', 4)->first();
@@ -33,6 +34,9 @@ class SettingsSeeder extends Seeder
         }
 
         $this->createImageSetting('logo', $logo_path);
+        $this->createImageSetting('checkout_banner', $banner_path);
+        $this->createImageSetting('cart_banner', $banner_path);
+        $this->createNumberSetting('free_shipping', 5000);
         $this->createTextSetting('top_banner_text', fake()->sentence());
         $this->createTextSetting('subscribe_text', fake()->text());
         $this->createTextSetting('delivery_and_return', fake()->realText(2000));
@@ -41,6 +45,17 @@ class SettingsSeeder extends Seeder
         $this->createContactSetting('contacts', 4);
         $this->createProductAdvantagesSetting('product_advantages');
         $this->createSeoRobotsSetting();
+    }
+
+    public function createNumberSetting(string $key, int $number): void
+    {
+        Setting::create([
+            'key' => $key,
+            'value' => [
+                'data' => $number
+            ],
+            'type' => 'number',
+        ]);
     }
 
     private function createImageSetting (string $key, string $image_path): void
@@ -216,6 +231,25 @@ class SettingsSeeder extends Seeder
 
         $source = base_path(fake()->randomElement($images));
         $fileName = 'settings/' . Str::uuid() . '.png';
+
+        Storage::disk('public')->put(
+            $fileName,
+            file_get_contents($source)
+        );
+
+        return $fileName;
+    }
+
+    private function fakeBanner(): string
+    {
+        $images = [
+            'resources/src/img/banner_header.jpg',
+        ];
+
+        $randomImage = fake()->randomElement($images);
+        $source = base_path($randomImage);
+        $extension = pathinfo($source, PATHINFO_EXTENSION);
+        $fileName = 'settings/' . Str::uuid() . '.' . $extension;
 
         Storage::disk('public')->put(
             $fileName,
