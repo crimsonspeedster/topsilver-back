@@ -22,9 +22,14 @@ class SettingsSeeder extends Seeder
         $logo_path = $this->fakeLogo();
 
         $home_page = Page::where('id', 1)->first();
+        $rules_page = Page::where('id', 4)->first();
 
         if ($home_page) {
             $this->createRelationPageSetting('home_page', $home_page);
+        }
+
+        if ($rules_page) {
+            $this->createRelationPageSetting('rules_page', $rules_page);
         }
 
         $this->createImageSetting('logo', $logo_path);
@@ -73,10 +78,15 @@ class SettingsSeeder extends Seeder
 
     private function createRelationPageSetting (string $key, Model $model): void
     {
+        $model->loadMissing(['sluggable']);
+
         Setting::create([
             'key' => $key,
             'value' => [
-                'data' => $model->getKey(),
+                'data' => [
+                    'model_id' => $model->getKey(),
+                    'model_slug' => $model->sluggable?->slug,
+                ],
             ],
             'type' => 'relation_page'
         ]);

@@ -65,6 +65,6 @@ abstract class ContentEntity extends Model implements HasMedia, ContentEntityInt
 
         if (!$home_page_relation) return false;
 
-        return $this->id === (int) $home_page_relation;
+        return $this->id === (int) $home_page_relation['model_id'];
     }
 }
