@@ -21,16 +21,17 @@ class BannersSlider implements Block
     private static function blocks(): array
     {
         $blocks = [];
-        $fake_image_path = self::fakeImage();
 
         for ($i = 1; $i <= 3; $i++) {
+            $fake_image_path = self::fakeImage();
+
             $blocks[] = [
                 'key' => Str::uuid()->toString(),
                 'layout' => 'BannersSliderItem',
                 'attributes' => [
                     'overhead' => 'overhead',
                     'title' => 'title',
-                    'text_color' => 'white',
+                    'text_color' => 'black',
                     'title_tag' => fake()->randomElement(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
                     'position' => fake()->randomElement(['left', 'center']),
                     'button' => [self::button()],
@@ -57,8 +58,16 @@ class BannersSlider implements Block
 
     private static function fakeImage(): string
     {
-        $source = base_path('resources/src/img/fake.png');
-        $fileName = 'settings/' . Str::uuid() . '.png';
+        $images = [
+            'resources/src/img/slider-1.jpg',
+            'resources/src/img/slider-2.jpg',
+            'resources/src/img/slider-3.jpg',
+        ];
+
+        $randomImage = fake()->randomElement($images);
+        $source = base_path($randomImage);
+        $extension = pathinfo($source, PATHINFO_EXTENSION);
+        $fileName = 'settings/' . Str::uuid() . '.' . $extension;
 
         Storage::disk('public')->put(
             $fileName,

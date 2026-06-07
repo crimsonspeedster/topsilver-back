@@ -30,8 +30,19 @@ class InstagramPostSeeder extends Seeder
 
     private function fakeImage(): string
     {
-        $source = base_path('resources/src/img/fake.png');
-        $tmpPath = storage_path('app/temp_' . uniqid() . '.png');
+        $images = [
+            'resources/src/img/inst_1.webp',
+            'resources/src/img/inst_2.webp',
+            'resources/src/img/inst_3.webp',
+            'resources/src/img/inst_4.webp',
+            'resources/src/img/inst_5.webp',
+            'resources/src/img/inst_6.webp',
+        ];
+
+        $randomImage = fake()->randomElement($images);
+        $source = base_path($randomImage);
+        $extension = pathinfo($source, PATHINFO_EXTENSION);
+        $tmpPath = storage_path('app/temp_' . uniqid() . '.' . $extension);
 
         copy($source, $tmpPath);
 

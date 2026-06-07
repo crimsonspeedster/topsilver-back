@@ -6,6 +6,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Category extends TaxonomyEntity
 {
+    protected $fillable = [];
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->fillable = $this->getFillable();
+    }
+
     public function getType(): string
     {
         return 'category';

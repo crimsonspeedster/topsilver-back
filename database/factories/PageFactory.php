@@ -23,7 +23,6 @@ class PageFactory extends Factory
             'title' => $this->faker->sentence(),
             'short_description' => $this->faker->paragraph(2),
             'status' => EntityStatus::Published,
-            'content' => FlexibleContentBuilder::make(),
             'published_at' => now(),
         ];
     }

@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\EntityStatus;
+use App\Factories\Blocks\FlexibleContentBuilder;
 use App\Models\Collection;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -21,7 +22,7 @@ class CollectionFactory extends Factory
         return [
             'title' => $this->faker->name(),
             'description' => $this->faker->text(),
-            'content' => [],
+            'content' => FlexibleContentBuilder::contentBlockSet(),
             'status' => EntityStatus::Published,
             'published_at' => now(),
             'parent_id' => null,

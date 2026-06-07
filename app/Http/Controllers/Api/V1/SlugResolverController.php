@@ -7,7 +7,6 @@ use App\Enums\ReviewStatus;
 use App\Enums\TaxonomySort;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ContentEntityResource;
-use App\Http\Resources\FilterPageResource;
 use App\Http\Resources\PaginationResource;
 use App\Http\Resources\Product\ProductCardResource;
 use App\Http\Resources\Product\ProductPDPResource;
@@ -194,7 +193,6 @@ class SlugResolverController extends Controller
             selectedFilters: $selectedFilters,
             sort: TaxonomySort::NEWEST,
             extra: [
-                'entity' => new FilterPageResource($filterPage),
                 'category' => new TaxonomyCollectionResource($category),
                 'type' => 'filter_page',
             ]

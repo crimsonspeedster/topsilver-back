@@ -18,6 +18,7 @@ class TaxonomyResource extends JsonResource
             'description' => $this->description,
             'content' => $this->content,
             'media' => new MediaResource($this->getFirstMedia('media')),
+            'banner' => new MediaResource($this->getFirstMedia('banner')),
             'seo_block' => new SeoBlockResource($this->whenLoaded('seoBlock')),
         ];
     }

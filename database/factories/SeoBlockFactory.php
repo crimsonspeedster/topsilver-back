@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Factories\Blocks\FlexibleContentBuilder;
 use App\Models\SeoBlock;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,9 +19,7 @@ class SeoBlockFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => $this->faker->sentence(),
-            'excerpt' => $this->faker->paragraph(3),
-            'content' => $this->faker->paragraph(30),
+            'content' => FlexibleContentBuilder::contentBlockSet(),
         ];
     }
 }

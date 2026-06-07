@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\ContentResolver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -14,9 +15,11 @@ class SeoBlock extends Model
     protected $fillable = [
         'entity_id',
         'entity_type',
-        'title',
-        'excerpt',
         'content',
+    ];
+
+    protected $casts = [
+        'content' => 'array',
     ];
 
     public function entity (): MorphTo
@@ -28,8 +31,8 @@ class SeoBlock extends Model
         );
     }
 
-    public function getExcerptResolveAttribute (): string
+    public function getBlocksAttribute(): array
     {
-        return $this->excerpt ?? Str::limit(strip_tags($this->content), 160);
+        return app(ContentResolver::class)->resolve($this->content);
     }
 }

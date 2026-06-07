@@ -20,16 +20,20 @@ class SettingsSeeder extends Seeder
     public function run(): void
     {
         $logo_path = $this->fakeLogo();
-        $fake_image_path = $this->fakeImage();
+
+        $home_page = Page::where('id', 1)->first();
+
+        if ($home_page) {
+            $this->createRelationPageSetting('home_page', $home_page);
+        }
 
         $this->createImageSetting('logo', $logo_path);
         $this->createTextSetting('top_banner_text', fake()->sentence());
         $this->createTextSetting('subscribe_text', fake()->text());
         $this->createTextSetting('delivery_and_return', fake()->realText(2000));
         $this->createTextSetting('size_guide', fake()->realText(1500));
-        $this->createSocialLinksSetting('social_links', 4, $fake_image_path);
-        $this->createContactSetting('contacts', 4, $fake_image_path);
-        $this->createRelationPageSetting('home_page', Page::inRandomOrder()->first());
+        $this->createSocialLinksSetting('social_links', 4);
+        $this->createContactSetting('contacts', 4);
         $this->createProductAdvantagesSetting('product_advantages');
         $this->createSeoRobotsSetting();
     }
@@ -91,11 +95,13 @@ class SettingsSeeder extends Seeder
         ]);
     }
 
-    private function createContactSetting (string $key, int $amount, string $image_path): void
+    private function createContactSetting (string $key, int $amount): void
     {
         $contacts = [];
 
         for ($i = 0; $i < $amount; $i++) {
+            $image_path = $this->fakeContactImage();
+
             $type = fake()->randomElement(['text', 'link']);
 
             if ($type === 'link') {
@@ -130,11 +136,13 @@ class SettingsSeeder extends Seeder
         ]);
     }
 
-    private function createSocialLinksSetting (string $key, int $amount, string $image_path): void
+    private function createSocialLinksSetting (string $key, int $amount): void
     {
         $links = [];
 
         for ($i = 0; $i < $amount; $i++) {
+            $image_path = $this->fakeSocialImage();
+
             $links[] = [
                 'key' => Str::uuid()->toString(),
                 'layout' => 'SocialLinkItem',
@@ -167,10 +175,50 @@ class SettingsSeeder extends Seeder
         return $fileName;
     }
 
+    public function fakeSocialImage(): string
+    {
+        $images = [
+            'resources/src/img/social_1.png',
+            'resources/src/img/social_2.png',
+            'resources/src/img/social_3.png',
+            'resources/src/img/social_4.png',
+            'resources/src/img/social_5.png',
+        ];
+
+        $source = base_path(fake()->randomElement($images));
+        $fileName = 'settings/' . Str::uuid() . '.png';
+
+        Storage::disk('public')->put(
+            $fileName,
+            file_get_contents($source)
+        );
+
+        return $fileName;
+    }
+
+    public function fakeContactImage(): string
+    {
+        $images = [
+            'resources/src/img/contact_1.png',
+            'resources/src/img/contact_2.png',
+            'resources/src/img/contact_3.png',
+        ];
+
+        $source = base_path(fake()->randomElement($images));
+        $fileName = 'settings/' . Str::uuid() . '.png';
+
+        Storage::disk('public')->put(
+            $fileName,
+            file_get_contents($source)
+        );
+
+        return $fileName;
+    }
+
     private function fakeLogo(): string
     {
-        $source = base_path('resources/src/img/fake_logo.svg');
-        $fileName = 'settings/' . Str::uuid() . '.svg';
+        $source = base_path('resources/src/img/logo.png');
+        $fileName = 'settings/' . Str::uuid() . '.png';
 
         Storage::disk('public')->put(
             $fileName,

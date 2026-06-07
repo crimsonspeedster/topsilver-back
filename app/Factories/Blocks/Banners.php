@@ -25,14 +25,15 @@ class Banners implements Block
     private static function blocks(int $max): array
     {
         $blocks = [];
-        $fake_image_path = self::fakeImage();
 
         for ($i = 1; $i <= $max; $i++) {
+            $fake_image_path = self::fakeImage();
+
             $blocks[] = [
                 'key' => Str::uuid()->toString(),
                 'layout' => 'BannersItem',
                 'attributes' => [
-                    'text_color' => 'white',
+                    'text_color' => 'black',
                     'show_button' => true,
                     'overhead' => 'Overhead',
                     'title' => 'Title',
@@ -50,8 +51,17 @@ class Banners implements Block
 
     private static function fakeImage(): string
     {
-        $source = base_path('resources/src/img/fake.png');
-        $fileName = 'settings/' . Str::uuid() . '.png';
+        $images = [
+            'resources/src/img/banner_1.webp',
+            'resources/src/img/banner_2.jpg',
+            'resources/src/img/banner_3.webp',
+            'resources/src/img/banner_4.webp',
+        ];
+
+        $randomImage = fake()->randomElement($images);
+        $source = base_path($randomImage);
+        $extension = pathinfo($source, PATHINFO_EXTENSION);
+        $fileName = 'settings/' . Str::uuid() . '.' . $extension;
 
         Storage::disk('public')->put(
             $fileName,

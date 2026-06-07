@@ -16,7 +16,7 @@ class PageController extends Controller
             abort(404);
         }
 
-        $page_id = $home_page_relation['model_id'];
+        $page_id = (int) $home_page_relation;
         $page = Page::findOrFail($page_id);
 
         return response()->json([
@@ -32,7 +32,7 @@ class PageController extends Controller
             abort(404);
         }
 
-        $page_id = $home_page_relation['model_id'];
+        $page_id = (int) $home_page_relation;
         $page = Page::findOrFail($page_id)->load([
             'seo'
         ]);

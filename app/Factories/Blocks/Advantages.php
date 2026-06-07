@@ -21,9 +21,10 @@ class Advantages implements Block
     private static function blocks(): array
     {
         $blocks = [];
-        $fake_image_path = self::fakeImage();
 
         for ($i = 1; $i <= 4; $i++) {
+            $fake_image_path = self::fakeImage();
+
             $blocks[] = [
                 'key' => Str::uuid()->toString(),
                 'layout' => 'AdvantageItem',
@@ -40,7 +41,14 @@ class Advantages implements Block
 
     private static function fakeImage(): string
     {
-        $source = base_path('resources/src/img/fake.png');
+        $images = [
+            'resources/src/img/icon_1.png',
+            'resources/src/img/icon_2.png',
+            'resources/src/img/icon_3.png',
+            'resources/src/img/icon_4.png',
+        ];
+
+        $source = base_path(fake()->randomElement($images));
         $fileName = 'settings/' . Str::uuid() . '.png';
 
         Storage::disk('public')->put(

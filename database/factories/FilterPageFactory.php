@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\EntityStatus;
+use App\Factories\Blocks\FlexibleContentBuilder;
 use App\Models\FilterPage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,13 +19,12 @@ class FilterPageFactory extends Factory
      */
     public function definition(): array
     {
-//        $status = $this->faker->randomElement([EntityStatus::cases()]);
-        $status = EntityStatus::Published;
-
         return [
             'title' => $this->faker->sentence(),
-            'status' => $status,
-            'published_at' => $status === EntityStatus::Published ? now() : null,
+            'description' => $this->faker->text(),
+            'content' => [],
+            'status' => EntityStatus::Published,
+            'published_at' => now(),
         ];
     }
 }

@@ -15,9 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('entity_id');
             $table->string('entity_type');
-            $table->string('title');
-            $table->text('excerpt')->nullable();
-            $table->text('content');
+            $table->json('content')->nullable();
             $table->timestamps();
 
             $table->unique(['entity_id', 'entity_type']);

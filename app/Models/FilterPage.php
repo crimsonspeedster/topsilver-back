@@ -28,12 +28,14 @@ class FilterPage extends Model implements HasMedia
         'title',
         'description',
         'status',
+        'content',
         'published_at',
     ];
 
     protected $casts = [
         'status' => EntityStatus::class,
         'published_at' => 'datetime',
+        'content' => 'array',
     ];
 
     public function category (): BelongsTo
@@ -56,6 +58,10 @@ class FilterPage extends Model implements HasMedia
     {
         $this
             ->addMediaCollection('media')
+            ->singleFile();
+
+        $this
+            ->addMediaCollection('banner')
             ->singleFile();
     }
 }

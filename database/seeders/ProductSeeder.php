@@ -19,11 +19,18 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
+        $images = [];
+
+        for ($i = 1; $i <= 5; $i++) {
+            $images[] = $this->fakeImage();
+        }
+
         $products = Product::factory()
             ->count(200)
             ->create()
-            ->each(function($product) {
+            ->each(function($product) use ($images) {
                 $this->attachRelations($product);
+                $this->attachMedia($product, fake()->randomElement($images));
             });
 
         $half = (int) ceil(count($products) / 2);
@@ -119,28 +126,33 @@ class ProductSeeder extends Seeder
             ->implode('|');
     }
 
-    private function attachMedia(Product $product): void
+    private function attachMedia(Product $product, string $image_path): void
     {
         $product
-            ->addMedia($this->fakeImage())
+            ->addMedia($image_path)
+            ->preservingOriginal()
             ->toMediaCollection('media');
 
         $count = rand(3, 6);
 
         for ($i = 0; $i < $count; $i++) {
             $product
-                ->addMedia($this->fakeImage())
+                ->addMedia($image_path)
+                ->preservingOriginal()
                 ->toMediaCollection('gallery');
         }
     }
 
     private function fakeImage(): string
     {
-        $source = base_path('resources/src/img/fake.png');
-        $tmpPath = storage_path('app/temp_' . uniqid() . '.png');
+        $images = [
+            'resources/src/img/product_1.webp',
+            'resources/src/img/product_2.webp',
+            'resources/src/img/product_3.webp',
+            'resources/src/img/product_4.webp',
+            'resources/src/img/product_5.webp',
+        ];
 
-        copy($source, $tmpPath);
-
-        return $tmpPath;
+        return base_path(fake()->randomElement($images));
     }
 }

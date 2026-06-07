@@ -13,9 +13,7 @@ class SeoBlockResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'title' => $this->title,
-            'excerpt' => $this->excerpt_resolve,
-            'content' => $this->content,
+            'content' => $this->blocks,
         ];
     }
 }

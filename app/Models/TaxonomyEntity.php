@@ -26,18 +26,28 @@ abstract class TaxonomyEntity extends Model implements ContentEntityInterface, H
         HasTaxonomyHierarchy,
         InteractsWithMedia;
 
-    protected $fillable = [
-        'title',
-        'parent_id',
-        'content',
-        'description',
-    ];
-
     protected $casts = [
         'status' => EntityStatus::class,
         'published_at' => 'datetime',
         'content' => 'array',
     ];
+
+    protected function baseFillable(): array
+    {
+        return [
+            'status',
+            'title',
+            'published_at',
+            'parent_id',
+            'content',
+            'description',
+        ];
+    }
+
+    public function getFillable(): array
+    {
+        return $this->baseFillable();
+    }
 
     public function parent(): BelongsTo
     {
@@ -66,6 +76,10 @@ abstract class TaxonomyEntity extends Model implements ContentEntityInterface, H
     {
         $this
             ->addMediaCollection('media')
+            ->singleFile();
+
+        $this
+            ->addMediaCollection('banner')
             ->singleFile();
     }
 
