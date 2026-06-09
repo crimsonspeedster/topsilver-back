@@ -18,6 +18,7 @@ return new class extends Migration
             $table->json('content')->nullable();
             $table->string('status')->default('draft');
             $table->timestamp('published_at')->nullable();
+            $table->string('external_id')->unique();
             $table->unsignedBigInteger('city_id');
             $table->string('address');
             $table->string('address_link');

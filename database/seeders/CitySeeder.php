@@ -6,6 +6,7 @@ use App\Models\City;
 use App\Models\Region;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class CitySeeder extends Seeder
 {
@@ -50,10 +51,15 @@ class CitySeeder extends Seeder
                 continue;
             }
 
+            $regionSlug = Str::slug($regionName, '-');
+
             foreach ($cities as $cityName) {
+                $cityCode = 'ua-' . $regionSlug . '-' . Str::slug($cityName, '-');
+
                 City::firstOrCreate([
                     'name' => $cityName,
                     'region_id' => $region->id,
+                    'city_code' => $cityCode,
                 ]);
             }
         }

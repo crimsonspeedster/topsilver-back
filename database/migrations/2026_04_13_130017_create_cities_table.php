@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->unsignedBigInteger('region_id');
+            $table->string('city_code')->unique();
             $table->timestamps();
 
             $table->foreign('region_id')->references('id')->on('regions')->onDelete('cascade');

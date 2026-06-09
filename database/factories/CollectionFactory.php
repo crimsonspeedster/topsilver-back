@@ -6,6 +6,7 @@ use App\Enums\EntityStatus;
 use App\Factories\Blocks\FlexibleContentBuilder;
 use App\Models\Collection;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<Collection>
@@ -20,6 +21,7 @@ class CollectionFactory extends Factory
     public function definition(): array
     {
         return [
+            'external_id' => 'local_' . Str::uuid()->toString(),
             'title' => $this->faker->name(),
             'description' => $this->faker->text(),
             'content' => FlexibleContentBuilder::contentBlockSet(),

@@ -35,6 +35,7 @@ abstract class TaxonomyEntity extends Model implements ContentEntityInterface, H
     protected function baseFillable(): array
     {
         return [
+            'external_id',
             'status',
             'title',
             'published_at',

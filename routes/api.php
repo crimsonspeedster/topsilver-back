@@ -38,12 +38,20 @@ use App\Http\Controllers\Api\V1\User\UserController;
 use App\Http\Controllers\Api\V1\User\UserUpdateController;
 use App\Http\Controllers\Api\V1\WishlistController;
 use App\Http\Controllers\Api\V1\BuyInOneClickController;
+use App\Http\Controllers\Api\V1\Integrations\OneC\CategorySyncController;
+use App\Http\Controllers\Api\V1\Integrations\OneC\ShopsSyncController;
 use App\Http\Middleware\ResolveCart;
+use App\Http\Middleware\OneCAuthMiddleware;
 use App\Http\Middleware\ResolveWishlist;
 use Illuminate\Support\Facades\Route;
 
 
 Route::prefix('v1')->group(function () {
+    Route::prefix('integrations/1c')->middleware([OneCAuthMiddleware::class])->group(function () {
+//        Route::post('/categories', CategorySyncController::class);
+        Route::post('/shops', ShopsSyncController::class);
+    });
+
     Route::middleware('throttle:api')->group(function () {
         Route::get('/slug-resolver/{slug}', [SlugResolverController::class, 'resolver']);
         Route::get('/slug-resolver/{slug}/seo', [SlugResolverController::class, 'seo']);

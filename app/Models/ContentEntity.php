@@ -51,7 +51,15 @@ abstract class ContentEntity extends Model implements HasMedia, ContentEntityInt
 
     public function getFillable(): array
     {
-        return $this->baseFillable();
+        return array_merge(
+            $this->baseFillable(),
+            $this->extraFillable()
+        );
+    }
+
+    protected function extraFillable(): array
+    {
+        return [];
     }
 
     public function getBlocksAttribute(): array

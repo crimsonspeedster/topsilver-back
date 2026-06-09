@@ -35,6 +35,10 @@ return [
         ],
     ],
 
+    '1c' => [
+        'token' => env('ONE_C_TOKEN'),
+    ],
+
     'liqpay' => [
         'public_key' => env('LIQPAY_PUBLIC_KEY', ''),
         'private_key' => env('LIQPAY_PRIVATE_KEY', ''),

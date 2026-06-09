@@ -13,6 +13,7 @@ class City extends Model
     protected $fillable = [
         'name',
         'region_id',
+        'city_code',
     ];
 
     public function region (): BelongsTo

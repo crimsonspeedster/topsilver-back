@@ -11,20 +11,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Shop extends ContentEntity
 {
-
-    protected $fillable = [];
-
-    public function __construct(array $attributes = [])
+    protected function extraFillable(): array
     {
-        parent::__construct($attributes);
-
-        $this->fillable = array_merge(parent::getFillable(), [
+        return [
             'city_id',
             'address',
             'address_link',
             'phone',
-            'time_working'
-        ]);
+            'time_working',
+            'external_id',
+        ];
     }
 
     public function city (): BelongsTo
