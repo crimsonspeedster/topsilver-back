@@ -48,7 +48,7 @@ class Attribute extends Resource
 
     public function authorizedToUpdate(Request $request): bool
     {
-        return false;
+        return true;
     }
 
     /**

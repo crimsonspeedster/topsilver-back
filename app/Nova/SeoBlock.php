@@ -2,12 +2,14 @@
 
 namespace App\Nova;
 
+use App\Nova\Flexible\Presets\PagePreset;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Markdown;
 use Laravel\Nova\Fields\MorphTo;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Whitecube\NovaFlexibleContent\Flexible;
 
 class SeoBlock extends Resource
 {
@@ -23,7 +25,7 @@ class SeoBlock extends Resource
      *
      * @var string
      */
-    public static $title = 'title';
+    public static $title = 'id';
 
     /**
      * The columns that should be searched.
@@ -32,7 +34,6 @@ class SeoBlock extends Resource
      */
     public static $search = [
         'id',
-        'title',
     ];
 
     public static $displayInNavigation = false;
@@ -51,18 +52,8 @@ class SeoBlock extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('Title')
-                ->sortable()
-                ->rules(
-                    'required',
-                ),
-
-            Markdown::make('Excerpt'),
-
-            Markdown::make('Content')
-                ->rules(
-                    'required',
-                ),
+            Flexible::make('Content')
+                ->preset(PagePreset::class),
 
             MorphTo::make('Entity', 'entity')
                 ->required()

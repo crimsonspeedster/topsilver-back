@@ -14,11 +14,9 @@ class AttributeSeeder extends Seeder
      */
     public function run(): void
     {
-        foreach (AttributeTypes::cases() as $type) {
-            Attribute::factory()->create([
-                'title' => $type->name,
-                'type' => $type,
-            ]);
-        }
+        Attribute::factory()->create([
+            'title' => AttributeTypes::Text->name,
+            'type' => AttributeTypes::Text,
+        ]);
     }
 }
