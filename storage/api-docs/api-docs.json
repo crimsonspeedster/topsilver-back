@@ -1,89 +1,38 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "API for TopSilver project",
-        "description": "API documentation for TopSilver project",
+        "title": "API for 1c integration in TopSilver project",
+        "description": "API documentation for 1c integration in TopSilver project",
         "version": "1.0.0"
     },
     "servers": [
         {
-            "url": "http://localhost:8000",
-            "description": "Local development server"
+            "url": "https://api.top-silver.ua/",
+            "description": "Api server"
         }
     ],
     "paths": {
-        "/api/v1/me/bonuses": {
-            "get": {
-                "tags": [
-                    "User"
-                ],
-                "summary": "Get user bonuses",
-                "description": "Returns the current user's active and future bonuses",
-                "operationId": "25023c256c68bce1f7dfe4f5b6e31afb",
-                "responses": {
-                    "200": {
-                        "description": "Successful",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "properties": {
-                                                "active_total": {
-                                                    "type": "number",
-                                                    "format": "float",
-                                                    "example": 125.5
-                                                },
-                                                "active_bonuses": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/BonusSchema"
-                                                    }
-                                                },
-                                                "future_bonuses": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/BonusSchema"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/logout": {
+        "/api/v1/integrations/1c/taxonomy/categories": {
             "post": {
                 "tags": [
-                    "User"
+                    "taxonomies"
                 ],
-                "summary": "Logout current user",
-                "description": "Invalidate current access token",
-                "operationId": "c1b1275551c26048c23d4f149de328c5",
+                "summary": "Add / Update categories",
+                "description": "Sync categories from 1c with site",
+                "operationId": "cf495cc078dd4531c1c84d209cee2901",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/C1CategoryRequestBody"
+                },
                 "responses": {
                     "200": {
-                        "description": "Successfully logged out",
+                        "description": "Successfully response",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Logged out successfully"
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
                                         }
                                     },
                                     "type": "object"
@@ -102,23 +51,27 @@
                 ]
             }
         },
-        "/api/v1/me/orders/{id}": {
-            "get": {
+        "/api/v1/integrations/1c/taxonomy/categories/delete": {
+            "post": {
                 "tags": [
-                    "User"
+                    "taxonomies"
                 ],
-                "summary": "Get user order by id",
-                "description": "Returns the current user's order by id",
-                "operationId": "4be764900f2439278b9efefecb19ecc2",
+                "summary": "Delete categories by ids array",
+                "description": "Delete categories",
+                "operationId": "cd2d688565cd8ad1b112349a06edce3e",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/C1EntityDeleteRequestBody"
+                },
                 "responses": {
                     "200": {
-                        "description": "Successful",
+                        "description": "Successfully response",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/OrdersSchema"
+                                        "deleted": {
+                                            "type": "integer",
+                                            "example": 3
                                         }
                                     },
                                     "type": "object"
@@ -137,34 +90,27 @@
                 ]
             }
         },
-        "/api/v1/me/orders": {
-            "get": {
+        "/api/v1/integrations/1c/taxonomy/collections": {
+            "post": {
                 "tags": [
-                    "User"
+                    "taxonomies"
                 ],
-                "summary": "Get user orders",
-                "description": "Returns the current user's orders",
-                "operationId": "1e38dc3ecf0a0843782d10421f6ac618",
+                "summary": "Add / Update collections",
+                "description": "Sync collections from 1c with site",
+                "operationId": "efffb9e66625d7bbaf19ec1a329f6636",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/C1CollectionRequestBody"
+                },
                 "responses": {
                     "200": {
-                        "description": "Successful",
+                        "description": "Successfully response",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "data": {
-                                            "properties": {
-                                                "orders": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/OrdersSchema"
-                                                    }
-                                                },
-                                                "pagination": {
-                                                    "$ref": "#/components/schemas/PaginationSchema"
-                                                }
-                                            },
-                                            "type": "object"
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
                                         }
                                     },
                                     "type": "object"
@@ -183,23 +129,183 @@
                 ]
             }
         },
-        "/api/v1/me": {
-            "get": {
+        "/api/v1/integrations/1c/taxonomy/collections/delete": {
+            "post": {
                 "tags": [
-                    "User"
+                    "taxonomies"
                 ],
-                "summary": "Get authenticated user",
-                "description": "Returns current authenticated user with profile",
-                "operationId": "f99052b8c73e01256d9032b2af0c8295",
+                "summary": "Delete collections by ids array",
+                "description": "Delete collections",
+                "operationId": "c5d714b7eb55339c050cde3a7eab6938",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/C1EntityDeleteRequestBody"
+                },
                 "responses": {
                     "200": {
-                        "description": "Current user data",
+                        "description": "Successfully response",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/ProfileSchema"
+                                        "deleted": {
+                                            "type": "integer",
+                                            "example": 3
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integrations/1c/taxonomy/promotions": {
+            "post": {
+                "tags": [
+                    "taxonomies"
+                ],
+                "summary": "Add / Update promotions",
+                "description": "Sync promotions from 1c with site",
+                "operationId": "e47433e76b03ce0ae6d31741933d8235",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/C1PromotionRequestBody"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integrations/1c/taxonomy/promotions/delete": {
+            "post": {
+                "tags": [
+                    "taxonomies"
+                ],
+                "summary": "Delete promotions by ids array",
+                "description": "Delete promotions",
+                "operationId": "2b567e5492e539f071d4a2ec88d6dedf",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/C1EntityDeleteRequestBody"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "deleted": {
+                                            "type": "integer",
+                                            "example": 3
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integrations/1c/shops": {
+            "post": {
+                "tags": [
+                    "shops"
+                ],
+                "summary": "Add / Update shops",
+                "description": "Sync shops from 1c with site",
+                "operationId": "d9e25e48956a5065543a055857802f00",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/C1ShopRequestBody"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integrations/1c/shops/delete": {
+            "post": {
+                "tags": [
+                    "shops"
+                ],
+                "summary": "Delete shops by ids array",
+                "description": "Delete shops",
+                "operationId": "494a6c8dc1114ee0e7a08644f903edf4",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/C1EntityDeleteRequestBody"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "deleted": {
+                                            "type": "integer",
+                                            "example": 3
                                         }
                                     },
                                     "type": "object"
@@ -221,411 +327,189 @@
     },
     "components": {
         "schemas": {
-            "RegisterRequestSchema": {
-                "required": [
-                    "email",
-                    "phone",
-                    "password",
-                    "password_confirmation",
-                    "name",
-                    "surname"
-                ],
-                "properties": {
-                    "email": {
-                        "type": "string",
-                        "example": "test@mail.com"
-                    },
-                    "phone": {
-                        "type": "string",
-                        "example": "380630000000"
-                    },
-                    "password": {
-                        "type": "string",
-                        "example": "Password123"
-                    },
-                    "password_confirmation": {
-                        "type": "string",
-                        "example": "Password123"
-                    },
-                    "name": {
-                        "type": "string",
-                        "example": "John"
-                    },
-                    "surname": {
-                        "type": "string",
-                        "example": "Doe"
-                    },
-                    "middle_name": {
-                        "type": "string",
-                        "example": "Alexandrian",
-                        "nullable": true
-                    },
-                    "about": {
-                        "type": "string",
-                        "example": "Lorem Ipsum",
-                        "nullable": true
-                    },
-                    "sex": {
-                        "type": "string",
-                        "example": "male",
-                        "nullable": true
-                    },
-                    "dob": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2026-02-28",
-                        "nullable": true
-                    },
-                    "city_id": {
-                        "type": "integer",
-                        "example": 1,
-                        "nullable": true
-                    }
-                },
-                "type": "object"
-            },
-            "UpdateProfileRequestSchema": {
-                "properties": {
-                    "email": {
-                        "type": "string",
-                        "example": "test@mail.com",
-                        "nullable": true
-                    },
-                    "phone": {
-                        "type": "string",
-                        "example": "380630000000",
-                        "nullable": true
-                    },
-                    "password": {
-                        "type": "string",
-                        "example": "Password123",
-                        "nullable": true
-                    },
-                    "password_confirmation": {
-                        "type": "string",
-                        "example": "Password123",
-                        "nullable": true
-                    },
-                    "name": {
-                        "type": "string",
-                        "example": "John",
-                        "nullable": true
-                    },
-                    "surname": {
-                        "type": "string",
-                        "example": "Doe",
-                        "nullable": true
-                    },
-                    "middle_name": {
-                        "type": "string",
-                        "example": "Alexandrian",
-                        "nullable": true
-                    },
-                    "about": {
-                        "type": "string",
-                        "example": "Lorem Ipsum",
-                        "nullable": true
-                    },
-                    "sex": {
-                        "type": "string",
-                        "example": "male",
-                        "nullable": true
-                    },
-                    "dob": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2026-02-28",
-                        "nullable": true
-                    },
-                    "city_id": {
-                        "type": "integer",
-                        "example": 1,
-                        "nullable": true
-                    }
-                },
-                "type": "object"
-            },
-            "BonusSchema": {
-                "properties": {
-                    "amount": {
-                        "type": "string",
-                        "example": "2400.00"
-                    },
-                    "accrual_from": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2026-04-14T10:00:00Z"
-                    },
-                    "available_from": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2026-04-16T10:00:00Z"
-                    },
-                    "expires_at": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2026-04-20T10:00:00Z"
-                    }
-                },
-                "type": "object"
-            },
-            "CitySchema": {
+            "C1CategoryItem": {
                 "properties": {
                     "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "name": {
                         "type": "string",
-                        "example": "Kyiv"
-                    },
-                    "region": {
-                        "$ref": "#/components/schemas/RegionSchema"
-                    }
-                },
-                "type": "object"
-            },
-            "OrderItemSchema": {
-                "properties": {
-                    "product_name": {
-                        "type": "string",
-                        "example": "iPhone 17"
-                    },
-                    "product_image": {
-                        "type": "string",
-                        "example": "https://example.com/image.jpg"
-                    },
-                    "product_price": {
-                        "type": "string",
-                        "example": "1000.00"
-                    },
-                    "quantity": {
-                        "type": "integer",
-                        "example": 2
-                    },
-                    "total": {
-                        "type": "string",
-                        "example": "2000.00"
-                    },
-                    "product_variant": {
-                        "type": "object",
-                        "nullable": true
-                    },
-                    "product": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/ProductCollectionSchema"
-                            }
-                        ],
-                        "nullable": true
-                    }
-                },
-                "type": "object"
-            },
-            "OrdersSchema": {
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "status": {
-                        "type": "string",
-                        "example": "pending"
-                    },
-                    "subtotal": {
-                        "type": "string",
-                        "example": "100.00"
-                    },
-                    "total": {
-                        "type": "string",
-                        "example": "120.00"
-                    },
-                    "paid_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "nullable": true
-                    },
-                    "notes": {
-                        "type": "string",
-                        "example": "Call before delivery",
-                        "nullable": true
-                    },
-                    "first_name": {
-                        "type": "string",
-                        "example": "John"
-                    },
-                    "last_name": {
-                        "type": "string",
-                        "example": "Doe"
-                    },
-                    "middle_name": {
-                        "type": "string",
-                        "example": "Alex",
-                        "nullable": true
-                    },
-                    "phone": {
-                        "type": "string",
-                        "example": "380501234567"
-                    },
-                    "email": {
-                        "type": "string",
-                        "example": "test@gmail.com",
-                        "nullable": true
-                    },
-                    "payment_type": {
-                        "type": "string",
-                        "example": "cod"
-                    },
-                    "payment_data": {
-                        "type": "object",
-                        "nullable": true
-                    },
-                    "shipping_type": {
-                        "type": "string",
-                        "example": "nova_poshta"
-                    },
-                    "shipping_data": {
-                        "type": "object",
-                        "nullable": true
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/OrderItemSchema"
-                        }
-                    }
-                },
-                "type": "object"
-            },
-            "PaginationSchema": {
-                "properties": {
-                    "total_pages": {
-                        "type": "integer",
-                        "example": 10
-                    },
-                    "current_page": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "per_page": {
-                        "type": "integer",
-                        "example": 15
-                    },
-                    "total_items": {
-                        "type": "integer",
-                        "example": 150
-                    },
-                    "has_more_pages": {
-                        "type": "boolean",
-                        "example": true
-                    }
-                },
-                "type": "object"
-            },
-            "ProductCollectionSchema": {
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
+                        "example": "1c_1001"
                     },
                     "title": {
                         "type": "string",
-                        "example": "iPhone 17"
+                        "example": "Ноутбуки"
                     },
-                    "slug": {
+                    "description": {
                         "type": "string",
-                        "example": "iphone-17",
+                        "example": "Все ноутбуки",
                         "nullable": true
                     },
-                    "price": {
+                    "parent_id": {
                         "type": "string",
-                        "example": "999.99"
-                    },
-                    "price_on_sale": {
-                        "type": "string",
-                        "example": "899.99",
-                        "nullable": true
-                    },
-                    "type": {
-                        "type": "string",
-                        "example": "simple"
-                    }
-                },
-                "type": "object"
-            },
-            "ProfileSchema": {
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "example": "John"
-                    },
-                    "surname": {
-                        "type": "string",
-                        "example": "Smith"
-                    },
-                    "middle_name": {
-                        "type": "string",
-                        "example": "Alexandrian",
-                        "nullable": true
-                    },
-                    "about": {
-                        "type": "string",
-                        "example": "Lorem Ipsum",
-                        "nullable": true
-                    },
-                    "sex": {
-                        "type": "string",
-                        "example": "male",
-                        "nullable": true
-                    },
-                    "dob": {
-                        "type": "string",
-                        "format": "date",
-                        "nullable": true
-                    },
-                    "city": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/CitySchema"
-                            }
-                        ],
                         "nullable": true
                     }
                 },
                 "type": "object"
             },
-            "RegionSchema": {
+            "C1CollectionItem": {
                 "properties": {
                     "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "name": {
                         "type": "string",
-                        "example": "Kyiv region"
+                        "example": "1c_1001"
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Коллекция"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Описание коллекции",
+                        "nullable": true
+                    },
+                    "parent_id": {
+                        "type": "string",
+                        "nullable": true
                     }
                 },
                 "type": "object"
             },
-            "UserSchema": {
+            "C1PromotionItem": {
                 "properties": {
-                    "email": {
+                    "id": {
                         "type": "string",
-                        "example": "test@gmail.com"
+                        "example": "1c_1001"
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "1+1=3"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "При покупке 2х товаров получи 3й в подарок",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "C1ShopItem": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "1c_1001"
+                    },
+                    "city_code": {
+                        "type": "string",
+                        "example": "ua-kiyivska-oblast-kiyiv"
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "АТБ Київ Хрещатик"
+                    },
+                    "short_description": {
+                        "type": "string",
+                        "example": "Продуктовий супермаркет",
+                        "nullable": true
+                    },
+                    "address": {
+                        "type": "string",
+                        "example": "вул. Хрещатик, 10"
+                    },
+                    "address_link": {
+                        "type": "string",
+                        "example": "https://maps.google.com/?q=50.45,30.52"
                     },
                     "phone": {
                         "type": "string",
                         "example": "380630000000"
                     },
-                    "profile": {
-                        "$ref": "#/components/schemas/ProfileSchema"
+                    "time_working": {
+                        "type": "string",
+                        "example": "08:00-22:00"
                     }
                 },
                 "type": "object"
+            },
+            "C1EntityDeleteRequest": {
+                "required": [
+                    "ids"
+                ],
+                "properties": {
+                    "ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "example": "1c_test-1"
+                        },
+                        "example": [
+                            "1c_test-2",
+                            "1c_test",
+                            "1c_test-1"
+                        ]
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "requestBodies": {
+            "C1CategoryRequestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/C1CategoryItem"
+                            }
+                        }
+                    }
+                }
+            },
+            "C1CollectionRequestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/C1CollectionItem"
+                            }
+                        }
+                    }
+                }
+            },
+            "C1EntityDeleteRequestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/C1EntityDeleteRequest"
+                        }
+                    }
+                }
+            },
+            "C1PromotionRequestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/C1PromotionItem"
+                            }
+                        }
+                    }
+                }
+            },
+            "C1ShopRequestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/C1ShopItem"
+                            }
+                        }
+                    }
+                }
             }
         },
         "securitySchemes": {
@@ -639,8 +523,12 @@
     },
     "tags": [
         {
-            "name": "User",
-            "description": "User"
+            "name": "taxonomies",
+            "description": "taxonomies"
+        },
+        {
+            "name": "shops",
+            "description": "shops"
         }
     ]
 }

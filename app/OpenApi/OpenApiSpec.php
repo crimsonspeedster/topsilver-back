@@ -1,16 +1,15 @@
 <?php
-
 namespace App\OpenApi;
 
 use OpenApi\Attributes as OA;
 
 #[OA\Info(
     version: "1.0.0",
-    description: "API documentation for TopSilver project",
-    title: "API for TopSilver project",
+    description: "API documentation for 1c integration in TopSilver project",
+    title: "API for 1c integration in TopSilver project",
 )]
 #[OA\Server(
-    url: "http://localhost:8000",
-    description: "Local development server"
+    url: "https://api.top-silver.ua/",
+    description: "Api server"
 )]
 class OpenApiSpec {}

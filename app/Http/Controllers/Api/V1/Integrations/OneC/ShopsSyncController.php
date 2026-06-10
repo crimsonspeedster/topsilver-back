@@ -52,7 +52,7 @@ class ShopsSyncController extends Controller
 
         if ($shopIds->isEmpty()) {
             return response()->json([
-                'message' => 'Nothing found'
+                'deleted' => 0,
             ]);
         }
 

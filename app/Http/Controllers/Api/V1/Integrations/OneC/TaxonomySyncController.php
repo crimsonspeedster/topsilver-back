@@ -57,7 +57,7 @@ class TaxonomySyncController extends Controller
 
         if ($entityIds->isEmpty()) {
             return response()->json([
-                'message' => 'Nothing found'
+                'deleted' => 0,
             ]);
         }
 

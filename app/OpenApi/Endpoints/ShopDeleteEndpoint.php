@@ -1,25 +1,27 @@
 <?php
-
 namespace App\OpenApi\Endpoints;
 
 use OpenApi\Attributes as OA;
 
 #[OA\Post(
-    path: "/api/v1/logout",
-    description: "Invalidate current access token",
-    summary: "Logout current user",
+    path: "/api/v1/integrations/1c/shops/delete",
+    description: "Delete shops",
+    summary: "Delete shops by ids array",
     security: [["bearerAuth" => []]],
-    tags: ["User"],
+    requestBody: new OA\RequestBody(
+        ref: "#/components/requestBodies/C1EntityDeleteRequestBody"
+    ),
+    tags: ["shops"],
     responses: [
         new OA\Response(
             response: 200,
-            description: "Successfully logged out",
+            description: "Successfully response",
             content: new OA\JsonContent(
                 properties: [
                     new OA\Property(
-                        property: "message",
-                        type: "string",
-                        example: "Logged out successfully"
+                        property: "deleted",
+                        type: "integer",
+                        example: 3,
                     ),
                 ]
             )
@@ -30,4 +32,4 @@ use OpenApi\Attributes as OA;
         )
     ]
 )]
-class LogoutEndpoint {}
+class ShopDeleteEndpoint {}
