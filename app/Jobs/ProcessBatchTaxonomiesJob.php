@@ -3,31 +3,44 @@ namespace App\Jobs;
 
 use App\Enums\EntityStatus;
 use App\Enums\IntegrationBatchStatus;
-use App\Models\City;
+use App\Models\Category;
+use App\Models\Collection;
 use App\Models\IntegrationBatch;
+use App\Models\Promotion;
 use App\Models\Seo;
-use App\Models\Shop;
 use App\Models\Slug;
 use App\Services\SeoGenerateService;
 use App\Services\SlugGenerateService;
+use http\Exception\InvalidArgumentException;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
+use Throwable;
 
-class ProcessBatchShopsJob implements ShouldQueue
+class ProcessBatchTaxonomiesJob implements ShouldQueue
 {
-    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+
+    private array $config;
 
     public function __construct(
-        public IntegrationBatch $batch
+        public IntegrationBatch $batch,
+        public string $entityClass,
     ) {}
 
+    /**
+     * @throws Throwable
+     */
     public function handle(): void
     {
-        $lock = Cache::lock('shops-batch-import', 600);
+        $this->config = $this->getConfig();
+        $lock = Cache::lock($this->config['lock'], 600);
 
         if (!$lock->get()) {
             return;
@@ -55,6 +68,7 @@ class ProcessBatchShopsJob implements ShouldQueue
                 ->chunk(200)
                 ->each(function ($chunk) use (&$processed, &$failed) {
                     [$p, $f] = $this->updateChunk($chunk->toArray());
+
                     $processed += $p;
                     $failed += $f;
                 });
@@ -65,6 +79,13 @@ class ProcessBatchShopsJob implements ShouldQueue
                 'failed_count' => $failed,
             ]);
 
+            if ($this->config['parentable']) {
+                ProcessTaxonomyParentsJob::dispatch($this->entityClass);
+            }
+        } catch (Throwable $e) {
+            $this->failBatch($e->getMessage());
+
+            throw $e;
         } finally {
             optional($lock)->release();
         }
@@ -72,104 +93,79 @@ class ProcessBatchShopsJob implements ShouldQueue
 
     private function updateChunk(array $items): array
     {
+        $modelClass = $this->entityClass;
+
         $processed = 0;
         $failed = 0;
 
-        static $cities = null;
-
-        if ($cities === null) {
-            $cities = City::all()->keyBy('city_code');
-        }
-
         $now = now();
 
-        $shopRows = [];
+        $entityRows = [];
         $externalIds = [];
 
         foreach ($items as $item) {
-            $cityCode = trim($item['city_code'] ?? '');
-            $title = trim($item['title'] ?? '');
-            $address = trim($item['address'] ?? '');
-            $addressLink = trim($item['address_link'] ?? '');
-            $phone = trim($item['phone'] ?? '');
-            $timeWorking = trim($item['time_working'] ?? '');
-            $externalID = trim($item['id'] ?? '');
-            $shortDescription = trim($item['short_description'] ?? '');
+            $externalId = trim((string) ($item['id'] ?? ''));
+            $title = trim((string) ($item['title'] ?? ''));
 
-            if (
-                $externalID === '' ||
-                $cityCode === '' ||
-                $title === '' ||
-                $address === '' ||
-                $addressLink === '' ||
-                $phone === '' ||
-                $timeWorking === ''
-            ) {
+            if ($externalId === '' || $title === '') {
                 $failed++;
                 continue;
             }
 
-            $city = $cities[$cityCode] ?? null;
-
-            if (!$city) {
-                $failed++;
-                continue;
-            }
-
-            $shopRows[$externalID] = [
-                'external_id' => $externalID,
+            $entityRows[$externalId] = [
+                'external_id' => $externalId,
                 'title' => $title,
-                'city_id' => $city->id,
-                'address' => $address,
-                'address_link' => $addressLink,
-                'phone' => $phone,
-                'time_working' => $timeWorking,
-                'short_description' => $shortDescription ?: null,
+                'description' => $item['description'] ?? null,
+                'parent_external_id' => $item['parent_id'] ?? null,
                 'status' => EntityStatus::Published,
                 'published_at' => $now,
-                'updated_at' => $now,
                 'created_at' => $now,
+                'updated_at' => $now,
             ];
 
-            $externalIds[] = $externalID;
-
+            $externalIds[] = $externalId;
             $processed++;
         }
 
-        if (!$shopRows) {
+        if (!$entityRows) {
             return [$processed, $failed];
         }
 
-        Shop::upsert(
-            array_values($shopRows),
+        $modelClass::upsert(
+            array_values($entityRows),
             ['external_id'],
             [
                 'title',
-                'city_id',
-                'address',
-                'address_link',
-                'phone',
-                'time_working',
-                'short_description',
+                'description',
+                'parent_external_id',
                 'status',
                 'published_at',
                 'updated_at',
             ]
         );
 
-        $shopMap = Shop::whereIn('external_id', $externalIds)
-            ->pluck('id', 'external_id');
+        $entityMap = $modelClass::query()
+            ->whereIn('external_id', $externalIds)
+            ->get(['id', 'external_id'])
+            ->keyBy('external_id');
+
+        $entityIds = $entityMap
+            ->pluck('id')
+            ->values()
+            ->all();
 
         $existingAllSlugs = Slug::query()
             ->pluck('slug')
             ->toArray();
 
-        $existingSlugsInModel = Slug::where('entity_type', Shop::class)
+        $existingSlugsInModel = Slug::where('entity_type', $modelClass)
             ->pluck('entity_id')
             ->flip()
             ->toArray();
 
-        $existingSeo = Seo::where('entity_type', Shop::class)
+        $existingSeo = Seo::query()
+            ->where('entity_type', $modelClass)
+            ->whereIn('entity_id', $entityIds)
             ->pluck('entity_id')
             ->flip()
             ->toArray();
@@ -180,38 +176,35 @@ class ProcessBatchShopsJob implements ShouldQueue
         $slugRows = [];
         $seoRows = [];
 
-        foreach ($shopRows as $externalId => $row) {
-            $shopId = $shopMap[$externalId] ?? null;
+        foreach ($entityRows as $externalId => $row) {
+            $entityId = $entityMap[$externalId]->id ?? null;
 
-            if (!$shopId) {
+            if (!$entityId) {
                 continue;
             }
 
-            if (!isset($existingSlugsInModel[$shopId])) {
-                $slug = $slugService->generate(
-                    $row['title'],
-                    $existingAllSlugs
-                );
+            if (!isset($existingSlugsInModel[$entityId])) {
+                $slug = $slugService->generate($row['title'], $existingAllSlugs);
 
                 $slugRows[] = [
                     'slug' => $slug,
-                    'entity_type' => Shop::class,
-                    'entity_id' => $shopId,
+                    'entity_type' => $modelClass,
+                    'entity_id' => $entityId,
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];
             }
 
-            if (!isset($existingSeo[$shopId])) {
+            if (!isset($existingSeo[$entityId])) {
                 $seo = $seoService->generateSeo(
                     $row['title'],
-                    $row['short_description'] ?? $row['title'],
+                    $row['description'] ?? $row['title'],
                     null
                 );
 
                 $seoRows[] = [
-                    'entity_type' => Shop::class,
-                    'entity_id' => $shopId,
+                    'entity_type' => $modelClass,
+                    'entity_id' => $entityId,
                     'title' => $seo['title'],
                     'description' => $seo['description'],
                     'keywords' => $seo['keywords'],
@@ -219,8 +212,6 @@ class ProcessBatchShopsJob implements ShouldQueue
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];
-
-                $existingSeo[$shopId] = true;
             }
         }
 
@@ -249,5 +240,29 @@ class ProcessBatchShopsJob implements ShouldQueue
             'status' => IntegrationBatchStatus::Failed,
             'error_message' => $message,
         ]);
+    }
+
+    private function getConfig(): array
+    {
+        return match ($this->entityClass) {
+            Category::class => [
+                'lock' => 'categories-batch-import',
+                'parentable' => true,
+            ],
+
+            Promotion::class => [
+                'lock' => 'promotions-batch-import',
+                'parentable' => false,
+            ],
+
+            Collection::class => [
+                'lock' => 'collections-batch-import',
+                'parentable' => true,
+            ],
+
+            default => throw new InvalidArgumentException(
+                "Unsupported entity class: {$this->entityClass}"
+            ),
+        };
     }
 }

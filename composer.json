@@ -25,7 +25,8 @@
         "predis/predis": "^3.4",
         "spatie/laravel-medialibrary": "^11.21",
         "spatie/laravel-sitemap": "^8.1",
-        "whitecube/nova-flexible-content": "^2.0"
+        "whitecube/nova-flexible-content": "^2.0",
+        "ext-http": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

@@ -5,11 +5,14 @@ use App\Enums\IntegrationBatchStatus;
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcessBatchShopsJob;
 use App\Models\IntegrationBatch;
+use App\Models\Seo;
+use App\Models\Shop;
+use App\Models\Slug;
 use Illuminate\Http\Request;
 
 class ShopsSyncController extends Controller
 {
-    public function __invoke(Request $request)
+    public function update(Request $request)
     {
         $data = json_decode($request->getContent(), true);
 
@@ -31,6 +34,40 @@ class ShopsSyncController extends Controller
 
         return response()->json([
             'success' => true,
+        ]);
+    }
+
+    public function delete(Request $request)
+    {
+        $externalIds = $request->input('ids', []);
+
+        if (empty($externalIds)) {
+            return response()->json([
+                'message' => 'Empty ids'
+            ], 422);
+        }
+
+        $shopIds = Shop::whereIn('external_id', $externalIds)
+            ->pluck('id');
+
+        if ($shopIds->isEmpty()) {
+            return response()->json([
+                'message' => 'Nothing found'
+            ]);
+        }
+
+        Shop::whereIn('id', $shopIds)->delete();
+
+        Slug::where('entity_type', Shop::class)
+            ->whereIn('entity_id', $shopIds)
+            ->delete();
+
+        Seo::where('entity_type', Shop::class)
+            ->whereIn('entity_id', $shopIds)
+            ->delete();
+
+        return response()->json([
+            'deleted' => $shopIds->count(),
         ]);
     }
 }

@@ -36,6 +36,7 @@ abstract class TaxonomyEntity extends Model implements ContentEntityInterface, H
     {
         return [
             'external_id',
+            'parent_external_id',
             'status',
             'title',
             'published_at',

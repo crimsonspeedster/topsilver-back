@@ -38,7 +38,7 @@ use App\Http\Controllers\Api\V1\User\UserController;
 use App\Http\Controllers\Api\V1\User\UserUpdateController;
 use App\Http\Controllers\Api\V1\WishlistController;
 use App\Http\Controllers\Api\V1\BuyInOneClickController;
-use App\Http\Controllers\Api\V1\Integrations\OneC\CategorySyncController;
+use App\Http\Controllers\Api\V1\Integrations\OneC\TaxonomySyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\ShopsSyncController;
 use App\Http\Middleware\ResolveCart;
 use App\Http\Middleware\OneCAuthMiddleware;
@@ -48,8 +48,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('integrations/1c')->middleware([OneCAuthMiddleware::class])->group(function () {
-//        Route::post('/categories', CategorySyncController::class);
-        Route::post('/shops', ShopsSyncController::class);
+        Route::post('/taxonomy/{entity}', [TaxonomySyncController::class, 'update']);
+        Route::post('/taxonomy/{entity}/delete', [TaxonomySyncController::class, 'delete']);
+
+        Route::post('/shops', [ShopsSyncController::class, 'update']);
+        Route::post('/shops/delete', [ShopsSyncController::class, 'delete']);
     });
 
     Route::middleware('throttle:api')->group(function () {

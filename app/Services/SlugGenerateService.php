@@ -30,13 +30,11 @@ class SlugGenerateService
         $slug = $baseSlug;
         $counter = 1;
 
-        while (isset($usedSlugs[$slug])) {
+        while (in_array($slug, $usedSlugs)) {
             $counter++;
 
             $slug = "{$baseSlug}-{$counter}";
         }
-
-        $usedSlugs[$slug] = true;
 
         return $slug;
     }

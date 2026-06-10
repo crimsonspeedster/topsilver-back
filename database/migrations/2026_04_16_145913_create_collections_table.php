@@ -14,13 +14,16 @@ return new class extends Migration
         Schema::create('collections', function (Blueprint $table) {
             $table->id();
             $table->string('external_id')->unique();
+            $table->string('parent_external_id')->nullable();
             $table->string('title');
             $table->string('status')->default('draft');
             $table->text('description')->nullable();
             $table->json('content')->nullable();
-            $table->unsignedInteger('parent_id')->nullable();
+            $table->unsignedBigInteger('parent_id')->nullable();
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
+
+            $table->foreign('parent_id')->references('id')->on('collections')->onDelete('set null');
         });
     }
 
