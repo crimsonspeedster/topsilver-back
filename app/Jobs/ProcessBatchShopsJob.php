@@ -48,10 +48,17 @@ class ProcessBatchShopsJob implements ShouldQueue
                 return;
             }
 
+            $items = $data['items'];
+
+            if (!is_array($items) || empty($items)) {
+                $this->failBatch('Empty payload');
+                return;
+            }
+
             $processed = 0;
             $failed = 0;
 
-            collect($data)
+            collect($items)
                 ->chunk(200)
                 ->each(function ($chunk) use (&$processed, &$failed) {
                     [$p, $f] = $this->updateChunk($chunk->toArray());

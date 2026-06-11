@@ -454,10 +454,18 @@
                 "content": {
                     "application/json": {
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/components/schemas/C1CategoryItem"
-                            }
+                            "required": [
+                                "items"
+                            ],
+                            "properties": {
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/C1CategoryItem"
+                                    }
+                                }
+                            },
+                            "type": "object"
                         }
                     }
                 }
@@ -467,10 +475,18 @@
                 "content": {
                     "application/json": {
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/components/schemas/C1CollectionItem"
-                            }
+                            "required": [
+                                "items"
+                            ],
+                            "properties": {
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/C1CollectionItem"
+                                    }
+                                }
+                            },
+                            "type": "object"
                         }
                     }
                 }
@@ -490,10 +506,18 @@
                 "content": {
                     "application/json": {
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/components/schemas/C1PromotionItem"
-                            }
+                            "required": [
+                                "items"
+                            ],
+                            "properties": {
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/C1PromotionItem"
+                                    }
+                                }
+                            },
+                            "type": "object"
                         }
                     }
                 }
@@ -503,10 +527,18 @@
                 "content": {
                     "application/json": {
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/components/schemas/C1ShopItem"
-                            }
+                            "required": [
+                                "items"
+                            ],
+                            "properties": {
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/C1ShopItem"
+                                    }
+                                }
+                            },
+                            "type": "object"
                         }
                     }
                 }

@@ -7,8 +7,15 @@ use OpenApi\Attributes as OA;
     request: "C1ShopRequestBody",
     required: true,
     content: new OA\JsonContent(
-        type: "array",
-        items: new OA\Items(ref: "#/components/schemas/C1ShopItem")
+        required: ["items"],
+        properties: [
+            new OA\Property(
+                property: "items",
+                type: "array",
+                items: new OA\Items(ref: "#/components/schemas/C1ShopItem")
+            ),
+        ],
+        type: "object",
     )
 )]
 class C1ShopRequestBody {}

@@ -7,8 +7,16 @@ use OpenApi\Attributes as OA;
     request: "C1PromotionRequestBody",
     required: true,
     content: new OA\JsonContent(
-        type: "array",
-        items: new OA\Items(ref: "#/components/schemas/C1PromotionItem")
+        required: ["items"],
+        properties: [
+            new OA\Property(
+                property: "items",
+                type: "array",
+                items: new OA\Items(ref: "#/components/schemas/C1PromotionItem")
+            ),
+        ],
+        type: "object",
     )
 )]
+
 class C1PromotionRequestBody {}

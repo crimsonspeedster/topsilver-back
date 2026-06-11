@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
             ProfileSeeder::class,
             PaymentMethodSeeder::class,
             ShippingMethodSeeder::class,
-//            ShopSeeder::class,
+            ShopSeeder::class,
 //            OrderSeeder::class,
 //            OrderItemSeeder::class,
             BundleSeeder::class,
