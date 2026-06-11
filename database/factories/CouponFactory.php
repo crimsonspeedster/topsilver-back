@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Enums\CouponTypes;
 use App\Models\Coupon;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<Coupon>
@@ -25,6 +26,7 @@ class CouponFactory extends Factory
             'code' => $this->faker->unique()->randomNumber(6),
             'type' => $type,
             'value' => $value,
+            'external_id' => 'local_' . Str::uuid()->toString(),
         ];
     }
 }

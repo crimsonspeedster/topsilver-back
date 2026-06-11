@@ -90,6 +90,84 @@
                 ]
             }
         },
+        "/api/v1/integrations/1c/taxonomy/certificates": {
+            "post": {
+                "tags": [
+                    "certificates"
+                ],
+                "summary": "Add / Update certificates",
+                "description": "Sync certificates from 1c with site",
+                "operationId": "911f10f856108fe9759ee4e579498dce",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/C1CertificateRequestBody"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integrations/1c/taxonomy/certificates/delete": {
+            "post": {
+                "tags": [
+                    "certificates"
+                ],
+                "summary": "Delete certificates by ids array",
+                "description": "Delete certificates",
+                "operationId": "3d78f72a39a912af5cab6c72a8b8f8c0",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/C1EntityDeleteRequestBody"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "deleted": {
+                                            "type": "integer",
+                                            "example": 3
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/integrations/1c/taxonomy/collections": {
             "post": {
                 "tags": [
@@ -349,6 +427,24 @@
                 },
                 "type": "object"
             },
+            "C1CertificateItem": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "1c_test_1"
+                    },
+                    "code": {
+                        "type": "string",
+                        "example": "QWERTYUIOPASDFG"
+                    },
+                    "value": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 5000
+                    }
+                },
+                "type": "object"
+            },
             "C1CollectionItem": {
                 "properties": {
                     "id": {
@@ -470,6 +566,27 @@
                     }
                 }
             },
+            "C1CertificateRequestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "items"
+                            ],
+                            "properties": {
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/C1CertificateItem"
+                                    }
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
             "C1CollectionRequestBody": {
                 "required": true,
                 "content": {
@@ -557,6 +674,10 @@
         {
             "name": "taxonomies",
             "description": "taxonomies"
+        },
+        {
+            "name": "certificates",
+            "description": "certificates"
         },
         {
             "name": "shops",

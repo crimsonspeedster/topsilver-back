@@ -6,6 +6,7 @@ use App\Enums\EntityStatus;
 use App\Factories\Blocks\FlexibleContentBuilder;
 use App\Models\Shop;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<Shop>
@@ -29,6 +30,7 @@ class ShopFactory extends Factory
             'address_link' => $this->faker->url(),
             'phone' => $this->faker->phoneNumber(),
             'time_working' => $this->faker->paragraph(1),
+            'external_id' => 'local_' . Str::uuid()->toString(),
         ];
     }
 }

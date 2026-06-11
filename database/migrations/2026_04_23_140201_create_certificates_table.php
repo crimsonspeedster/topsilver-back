@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('code')->unique();
             $table->decimal('value', 8, 2);
             $table->boolean('is_used')->default(false);
+            $table->string('external_id')->unique();
             $table->timestamps();
         });
     }

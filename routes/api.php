@@ -40,6 +40,7 @@ use App\Http\Controllers\Api\V1\WishlistController;
 use App\Http\Controllers\Api\V1\BuyInOneClickController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\TaxonomySyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\ShopsSyncController;
+use App\Http\Controllers\Api\V1\Integrations\OneC\CertificatesSyncController;
 use App\Http\Middleware\ResolveCart;
 use App\Http\Middleware\OneCAuthMiddleware;
 use App\Http\Middleware\ResolveWishlist;
@@ -53,6 +54,9 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/shops', [ShopsSyncController::class, 'update']);
         Route::post('/shops/delete', [ShopsSyncController::class, 'delete']);
+
+        Route::post('/certificates', [CertificatesSyncController::class, 'update']);
+        Route::post('/certificates/delete', [CertificatesSyncController::class, 'delete']);
     });
 
     Route::middleware('throttle:api')->group(function () {

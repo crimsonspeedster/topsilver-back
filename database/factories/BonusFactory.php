@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\Bonus;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<Bonus>
@@ -28,6 +29,7 @@ class BonusFactory extends Factory
             'accrual_from' => $accrualFrom,
             'available_from' => $availableFrom,
             'expires_at' => $expiresAt,
+            'external_id' => 'local_' . Str::uuid()->toString(),
         ];
     }
 }
