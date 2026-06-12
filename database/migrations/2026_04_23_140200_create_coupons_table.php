@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('coupons', function (Blueprint $table) {
             $table->id();
             $table->string('code')->unique();
+            $table->string('external_id')->unique();
             $table->string('type')->default('precent');
             $table->decimal('value', 10, 2);
             $table->unsignedInteger('usage_limit')->nullable();

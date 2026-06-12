@@ -18,6 +18,7 @@ return new class extends Migration
             $table->date('accrual_from');
             $table->date('available_from');
             $table->date('expires_at');
+            $table->string('external_id')->unique();
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

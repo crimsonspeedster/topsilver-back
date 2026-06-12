@@ -41,6 +41,9 @@ use App\Http\Controllers\Api\V1\BuyInOneClickController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\TaxonomySyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\ShopsSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\CertificatesSyncController;
+use App\Http\Controllers\Api\V1\Integrations\OneC\CouponsSyncController;
+use App\Http\Controllers\Api\V1\Integrations\OneC\BonusesSyncController;
+use App\Http\Controllers\Api\V1\Integrations\OneC\UsersGetController;
 use App\Http\Middleware\ResolveCart;
 use App\Http\Middleware\OneCAuthMiddleware;
 use App\Http\Middleware\ResolveWishlist;
@@ -57,6 +60,14 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/certificates', [CertificatesSyncController::class, 'update']);
         Route::post('/certificates/delete', [CertificatesSyncController::class, 'delete']);
+
+        Route::post('/coupons', [CouponsSyncController::class, 'update']);
+        Route::post('/coupons/delete', [CouponsSyncController::class, 'delete']);
+
+        Route::post('/bonuses', [BonusesSyncController::class, 'update']);
+        Route::post('/bonuses/delete', [BonusesSyncController::class, 'delete']);
+
+        Route::get('/users', UsersGetController::class);
     });
 
     Route::middleware('throttle:api')->group(function () {
