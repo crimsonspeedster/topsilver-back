@@ -66,6 +66,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/coupons', [CouponsSyncController::class, 'update']);
         Route::post('/coupons/delete', [CouponsSyncController::class, 'delete']);
 
+//
         Route::post('/bonuses', [BonusesSyncController::class, 'update']);
         Route::post('/bonuses/delete', [BonusesSyncController::class, 'delete']);
 
