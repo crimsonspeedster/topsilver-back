@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('attribute_terms', function (Blueprint $table) {
             $table->id();
+            $table->string('external_id')->unique();
             $table->unsignedBigInteger('attribute_id');
             $table->string('title');
             $table->string('slug');

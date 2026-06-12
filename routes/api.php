@@ -44,6 +44,8 @@ use App\Http\Controllers\Api\V1\Integrations\OneC\CertificatesSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\CouponsSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\BonusesSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\UsersGetController;
+use App\Http\Controllers\Api\V1\Integrations\OneC\AttributesSyncController;
+use App\Http\Controllers\Api\V1\Integrations\OneC\AttributeTermsSyncController;
 use App\Http\Middleware\ResolveCart;
 use App\Http\Middleware\OneCAuthMiddleware;
 use App\Http\Middleware\ResolveWishlist;
@@ -66,6 +68,12 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/bonuses', [BonusesSyncController::class, 'update']);
         Route::post('/bonuses/delete', [BonusesSyncController::class, 'delete']);
+
+        Route::post('/attributes', [AttributesSyncController::class, 'update']);
+        Route::post('/attributes/delete', [AttributesSyncController::class, 'delete']);
+
+        Route::post('/attribute-terms', [AttributeTermsSyncController::class, 'update']);
+        Route::post('/attribute-terms/delete', [AttributeTermsSyncController::class, 'delete']);
 
         Route::get('/users', UsersGetController::class);
     });
