@@ -52,27 +52,31 @@ class TaxonomySyncController extends Controller
             ], 422);
         }
 
-        $entityIds = $modelClass::whereIn('external_id', $externalIds)
-            ->pluck('id');
+        $models = $modelClass::query()
+            ->whereIn('external_id', $externalIds)
+            ->get(['id', 'external_id']);
 
-        if ($entityIds->isEmpty()) {
-            return response()->json([
-                'deleted' => 0,
-            ]);
+        $foundExternalIds = $models->pluck('external_id')->toArray();
+        $entityIds = $models->pluck('id')->toArray();
+
+        if (!empty($entityIds)) {
+            $modelClass::whereIn('id', $entityIds)->delete();
+
+            Slug::where('entity_type', $modelClass)
+                ->whereIn('entity_id', $entityIds)
+                ->delete();
+
+            Seo::where('entity_type', $modelClass)
+                ->whereIn('entity_id', $entityIds)
+                ->delete();
         }
 
-        $modelClass::whereIn('id', $entityIds)->delete();
-
-        Slug::where('entity_type', $modelClass)
-            ->whereIn('entity_id', $entityIds)
-            ->delete();
-
-        Seo::where('entity_type', $modelClass)
-            ->whereIn('entity_id', $entityIds)
-            ->delete();
+        $notFound = array_values(array_diff($externalIds, $foundExternalIds));
 
         return response()->json([
-            'deleted' => $entityIds->count(),
+            'deleted' => $foundExternalIds,
+            'not_found' => $notFound,
+            'total_requested' => count($externalIds),
         ]);
     }
 

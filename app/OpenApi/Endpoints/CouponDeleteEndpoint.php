@@ -17,13 +17,7 @@ use OpenApi\Attributes as OA;
             response: 200,
             description: "Successfully response",
             content: new OA\JsonContent(
-                properties: [
-                    new OA\Property(
-                        property: "deleted",
-                        type: "integer",
-                        example: 3,
-                    ),
-                ]
+                ref: "#/components/schemas/C1DeleteElementItem"
             )
         ),
         new OA\Response(

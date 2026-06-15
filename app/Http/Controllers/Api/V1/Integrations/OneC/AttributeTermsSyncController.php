@@ -45,19 +45,23 @@ class AttributeTermsSyncController extends Controller
             ], 422);
         }
 
-        $ids = AttributeTerm::whereIn('external_id', $externalIds)
-            ->pluck('id');
+        $terms = AttributeTerm::query()
+            ->whereIn('external_id', $externalIds)
+            ->get(['id', 'external_id']);
 
-        if ($ids->isEmpty()) {
-            return response()->json([
-                'deleted' => 0,
-            ]);
+        $foundExternalIds = $terms->pluck('external_id')->toArray();
+        $ids = $terms->pluck('id')->toArray();
+
+        if (!empty($ids)) {
+            AttributeTerm::whereIn('id', $ids)->delete();
         }
 
-        AttributeTerm::whereIn('id', $ids)->delete();
+        $notFound = array_values(array_diff($externalIds, $foundExternalIds));
 
         return response()->json([
-            'deleted' => $ids->count(),
+            'deleted' => $foundExternalIds,
+            'not_found' => $notFound,
+            'total_requested' => count($externalIds),
         ]);
     }
 }

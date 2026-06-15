@@ -45,19 +45,23 @@ class AttributesSyncController extends Controller
             ], 422);
         }
 
-        $ids = Attribute::whereIn('external_id', $externalIds)
-            ->pluck('id');
+        $attributes = Attribute::query()
+            ->whereIn('external_id', $externalIds)
+            ->get(['id', 'external_id']);
 
-        if ($ids->isEmpty()) {
-            return response()->json([
-                'deleted' => 0,
-            ]);
+        $foundExternalIds = $attributes->pluck('external_id')->toArray();
+        $ids = $attributes->pluck('id')->toArray();
+
+        if (!empty($ids)) {
+            Attribute::whereIn('id', $ids)->delete();
         }
 
-        Attribute::whereIn('id', $ids)->delete();
+        $notFound = array_values(array_diff($externalIds, $foundExternalIds));
 
         return response()->json([
-            'deleted' => $ids->count(),
+            'deleted' => $foundExternalIds,
+            'not_found' => $notFound,
+            'total_requested' => count($externalIds),
         ]);
     }
 }

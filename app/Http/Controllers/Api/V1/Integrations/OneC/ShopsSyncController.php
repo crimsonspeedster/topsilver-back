@@ -47,27 +47,29 @@ class ShopsSyncController extends Controller
             ], 422);
         }
 
-        $shopIds = Shop::whereIn('external_id', $externalIds)
-            ->pluck('id');
+        $shops = Shop::whereIn('external_id', $externalIds)->get(['id', 'external_id']);
 
-        if ($shopIds->isEmpty()) {
-            return response()->json([
-                'deleted' => 0,
-            ]);
+        $foundExternalIds = $shops->pluck('external_id')->toArray();
+        $shopIds = $shops->pluck('id')->toArray();
+
+        if (!empty($shopIds)) {
+            Shop::whereIn('id', $shopIds)->delete();
+
+            Slug::where('entity_type', Shop::class)
+                ->whereIn('entity_id', $shopIds)
+                ->delete();
+
+            Seo::where('entity_type', Shop::class)
+                ->whereIn('entity_id', $shopIds)
+                ->delete();
         }
 
-        Shop::whereIn('id', $shopIds)->delete();
-
-        Slug::where('entity_type', Shop::class)
-            ->whereIn('entity_id', $shopIds)
-            ->delete();
-
-        Seo::where('entity_type', Shop::class)
-            ->whereIn('entity_id', $shopIds)
-            ->delete();
+        $notFound = array_values(array_diff($externalIds, $foundExternalIds));
 
         return response()->json([
-            'deleted' => $shopIds->count(),
+            'deleted' => $foundExternalIds,
+            'not_found' => $notFound,
+            'total_requested' => count($externalIds),
         ]);
     }
 }

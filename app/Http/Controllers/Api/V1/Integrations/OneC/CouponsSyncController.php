@@ -45,19 +45,23 @@ class CouponsSyncController extends Controller
             ], 422);
         }
 
-        $ids = Coupon::whereIn('external_id', $externalIds)
-            ->pluck('id');
+        $coupons = Coupon::query()
+            ->whereIn('external_id', $externalIds)
+            ->get(['id', 'external_id']);
 
-        if ($ids->isEmpty()) {
-            return response()->json([
-                'deleted' => 0,
-            ]);
+        $foundExternalIds = $coupons->pluck('external_id')->toArray();
+        $ids = $coupons->pluck('id')->toArray();
+
+        if (!empty($ids)) {
+            Coupon::whereIn('id', $ids)->delete();
         }
 
-        Coupon::whereIn('id', $ids)->delete();
+        $notFound = array_values(array_diff($externalIds, $foundExternalIds));
 
         return response()->json([
-            'deleted' => $ids->count(),
+            'deleted' => $foundExternalIds,
+            'not_found' => $notFound,
+            'total_requested' => count($externalIds),
         ]);
     }
 }

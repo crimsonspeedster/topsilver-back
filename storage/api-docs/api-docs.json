@@ -68,13 +68,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "deleted": {
-                                            "type": "integer",
-                                            "example": 3
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/C1DeleteElementItem"
                                 }
                             }
                         }
@@ -146,13 +140,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "deleted": {
-                                            "type": "integer",
-                                            "example": 3
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/C1DeleteElementItem"
                                 }
                             }
                         }
@@ -263,13 +251,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "deleted": {
-                                            "type": "integer",
-                                            "example": 3
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/C1DeleteElementItem"
                                 }
                             }
                         }
@@ -380,13 +362,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "deleted": {
-                                            "type": "integer",
-                                            "example": 3
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/C1DeleteElementItem"
                                 }
                             }
                         }
@@ -458,13 +434,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "deleted": {
-                                            "type": "integer",
-                                            "example": 3
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/C1DeleteElementItem"
                                 }
                             }
                         }
@@ -536,13 +506,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "deleted": {
-                                            "type": "integer",
-                                            "example": 3
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/C1DeleteElementItem"
                                 }
                             }
                         }
@@ -614,13 +578,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "deleted": {
-                                            "type": "integer",
-                                            "example": 3
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/C1DeleteElementItem"
                                 }
                             }
                         }
@@ -904,6 +862,34 @@
                         "type": "boolean",
                         "example": false,
                         "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "C1DeleteElementItem": {
+                "properties": {
+                    "total_requested": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "deleted": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "1c_test_id",
+                            "1c_test_id_2"
+                        ]
+                    },
+                    "not_found": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "1c_test_id_3"
+                        ]
                     }
                 },
                 "type": "object"

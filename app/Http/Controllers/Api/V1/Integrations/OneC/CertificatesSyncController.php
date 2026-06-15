@@ -34,30 +34,4 @@ class CertificatesSyncController extends Controller
             'success' => true,
         ]);
     }
-
-    public function delete(Request $request)
-    {
-        $externalIds = $request->input('ids', []);
-
-        if (empty($externalIds)) {
-            return response()->json([
-                'message' => 'Empty ids'
-            ], 422);
-        }
-
-        $ids = Certificate::whereIn('external_id', $externalIds)
-            ->pluck('id');
-
-        if ($ids->isEmpty()) {
-            return response()->json([
-                'deleted' => 0,
-            ]);
-        }
-
-        Certificate::whereIn('id', $ids)->delete();
-
-        return response()->json([
-            'deleted' => $ids->count(),
-        ]);
-    }
 }
