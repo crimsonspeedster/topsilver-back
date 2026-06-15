@@ -17,6 +17,8 @@ return new class extends Migration
             $table->decimal('value', 8, 2);
             $table->boolean('is_used')->default(false);
             $table->string('external_id')->unique();
+            $table->date('activated_at')->nullable();
+            $table->date('expires_at')->nullable();
             $table->timestamps();
         });
     }

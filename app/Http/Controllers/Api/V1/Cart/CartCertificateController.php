@@ -22,6 +22,8 @@ class CartCertificateController extends Controller
 
         $certificate = Certificate::where('code', $data['code'])
             ->where('is_used', false)
+            ->where('activated_at', '<=', now())
+            ->where('expires_at', '>', now())
             ->firstOrFail();
         $cart = $request->attributes->get('cart');
 

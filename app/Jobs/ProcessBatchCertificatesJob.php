@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
 class ProcessBatchCertificatesJob implements ShouldQueue {
@@ -91,6 +92,13 @@ class ProcessBatchCertificatesJob implements ShouldQueue {
                     'external_id' => (string) $item['id'],
                     'code' => (string) $item['code'],
                     'value' => (float) $item['value'],
+                    'activated_at' => !empty($item['activated_at'])
+                        ? Carbon::parse($item['activated_at'])
+                        : null,
+                    'expires_at' => !empty($item['expires_at'])
+                        ? Carbon::parse($item['expires_at'])
+                        : null,
+                    'is_used' => (bool) ($item['is_used'] ?? false),
                     'updated_at' => now(),
                     'created_at' => now(),
                 ];
@@ -109,6 +117,9 @@ class ProcessBatchCertificatesJob implements ShouldQueue {
                 [
                     'code',
                     'value',
+                    'activated_at',
+                    'expires_at',
+                    'is_used',
                     'updated_at',
                 ]
             );

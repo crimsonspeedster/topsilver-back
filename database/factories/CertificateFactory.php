@@ -23,6 +23,8 @@ class CertificateFactory extends Factory
             'code' => strtoupper($this->faker->unique()->regexify('[A-Z0-9]{16}')),
             'value' => $this->faker->numberBetween(1000, 10000),
             'is_used' => false,
+            'activated_at' => now(),
+            'expires_at' => now()->addDays(30),
         ];
     }
 }

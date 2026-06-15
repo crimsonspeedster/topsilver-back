@@ -173,6 +173,14 @@ class CartService
             throw new Exception('Cannot combine certificate with coupon');
         }
 
+        if (is_null($certificate->activated_at)) {
+            throw new Exception('Certificate is not activated');
+        }
+
+        if (!is_null($certificate->expires_at) && $certificate->expires_at->isPast()) {
+            throw new Exception('Certificate expired');
+        }
+
         if ($certificate->is_used) {
             throw new Exception('Certificate already used');
         }

@@ -13,9 +13,13 @@ class Certificate extends Model
         'code',
         'value',
         'is_used',
+        'activated_at',
+        'expires_at',
     ];
 
     protected $casts = [
         'is_used' => 'boolean',
+        'activated_at' => 'datetime',
+        'expires_at' => 'datetime',
     ];
 }
