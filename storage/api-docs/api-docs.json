@@ -207,45 +207,6 @@
                 ]
             }
         },
-        "/api/v1/integrations/1c/bonuses/delete": {
-            "post": {
-                "tags": [
-                    "bonuses"
-                ],
-                "summary": "Delete Bonuses by ids array",
-                "description": "Delete Bonuses",
-                "operationId": "395d20720a2447206e8d0c4457047166",
-                "requestBody": {
-                    "$ref": "#/components/requestBodies/C1EntityDeleteRequestBody"
-                },
-                "responses": {
-                    "200": {
-                        "description": "Successfully response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "deleted": {
-                                            "type": "integer",
-                                            "example": 3
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
         "/api/v1/integrations/1c/taxonomy/categories": {
             "post": {
                 "tags": [
@@ -794,16 +755,8 @@
                 },
                 "type": "object"
             },
-            "C1BonusItem": {
+            "C1BonusElement": {
                 "properties": {
-                    "id": {
-                        "type": "string",
-                        "example": "1c_test_1"
-                    },
-                    "phone": {
-                        "type": "string",
-                        "example": "380630000000"
-                    },
                     "amount": {
                         "type": "integer",
                         "example": 1500
@@ -822,6 +775,21 @@
                         "type": "string",
                         "format": "date",
                         "example": "2026-12-31"
+                    }
+                },
+                "type": "object"
+            },
+            "C1BonusItem": {
+                "properties": {
+                    "phone": {
+                        "type": "string",
+                        "example": "380630000000"
+                    },
+                    "bonuses": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/C1BonusElement"
+                        }
                     }
                 },
                 "type": "object"

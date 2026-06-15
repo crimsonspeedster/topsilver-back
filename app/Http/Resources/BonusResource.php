@@ -15,9 +15,9 @@ class BonusResource extends JsonResource
     {
         return [
             'amount' => $this->amount,
-            'accrual_from' => $this->accrual_from,
-            'available_from' => $this->available_from,
-            'expires_at' => $this->expires_at,
+            'accrual_from' => $this->accrual_from->format('Y-m-d'),
+            'available_from' => $this->available_from->format('Y-m-d'),
+            'expires_at' => $this->expires_at->format('Y-m-d'),
         ];
     }
 }

@@ -11,6 +11,8 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProcessBatchBonusesJob implements ShouldQueue
 {
@@ -43,10 +45,10 @@ class ProcessBatchBonusesJob implements ShouldQueue
                 return;
             }
 
-            $items = $data['items'];
+            $items = $data['items'] ?? [];
 
             if (!is_array($items) || empty($items)) {
-                $this->failBatch('Empty payload');
+                $this->failBatch('Empty items');
                 return;
             }
 
@@ -56,7 +58,7 @@ class ProcessBatchBonusesJob implements ShouldQueue
             collect($items)
                 ->chunk(200)
                 ->each(function ($chunk) use (&$processed, &$failed) {
-                    [$p, $f] = $this->updateChunk($chunk->toArray());
+                    [$p, $f] = $this->processChunk($chunk->toArray());
                     $processed += $p;
                     $failed += $f;
                 });
@@ -71,77 +73,91 @@ class ProcessBatchBonusesJob implements ShouldQueue
         }
     }
 
-    private function updateChunk(array $items): array
+    private function processChunk(array $items): array
     {
         $processed = 0;
         $failed = 0;
-
-        $rows = [];
-
-        $phones = collect($items)
-            ->pluck('phone')
-            ->filter()
-            ->unique()
-            ->values();
-
-        $users = User::query()
-            ->whereIn('phone', $phones)
-            ->get(['id', 'phone'])
-            ->keyBy('phone');
+        $grouped = [];
 
         foreach ($items as $item) {
             try {
                 if (
-                    empty($item['id']) ||
                     empty($item['phone']) ||
-                    !isset($item['amount']) ||
-                    empty($item['accrual_from']) ||
-                    empty($item['available_from']) ||
-                    empty($item['expires_at'])
+                    !isset($item['bonuses']) ||
+                    !is_array($item['bonuses'])
                 ) {
                     $failed++;
                     continue;
                 }
 
-                $user = $users->get($item['phone']);
+                $grouped[$item['phone']][] = $item['bonuses'];
+                $processed++;
+
+            } catch (\Throwable $e) {
+                report($e);
+                $failed++;
+            }
+        }
+
+        if (empty($grouped)) {
+            return [$processed, $failed];
+        }
+
+        $phones = array_keys($grouped);
+
+        $users = User::query()
+            ->with(['bonuses'])
+            ->whereIn('phone', $phones)
+            ->get(['id', 'phone'])
+            ->keyBy('phone');
+
+        foreach ($grouped as $phone => $bonusSets) {
+            try {
+                $user = $users->get($phone);
 
                 if (!$user) {
                     $failed++;
                     continue;
                 }
 
-                $rows[] = [
-                    'external_id' => $item['id'],
-                    'user_id' => $user->id,
-                    'amount' => $item['amount'],
-                    'accrual_from' => $item['accrual_from'],
-                    'available_from' => $item['available_from'],
-                    'expires_at' => $item['expires_at'],
-                    'updated_at' => now(),
-                    'created_at' => now(),
-                ];
+                $bonuses = collect($bonusSets)->flatten(1)->values();
+
+                $rows = [];
+
+                foreach ($bonuses as $bonus) {
+                    if (
+                        !isset($bonus['amount']) ||
+                        empty($bonus['accrual_from']) ||
+                        empty($bonus['available_from']) ||
+                        empty($bonus['expires_at'])
+                    ) {
+                        continue;
+                    }
+
+                    $rows[] = [
+                        'user_id' => $user->id,
+                        'amount' => $bonus['amount'],
+                        'accrual_from' => $bonus['accrual_from'],
+                        'available_from' => $bonus['available_from'],
+                        'expires_at' => $bonus['expires_at'],
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+
+                DB::transaction(function () use ($user, $rows) {
+                    Bonus::where('user_id', $user->id)->delete();
+
+                    if (!empty($rows)) {
+                        Bonus::insert($rows);
+                    }
+                });
 
                 $processed++;
             } catch (\Throwable $e) {
                 report($e);
-
                 $failed++;
             }
-        }
-
-        if (!empty($rows)) {
-            Bonus::query()->upsert(
-                $rows,
-                ['external_id'],
-                [
-                    'user_id',
-                    'amount',
-                    'accrual_from',
-                    'available_from',
-                    'expires_at',
-                    'updated_at',
-                ]
-            );
         }
 
         return [$processed, $failed];
