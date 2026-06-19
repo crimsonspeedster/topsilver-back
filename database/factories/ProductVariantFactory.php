@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Enums\StockStatus;
 use App\Models\ProductVariant;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<ProductVariant>
@@ -22,6 +23,7 @@ class ProductVariantFactory extends Factory
         $price_on_sale = $this->faker->numberBetween(500, $price-400);
 
         return [
+            'external_id' => 'local_' . Str::uuid()->toString(),
             'sku' => $this->faker->unique()->ean8(),
             'price' => $price,
             'price_on_sale' => $price_on_sale,

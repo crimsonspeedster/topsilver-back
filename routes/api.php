@@ -40,6 +40,7 @@ use App\Http\Controllers\Api\V1\WishlistController;
 use App\Http\Controllers\Api\V1\BuyInOneClickController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\TaxonomySyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\ShopsSyncController;
+use App\Http\Controllers\Api\V1\Integrations\OneC\ProductsSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\CertificatesSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\CouponsSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\BonusesSyncController;
@@ -56,6 +57,9 @@ Route::prefix('v1')->group(function () {
     Route::prefix('integrations/1c')->middleware([OneCAuthMiddleware::class])->group(function () {
         Route::post('/taxonomy/{entity}', [TaxonomySyncController::class, 'update']);
         Route::post('/taxonomy/{entity}/delete', [TaxonomySyncController::class, 'delete']);
+
+        Route::post('/products', [ProductsSyncController::class, 'update']);
+        Route::post('/products/delete', [ProductsSyncController::class, 'delete']);
 
         Route::post('/shops', [ShopsSyncController::class, 'update']);
         Route::post('/shops/delete', [ShopsSyncController::class, 'delete']);

@@ -3,6 +3,7 @@ namespace App\Models;
 
 use App\Enums\EntityStatus;
 use App\Interfaces\ContentEntityInterface;
+use App\Interfaces\HasMeta;
 use App\Services\ContentResolver;
 use App\Traits\HasSeo;
 use App\Traits\HasSeoBlock;
@@ -13,7 +14,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-abstract class ContentEntity extends Model implements HasMedia, ContentEntityInterface
+abstract class ContentEntity extends Model implements HasMedia, ContentEntityInterface, HasMeta
 {
     use HasFactory,
         HasSeo,
@@ -60,6 +61,16 @@ abstract class ContentEntity extends Model implements HasMedia, ContentEntityInt
     protected function extraFillable(): array
     {
         return [];
+    }
+
+    public function getSeoTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function getSeoDescription(): ?string
+    {
+        return $this->short_description;
     }
 
     public function getBlocksAttribute(): array

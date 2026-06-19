@@ -11,7 +11,6 @@ use App\Models\Seo;
 use App\Models\Slug;
 use App\Services\SeoGenerateService;
 use App\Services\SlugGenerateService;
-use http\Exception\InvalidArgumentException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -70,15 +69,30 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
 
             $processed = 0;
             $failed = 0;
+            $entityIds = [];
 
             collect($items)
                 ->chunk(200)
-                ->each(function ($chunk) use (&$processed, &$failed) {
-                    [$p, $f] = $this->updateChunk($chunk->toArray());
+                ->each(function ($chunk) use (&$processed, &$failed, &$entityIds) {
+                    [$p, $f, $ids] = $this->updateChunk(
+                        $chunk->toArray()
+                    );
 
                     $processed += $p;
                     $failed += $f;
+
+                    $entityIds = array_merge(
+                        $entityIds,
+                        $ids
+                    );
                 });
+
+            if ($entityIds) {
+                GenerateEntityMetaJob::dispatch(
+                    $this->entityClass,
+                    array_unique($entityIds)
+                );
+            }
 
             $this->batch->update([
                 'status' => IntegrationBatchStatus::Completed,
@@ -135,7 +149,7 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
         }
 
         if (!$entityRows) {
-            return [$processed, $failed];
+            return [$processed, $failed, []];
         }
 
         $modelClass::upsert(
@@ -151,94 +165,16 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
             ]
         );
 
-        $entityMap = $modelClass::query()
+        $entityIds = $modelClass::query()
             ->whereIn('external_id', $externalIds)
-            ->get(['id', 'external_id'])
-            ->keyBy('external_id');
-
-        $entityIds = $entityMap
             ->pluck('id')
-            ->values()
             ->all();
 
-        $existingAllSlugs = Slug::query()
-            ->pluck('slug')
-            ->toArray();
-
-        $existingSlugsInModel = Slug::where('entity_type', $modelClass)
-            ->pluck('entity_id')
-            ->flip()
-            ->toArray();
-
-        $existingSeo = Seo::query()
-            ->where('entity_type', $modelClass)
-            ->whereIn('entity_id', $entityIds)
-            ->pluck('entity_id')
-            ->flip()
-            ->toArray();
-
-        $slugService = app(SlugGenerateService::class);
-        $seoService = app(SeoGenerateService::class);
-
-        $slugRows = [];
-        $seoRows = [];
-
-        foreach ($entityRows as $externalId => $row) {
-            $entityId = $entityMap[$externalId]->id ?? null;
-
-            if (!$entityId) {
-                continue;
-            }
-
-            if (!isset($existingSlugsInModel[$entityId])) {
-                $slug = $slugService->generate($row['title'], $existingAllSlugs);
-
-                $slugRows[] = [
-                    'slug' => $slug,
-                    'entity_type' => $modelClass,
-                    'entity_id' => $entityId,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
-            }
-
-            if (!isset($existingSeo[$entityId])) {
-                $seo = $seoService->generateSeo(
-                    $row['title'],
-                    $row['description'] ?? $row['title'],
-                    null
-                );
-
-                $seoRows[] = [
-                    'entity_type' => $modelClass,
-                    'entity_id' => $entityId,
-                    'title' => $seo['title'],
-                    'description' => $seo['description'],
-                    'keywords' => $seo['keywords'],
-                    'robots' => $seo['robots'],
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
-            }
-        }
-
-        if ($slugRows) {
-            Slug::upsert(
-                $slugRows,
-                ['entity_type', 'entity_id'],
-                ['slug', 'updated_at']
-            );
-        }
-
-        if ($seoRows) {
-            Seo::upsert(
-                $seoRows,
-                ['entity_type', 'entity_id'],
-                ['title', 'description', 'keywords', 'robots', 'updated_at']
-            );
-        }
-
-        return [$processed, $failed];
+        return [
+            $processed,
+            $failed,
+            $entityIds,
+        ];
     }
 
     private function failBatch(string $message): void
@@ -267,9 +203,7 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
                 'parentable' => true,
             ],
 
-            default => throw new InvalidArgumentException(
-                "Unsupported entity class: {$this->entityClass}"
-            ),
+            default => [],
         };
     }
 }

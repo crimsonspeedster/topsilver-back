@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use App\Enums\EntityStatus;
+use App\Interfaces\HasMeta;
 use App\Traits\HasSeo;
 use App\Traits\HasSeoBlock;
 use App\Traits\HasSlug;
@@ -17,7 +18,7 @@ use Illuminate\Support\Collection;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-abstract class TaxonomyEntity extends Model implements ContentEntityInterface, HasMedia
+abstract class TaxonomyEntity extends Model implements ContentEntityInterface, HasMedia, HasMeta
 {
     use HasFactory,
         HasSeo,
@@ -44,6 +45,16 @@ abstract class TaxonomyEntity extends Model implements ContentEntityInterface, H
             'content',
             'description',
         ];
+    }
+
+    public function getSeoTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function getSeoDescription(): ?string
+    {
+        return $this->description;
     }
 
     public function getFillable(): array

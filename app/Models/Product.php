@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\EntityStatus;
 use App\Enums\ProductRelationTypes;
 use App\Enums\StockStatus;
+use App\Interfaces\HasMeta;
 use App\Traits\HasPublishedAt;
 use App\Traits\HasSeo;
 use App\Traits\HasSeoBlock;
@@ -16,11 +17,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Product extends Model implements HasMedia
+class Product extends Model implements HasMedia, HasMeta
 {
     use HasFactory, HasSlug, HasSeo, HasSeoBlock, HasPublishedAt, InteractsWithMedia;
 
@@ -225,7 +225,7 @@ class Product extends Model implements HasMedia
 
     public function getSeoDescription(): ?string
     {
-        return Str::limit(strip_tags($this->description ?? ''), 160);
+        return $this->short_description ?? $this->description;
     }
 
     public function getDiscountPercent(): ?int

@@ -43,28 +43,38 @@ class ProcessBatchShopsJob implements ShouldQueue
 
             $data = json_decode($this->batch->payload, true);
 
-            if (!is_array($data) || empty($data)) {
-                $this->failBatch('Empty payload');
-                return;
-            }
-
-            $items = $data['items'];
-
-            if (!is_array($items) || empty($items)) {
+            if (!is_array($data) || empty($data['items'])) {
                 $this->failBatch('Empty payload');
                 return;
             }
 
             $processed = 0;
             $failed = 0;
+            $shopIds = [];
 
-            collect($items)
+            collect($data['items'])
                 ->chunk(200)
-                ->each(function ($chunk) use (&$processed, &$failed) {
-                    [$p, $f] = $this->updateChunk($chunk->toArray());
+                ->each(function ($chunk) use (&$processed, &$failed, &$shopIds) {
+
+                    [$p, $f, $ids] = $this->updateChunk(
+                        $chunk->toArray()
+                    );
+
                     $processed += $p;
                     $failed += $f;
+
+                    $shopIds = array_merge(
+                        $shopIds,
+                        $ids
+                    );
                 });
+
+            if (!empty($shopIds)) {
+                GenerateEntityMetaJob::dispatch(
+                    Shop::class,
+                    array_unique($shopIds)
+                );
+            }
 
             $this->batch->update([
                 'status' => IntegrationBatchStatus::Completed,
@@ -85,7 +95,10 @@ class ProcessBatchShopsJob implements ShouldQueue
         static $cities = null;
 
         if ($cities === null) {
-            $cities = City::all()->keyBy('city_code');
+            $cities = City::query()
+                ->select(['id', 'city_code'])
+                ->get()
+                ->keyBy('city_code');
         }
 
         $now = now();
@@ -94,6 +107,7 @@ class ProcessBatchShopsJob implements ShouldQueue
         $externalIds = [];
 
         foreach ($items as $item) {
+
             $cityCode = trim($item['city_code'] ?? '');
             $title = trim($item['title'] ?? '');
             $address = trim($item['address'] ?? '');
@@ -144,7 +158,7 @@ class ProcessBatchShopsJob implements ShouldQueue
         }
 
         if (!$shopRows) {
-            return [$processed, $failed];
+            return [$processed, $failed, []];
         }
 
         Shop::upsert(
@@ -164,90 +178,16 @@ class ProcessBatchShopsJob implements ShouldQueue
             ]
         );
 
-        $shopMap = Shop::whereIn('external_id', $externalIds)
-            ->pluck('id', 'external_id');
+        $shopIds = Shop::query()
+            ->whereIn('external_id', $externalIds)
+            ->pluck('id')
+            ->all();
 
-        $existingAllSlugs = Slug::query()
-            ->pluck('slug')
-            ->toArray();
-
-        $existingSlugsInModel = Slug::where('entity_type', Shop::class)
-            ->pluck('entity_id')
-            ->flip()
-            ->toArray();
-
-        $existingSeo = Seo::where('entity_type', Shop::class)
-            ->pluck('entity_id')
-            ->flip()
-            ->toArray();
-
-        $slugService = app(SlugGenerateService::class);
-        $seoService = app(SeoGenerateService::class);
-
-        $slugRows = [];
-        $seoRows = [];
-
-        foreach ($shopRows as $externalId => $row) {
-            $shopId = $shopMap[$externalId] ?? null;
-
-            if (!$shopId) {
-                continue;
-            }
-
-            if (!isset($existingSlugsInModel[$shopId])) {
-                $slug = $slugService->generate(
-                    $row['title'],
-                    $existingAllSlugs
-                );
-
-                $slugRows[] = [
-                    'slug' => $slug,
-                    'entity_type' => Shop::class,
-                    'entity_id' => $shopId,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
-            }
-
-            if (!isset($existingSeo[$shopId])) {
-                $seo = $seoService->generateSeo(
-                    $row['title'],
-                    $row['short_description'] ?? $row['title'],
-                    null
-                );
-
-                $seoRows[] = [
-                    'entity_type' => Shop::class,
-                    'entity_id' => $shopId,
-                    'title' => $seo['title'],
-                    'description' => $seo['description'],
-                    'keywords' => $seo['keywords'],
-                    'robots' => $seo['robots'],
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
-
-                $existingSeo[$shopId] = true;
-            }
-        }
-
-        if ($slugRows) {
-            Slug::upsert(
-                $slugRows,
-                ['entity_type', 'entity_id'],
-                ['slug', 'updated_at']
-            );
-        }
-
-        if ($seoRows) {
-            Seo::upsert(
-                $seoRows,
-                ['entity_type', 'entity_id'],
-                ['title', 'description', 'keywords', 'robots', 'updated_at']
-            );
-        }
-
-        return [$processed, $failed];
+        return [
+            $processed,
+            $failed,
+            $shopIds,
+        ];
     }
 
     private function failBatch(string $message): void

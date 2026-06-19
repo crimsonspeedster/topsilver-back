@@ -6,6 +6,7 @@ use App\Enums\EntityStatus;
 use App\Enums\StockStatus;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<Product>
@@ -30,6 +31,7 @@ class ProductFactory extends Factory
         $price_on_sale = $this->faker->numberBetween(500, $price-400);
 
         return [
+            'external_id' => 'local_' . Str::uuid()->toString(),
             'title' => $this->faker->sentence(3),
             'description' => $this->faker->paragraph(10),
             'short_description' => $this->faker->paragraph(2),

@@ -54,6 +54,7 @@ class ProductVariantSeeder extends Seeder
 
             $variant = $product->variants()->create([
                 'variant_key' => $variantKey,
+                'external_id' => 'local_' . Str::uuid()->toString(),
                 'sku' => Str::uuid(),
                 'price' => $price,
                 'price_on_sale' => null,

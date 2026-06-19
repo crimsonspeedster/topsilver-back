@@ -6,7 +6,6 @@ use App\Enums\SeoRobotTypes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Support\Str;
 
 class Seo extends Model
 {
@@ -35,15 +34,11 @@ class Seo extends Model
             }
 
             if (empty($model->title)) {
-                $model->title = method_exists($entity, 'getSeoTitle')
-                    ? $entity->getSeoTitle()
-                    : ($entity->title ?? $entity->name ?? null);
+                $model->title = $entity->getSeoTitle();
             }
 
             if (empty($model->description)) {
-                $model->description = method_exists($entity, 'getSeoDescription')
-                    ? $entity->getSeoDescription()
-                    : Str::limit(strip_tags($entity->content ?? ''), 160);
+                $model->description = $entity->getSeoDescription();
             }
 
             if (empty($model->robots)) {
