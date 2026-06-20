@@ -5,25 +5,17 @@ use App\Enums\EntityStatus;
 use App\Enums\IntegrationBatchStatus;
 use App\Enums\StockStatus;
 use App\Models\Category;
-use App\Models\City;
 use App\Models\Collection;
 use App\Models\IntegrationBatch;
 use App\Models\Product;
 use App\Models\Promotion;
-use App\Models\Seo;
-use App\Models\Shop;
-use App\Models\Slug;
-use App\Services\SeoGenerateService;
-use App\Services\SlugGenerateService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class ProcessBatchProductsJob implements ShouldQueue
 {
@@ -74,6 +66,10 @@ class ProcessBatchProductsJob implements ShouldQueue
             $productCollections = [];
             $productPromotions = [];
 
+            $mediaPayload = [];
+
+            $productsGrouped = collect();
+
             collect($items)
                 ->chunk(200)
                 ->each(function ($chunk) use (
@@ -82,6 +78,7 @@ class ProcessBatchProductsJob implements ShouldQueue
                     &$productCategories,
                     &$productCollections,
                     &$productPromotions,
+                    &$mediaPayload,
                     &$processed,
                     &$failed,
                     $categoriesMap,
@@ -89,7 +86,7 @@ class ProcessBatchProductsJob implements ShouldQueue
                     $promotionsMap,
                     $now
                 ) {
-                    [$p, $f, $chunkRows, $chunkIds, $chunkCats, $chunkCols, $chunkPromos] =
+                    [$p, $f, $chunkRows, $chunkIds, $chunkCats, $chunkCols, $chunkPromos, $chunkMedia] =
                         $this->updateChunk(
                             $chunk->toArray(),
                             $categoriesMap,
@@ -105,6 +102,8 @@ class ProcessBatchProductsJob implements ShouldQueue
                     $productCollections = array_merge($productCollections, $chunkCols);
                     $productPromotions = array_merge($productPromotions, $chunkPromos);
 
+                    $mediaPayload = array_merge($mediaPayload, $chunkMedia);
+
                     $processed += $p;
                     $failed += $f;
                 });
@@ -119,7 +118,8 @@ class ProcessBatchProductsJob implements ShouldQueue
                 $externalIds,
                 $productCategories,
                 $productCollections,
-                $productPromotions
+                $productPromotions,
+                &$productsGrouped,
             ) {
                 Product::upsert(
                     $rows,
@@ -213,6 +213,30 @@ class ProcessBatchProductsJob implements ShouldQueue
                 }
             });
 
+            if (!empty($mediaPayload)) {
+                $mappedMediaPayload = [];
+
+                foreach ($mediaPayload as $item) {
+                    $product = $productsGrouped[$item['id']] ?? null;
+
+                    if (!$product) {
+                        continue;
+                    }
+
+                    $mappedMediaPayload[] = [
+                        'id' => $product->id,
+                        'collection' => $item['collection'],
+                        'urls' => $item['urls'],
+                    ];
+                }
+
+                DispatchMediaImportBatchJob::dispatch(
+                    Product::class,
+                    $mappedMediaPayload,
+                    20
+                )->onQueue('media');
+            }
+
             $this->batch->update([
                 'status' => IntegrationBatchStatus::Completed,
                 'processed_count' => $processed,
@@ -240,6 +264,8 @@ class ProcessBatchProductsJob implements ShouldQueue
         $productCollections = [];
         $productPromotions = [];
 
+        $mediaPayload = [];
+
         foreach ($items as $item) {
             $externalID = $item['id'] ?? '';
             $sku = $item['sku'] ?? '';
@@ -250,31 +276,20 @@ class ProcessBatchProductsJob implements ShouldQueue
                 continue;
             }
 
-            $group_key = $item['group_key'] ?? null;
-            $description = $item['description'] ?? null;
-            $short_description = $item['short_description'] ?? null;
-            $price = $item['price'] ?? null;
-            $price_on_sale = $item['price_on_sale'] ?? null;
-
-            $manage_stock = (bool) ($item['manage_stock'] ?? false);
-            $stock = (int) ($item['stock'] ?? 0);
-
-            $stock_status = $manage_stock && $stock === 0
-                ? StockStatus::OutOfStock
-                : StockStatus::InStock;
-
             $rows[] = [
                 'external_id' => $externalID,
-                'group_key' => $group_key,
+                'group_key' => $item['group_key'] ?? null,
                 'sku' => $sku,
                 'title' => $title,
-                'description' => $description,
-                'short_description' => $short_description,
-                'price' => $price,
-                'price_on_sale' => $price_on_sale,
-                'manage_stock' => $manage_stock,
-                'stock' => $stock,
-                'stock_status' => $stock_status,
+                'description' => $item['description'] ?? null,
+                'short_description' => $item['short_description'] ?? null,
+                'price' => $item['price'] ?? null,
+                'price_on_sale' => $item['price_on_sale'] ?? null,
+                'manage_stock' => (bool) ($item['manage_stock'] ?? false),
+                'stock' => (int) ($item['stock'] ?? 0),
+                'stock_status' => ((bool) ($item['manage_stock'] ?? false) && (int) ($item['stock'] ?? 0) === 0)
+                    ? StockStatus::OutOfStock
+                    : StockStatus::InStock,
                 'status' => EntityStatus::Published,
                 'published_at' => $now,
                 'created_at' => $now,
@@ -310,6 +325,22 @@ class ProcessBatchProductsJob implements ShouldQueue
                 }
             }
 
+            if (!empty($item['main_image'])) {
+                $mediaPayload[] = [
+                    'id' => $externalID,
+                    'collection' => 'media',
+                    'urls' => [$item['main_image']],
+                ];
+            }
+
+            if (!empty($item['gallery'])) {
+                $mediaPayload[] = [
+                    'id' => $externalID,
+                    'collection' => 'gallery',
+                    'urls' => $item['gallery'],
+                ];
+            }
+
             $processed++;
         }
 
@@ -321,94 +352,8 @@ class ProcessBatchProductsJob implements ShouldQueue
             $productCategories,
             $productCollections,
             $productPromotions,
+            $mediaPayload,
         ];
-    }
-
-    private function syncSeoAndSlugs(SupportCollection $products): void
-    {
-        $now = now();
-
-        $slugService = app(SlugGenerateService::class);
-        $seoService = app(SeoGenerateService::class);
-
-        $productIds = $products->pluck('id');
-
-        $existingSlugs = Slug::query()
-            ->where('entity_type', Product::class)
-            ->whereIn('entity_id', $productIds)
-            ->pluck('entity_id')
-            ->flip()
-            ->toArray();
-
-        $existingSeo = Seo::query()
-            ->where('entity_type', Product::class)
-            ->whereIn('entity_id', $productIds)
-            ->pluck('entity_id')
-            ->flip()
-            ->toArray();
-
-        $allSlugs = Slug::query()
-            ->pluck('slug')
-            ->toArray();
-
-        $slugRows = [];
-        $seoRows = [];
-
-        foreach ($products as $product) {
-            if (!isset($existingSlugs[$product->id])) {
-                $slug = $slugService->generate(
-                    $product->title,
-                    $allSlugs
-                );
-
-                $allSlugs[] = $slug;
-
-                $slugRows[] = [
-                    'slug' => $slug,
-                    'entity_type' => Product::class,
-                    'entity_id' => $product->id,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
-            }
-
-            if (!isset($existingSeo[$product->id])) {
-                $seo = $seoService->generateSeo(
-                    $product->title,
-                    $product->short_description
-                        ?: strip_tags($product->description ?? '')
-                        ?: $product->title,
-                    null
-                );
-
-                $seoRows[] = [
-                    'entity_type' => Product::class,
-                    'entity_id' => $product->id,
-                    'title' => $seo['title'],
-                    'description' => $seo['description'],
-                    'keywords' => $seo['keywords'],
-                    'robots' => $seo['robots'],
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
-            }
-        }
-
-        if ($slugRows) {
-            Slug::upsert(
-                $slugRows,
-                ['entity_type', 'entity_id'],
-                ['slug', 'updated_at']
-            );
-        }
-
-        if ($seoRows) {
-            Seo::upsert(
-                $seoRows,
-                ['entity_type', 'entity_id'],
-                ['title', 'description', 'keywords', 'robots', 'updated_at']
-            );
-        }
     }
 
     private function failBatch(string $message): void
