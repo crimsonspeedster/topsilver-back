@@ -450,6 +450,78 @@
                 ]
             }
         },
+        "/api/v1/integrations/1c/labels": {
+            "post": {
+                "tags": [
+                    "labels"
+                ],
+                "summary": "Add / Update labels",
+                "description": "Sync labels from 1c with site",
+                "operationId": "12438123e5822297655efb76d85755e1",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/C1LabelRequestBody"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/integrations/1c/labels/delete": {
+            "post": {
+                "tags": [
+                    "labels"
+                ],
+                "summary": "Delete labels by ids array",
+                "description": "Delete labels",
+                "operationId": "0bf26bb02dc07eb90cb9fb1cfb7f1f11",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/C1EntityDeleteRequestBody"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/C1DeleteElementItem"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/integrations/1c/taxonomy/promotions": {
             "post": {
                 "tags": [
@@ -894,6 +966,34 @@
                 },
                 "type": "object"
             },
+            "C1LabelItem": {
+                "required": [
+                    "id",
+                    "name",
+                    "type"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "1c_1001"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "NEW"
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "new",
+                        "enum": [
+                            "new",
+                            "top",
+                            "promotion",
+                            "1plus1"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
             "C1PromotionItem": {
                 "properties": {
                     "id": {
@@ -956,6 +1056,9 @@
                 ],
                 "properties": {
                     "ids": {
+                        "required": [
+                            "ids"
+                        ],
                         "type": "array",
                         "items": {
                             "type": "string",
@@ -1207,6 +1310,27 @@
                     }
                 }
             },
+            "C1LabelRequestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "items"
+                            ],
+                            "properties": {
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/C1LabelItem"
+                                    }
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
             "C1PromotionRequestBody": {
                 "required": true,
                 "content": {
@@ -1283,6 +1407,10 @@
         {
             "name": "coupons",
             "description": "coupons"
+        },
+        {
+            "name": "labels",
+            "description": "labels"
         },
         {
             "name": "shops",

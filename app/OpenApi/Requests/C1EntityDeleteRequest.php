@@ -9,6 +9,7 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(
             property: "ids",
+            required: ["ids"],
             type: "array",
             items: new OA\Items(
                 type: "string",
