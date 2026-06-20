@@ -100,4 +100,11 @@ class User extends Authenticatable implements MustVerifyEmail
             UserRoles::Developer,
         ]);
     }
+
+    public function canAccessHorizon(): bool
+    {
+        return in_array($this->role, [
+            UserRoles::Developer,
+        ]);
+    }
 }
