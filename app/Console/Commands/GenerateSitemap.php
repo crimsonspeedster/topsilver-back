@@ -29,7 +29,7 @@ class GenerateSitemap extends Command
             new GenerateFilterPagesSitemap(),
             new GenerateShopsSitemap(),
             new GenerateIndexSitemap(),
-        ])->dispatch();
+        ])->onQueue('high')->dispatch();
 
         $this->info('Sitemap generated successfully.');
     }

@@ -7,10 +7,6 @@ use App\Models\Category;
 use App\Models\Collection;
 use App\Models\IntegrationBatch;
 use App\Models\Promotion;
-use App\Models\Seo;
-use App\Models\Slug;
-use App\Services\SeoGenerateService;
-use App\Services\SlugGenerateService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -91,7 +87,7 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
                 GenerateEntityMetaJob::dispatch(
                     $this->entityClass,
                     array_unique($entityIds)
-                );
+                )->onQueue('import');
             }
 
             $this->batch->update([
@@ -101,7 +97,7 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
             ]);
 
             if ($this->config['parentable']) {
-                ProcessTaxonomyParentsJob::dispatch($this->entityClass);
+                ProcessTaxonomyParentsJob::dispatch($this->entityClass)->onQueue('import');
             }
         } catch (Throwable $e) {
             $this->failBatch($e->getMessage());

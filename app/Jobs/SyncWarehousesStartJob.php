@@ -25,6 +25,6 @@ class SyncWarehousesStartJob implements ShouldQueue
     {
         NPWarehouse::query()->update(['is_active' => false]);
 
-        SyncWarehousesPageJob::dispatch(1);
+        SyncWarehousesPageJob::dispatch(1)->onQueue('import');
     }
 }

@@ -28,7 +28,7 @@ class ProductsSyncController extends Controller
             'payload' => $request->getContent(),
         ]);
 
-        ProcessBatchProductsJob::dispatch($batch);
+        ProcessBatchProductsJob::dispatch($batch)->onQueue('import');
 
         return response()->json([
             'success' => true,

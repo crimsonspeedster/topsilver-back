@@ -37,7 +37,8 @@ class ProductObserver
             && $product->getOriginal('stock_status') === StockStatus::OutOfStock
             && $product->stock_status === StockStatus::InStock
         ) {
-            NotifyProductBackInStockJob::dispatch($product->id);
+            NotifyProductBackInStockJob::dispatch($product->id)
+                ->onQueue('high');
         }
     }
 

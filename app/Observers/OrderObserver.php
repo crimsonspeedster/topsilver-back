@@ -10,7 +10,7 @@ class OrderObserver
     public function created(Order $order): void
     {
         if ($order->status === OrderStatus::COMPLETED) {
-            UpdateOrderSellingCounts::dispatch($order->id);
+            UpdateOrderSellingCounts::dispatch($order->id)->onQueue('high');
         }
     }
 
@@ -20,7 +20,7 @@ class OrderObserver
             $order->wasChanged('status')
             && $order->status === OrderStatus::COMPLETED
         ) {
-            UpdateOrderSellingCounts::dispatch($order->id);
+            UpdateOrderSellingCounts::dispatch($order->id)->onQueue('high');
         }
     }
 }

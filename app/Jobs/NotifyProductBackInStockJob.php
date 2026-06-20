@@ -26,7 +26,7 @@ class NotifyProductBackInStockJob implements ShouldQueue
             ->where('product_id', $this->product_id)
             ->chunkById(100, function ($subscribers) {
                 foreach ($subscribers as $subscriber) {
-                    SendBackInStockEmailJob::dispatch($subscriber->id);
+                    SendBackInStockEmailJob::dispatch($subscriber->id)->onQueue('high');
                 }
             });
     }

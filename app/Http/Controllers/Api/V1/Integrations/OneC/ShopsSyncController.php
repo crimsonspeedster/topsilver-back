@@ -30,7 +30,7 @@ class ShopsSyncController extends Controller
             'payload' => $request->getContent(),
         ]);
 
-        ProcessBatchShopsJob::dispatch($batch);
+        ProcessBatchShopsJob::dispatch($batch)->onQueue('import');
 
         return response()->json([
             'success' => true,

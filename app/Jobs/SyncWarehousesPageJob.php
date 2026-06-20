@@ -87,6 +87,7 @@ class SyncWarehousesPageJob implements ShouldQueue
 
             if ($count === $limit) {
                 self::dispatch($this->page + 1)
+                    ->onQueue('import')
                     ->delay(now()->addSeconds(2));
             }
             else {

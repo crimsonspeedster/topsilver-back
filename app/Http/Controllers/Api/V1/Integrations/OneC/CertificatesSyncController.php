@@ -28,7 +28,7 @@ class CertificatesSyncController extends Controller
             'payload' => $request->getContent(),
         ]);
 
-        ProcessBatchCertificatesJob::dispatch($batch);
+        ProcessBatchCertificatesJob::dispatch($batch)->onQueue('import');
 
         return response()->json([
             'success' => true,
