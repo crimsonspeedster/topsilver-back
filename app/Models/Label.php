@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\LabelTypes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,7 +13,12 @@ class Label extends Model
 
     protected $fillable = [
         'name',
-        'slug',
+        'type',
+        'external_id',
+    ];
+
+    protected $casts = [
+        'type' => LabelTypes::class,
     ];
 
     public function products (): BelongsToMany

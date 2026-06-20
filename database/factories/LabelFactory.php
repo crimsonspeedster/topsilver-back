@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Label;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<Label>
@@ -19,7 +20,7 @@ class LabelFactory extends Factory
     {
         return [
             'name' => $this->faker->title(),
-            'slug' => $this->faker->unique()->slug(),
+            'external_id' => 'local_' . Str::uuid()->toString(),
         ];
     }
 }
