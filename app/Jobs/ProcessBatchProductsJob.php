@@ -7,6 +7,7 @@ use App\Enums\StockStatus;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\IntegrationBatch;
+use App\Models\Label;
 use App\Models\Product;
 use App\Models\Promotion;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -55,6 +56,7 @@ class ProcessBatchProductsJob implements ShouldQueue
             $categoriesMap = Category::pluck('id', 'external_id');
             $collectionsMap = Collection::pluck('id', 'external_id');
             $promotionsMap = Promotion::pluck('id', 'external_id');
+            $labelsMap = Label::pluck('id', 'external_id');
 
             $processed = 0;
             $failed = 0;
@@ -65,6 +67,7 @@ class ProcessBatchProductsJob implements ShouldQueue
             $productCategories = [];
             $productCollections = [];
             $productPromotions = [];
+            $productLabels = [];
 
             $mediaPayload = [];
 
@@ -78,20 +81,23 @@ class ProcessBatchProductsJob implements ShouldQueue
                     &$productCategories,
                     &$productCollections,
                     &$productPromotions,
+                    &$productLabels,
                     &$mediaPayload,
                     &$processed,
                     &$failed,
                     $categoriesMap,
                     $collectionsMap,
                     $promotionsMap,
+                    $labelsMap,
                     $now
                 ) {
-                    [$p, $f, $chunkRows, $chunkIds, $chunkCats, $chunkCols, $chunkPromos, $chunkMedia] =
+                    [$p, $f, $chunkRows, $chunkIds, $chunkCats, $chunkCols, $chunkPromos, $chunkLabels, $chunkMedia] =
                         $this->updateChunk(
                             $chunk->toArray(),
                             $categoriesMap,
                             $collectionsMap,
                             $promotionsMap,
+                            $labelsMap,
                             $now
                         );
 
@@ -101,6 +107,7 @@ class ProcessBatchProductsJob implements ShouldQueue
                     $productCategories = array_merge($productCategories, $chunkCats);
                     $productCollections = array_merge($productCollections, $chunkCols);
                     $productPromotions = array_merge($productPromotions, $chunkPromos);
+                    $productLabels = array_merge($productLabels, $chunkLabels);
 
                     $mediaPayload = array_merge($mediaPayload, $chunkMedia);
 
@@ -249,10 +256,11 @@ class ProcessBatchProductsJob implements ShouldQueue
 
     private function updateChunk(
         array $items,
-              $categoriesMap,
-              $collectionsMap,
-              $promotionsMap,
-              $now
+            $categoriesMap,
+            $collectionsMap,
+            $promotionsMap,
+            $labelsMap,
+            $now
     ): array {
         $processed = 0;
         $failed = 0;
@@ -263,6 +271,7 @@ class ProcessBatchProductsJob implements ShouldQueue
         $productCategories = [];
         $productCollections = [];
         $productPromotions = [];
+        $productLabels = [];
 
         $mediaPayload = [];
 
@@ -325,6 +334,15 @@ class ProcessBatchProductsJob implements ShouldQueue
                 }
             }
 
+            foreach (($item['labels'] ?? []) as $extId) {
+                if (isset($labelsMap[$extId])) {
+                    $productLabels[] = [
+                        'external_product_id' => $externalID,
+                        'label_id' => $labelsMap[$extId],
+                    ];
+                }
+            }
+
             if (!empty($item['main_image'])) {
                 $mediaPayload[] = [
                     'id' => $externalID,
@@ -352,6 +370,7 @@ class ProcessBatchProductsJob implements ShouldQueue
             $productCategories,
             $productCollections,
             $productPromotions,
+            $productLabels,
             $mediaPayload,
         ];
     }
