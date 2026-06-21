@@ -126,6 +126,7 @@ class ProcessBatchProductsJob implements ShouldQueue
                 $productCategories,
                 $productCollections,
                 $productPromotions,
+                $productLabels,
                 &$productsGrouped,
             ) {
                 Product::upsert(
@@ -172,6 +173,10 @@ class ProcessBatchProductsJob implements ShouldQueue
                     ->whereIn('product_id', $productsGrouped->pluck('id'))
                     ->delete();
 
+                DB::table('label_products')
+                    ->whereIn('product_id', $productsGrouped->pluck('id'))
+                    ->delete();
+
                 $map = fn ($extId) => $productsGrouped[$extId]->id ?? null;
 
                 $cats = [];
@@ -207,6 +212,17 @@ class ProcessBatchProductsJob implements ShouldQueue
                     }
                 }
 
+                $labels = [];
+                foreach ($productLabels as $row) {
+                    $id = $map($row['external_product_id']);
+                    if ($id) {
+                        $labels[] = [
+                            'product_id' => $id,
+                            'label_id' => $row['label_id'],
+                        ];
+                    }
+                }
+
                 if ($cats) {
                     DB::table('product_category')->insert($cats);
                 }
@@ -217,6 +233,10 @@ class ProcessBatchProductsJob implements ShouldQueue
 
                 if ($promos) {
                     DB::table('product_promotion')->insert($promos);
+                }
+
+                if ($labels) {
+                    DB::table('label_products')->insert($labels);
                 }
             });
 

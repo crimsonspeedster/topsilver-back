@@ -167,6 +167,8 @@ class Product extends Resource
 
             BelongsToMany::make('Bundles', 'bundles', Bundle::class),
 
+            BelongsToMany::make('Labels', 'labels', Label::class),
+
             BelongsToMany::make('Attribute Terms', 'attributeTerms', AttributeTerm::class),
 
             MorphOne::make('Slug', 'sluggable', Slug::class),
