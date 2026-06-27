@@ -319,7 +319,7 @@ class ProcessBatchProductsJob implements ShouldQueue
                 'title' => $title,
                 'description' => $item['description'] ?? null,
                 'short_description' => $item['short_description'] ?? null,
-                'price' => $item['price'] ?? null,
+                'price' => $price ?? null,
                 'price_on_sale' => $item['price_on_sale'] ?? null,
                 'manage_stock' => (bool) ($item['manage_stock'] ?? false),
                 'stock' => (int) ($item['stock'] ?? 0),

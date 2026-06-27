@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1\Integrations\OneC;
 use App\Enums\IntegrationBatchStatus;
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcessBatchProductsJob;
+use App\Jobs\ProcessBatchProductPricesJob;
+use App\Jobs\ProcessBatchProductStocksJob;
 use App\Models\IntegrationBatch;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -29,6 +31,56 @@ class ProductsSyncController extends Controller
         ]);
 
         ProcessBatchProductsJob::dispatch($batch)->onQueue('import');
+
+        return response()->json([
+            'success' => true,
+        ]);
+    }
+
+    public function price(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (empty($data)) {
+            return response()->json([
+                'message' => 'Empty payload'
+            ], 422);
+        }
+
+        $batch = IntegrationBatch::create([
+            'integration' => '1c',
+            'entity' => 'product_prices',
+            'status' => IntegrationBatchStatus::Pending,
+            'items_count' => count($data),
+            'payload' => $request->getContent(),
+        ]);
+
+        ProcessBatchProductPricesJob::dispatch($batch)->onQueue('import');
+
+        return response()->json([
+            'success' => true,
+        ]);
+    }
+
+    public function stock(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (empty($data)) {
+            return response()->json([
+                'message' => 'Empty payload'
+            ], 422);
+        }
+
+        $batch = IntegrationBatch::create([
+            'integration' => '1c',
+            'entity' => 'product_stock',
+            'status' => IntegrationBatchStatus::Pending,
+            'items_count' => count($data),
+            'payload' => $request->getContent(),
+        ]);
+
+        ProcessBatchProductStocksJob::dispatch($batch)->onQueue('import');
 
         return response()->json([
             'success' => true,

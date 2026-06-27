@@ -60,6 +60,8 @@ Route::prefix('v1')->group(function () {
         Route::post('/taxonomy/{entity}/delete', [TaxonomySyncController::class, 'delete']);
 
         Route::post('/products', [ProductsSyncController::class, 'update']);
+        Route::post('/products/prices', [ProductsSyncController::class, 'price']);
+        Route::post('/products/stocks', [ProductsSyncController::class, 'stock']);
         Route::post('/products/delete', [ProductsSyncController::class, 'delete']);
 
         Route::post('/labels', [LabelsSyncController::class, 'update']);

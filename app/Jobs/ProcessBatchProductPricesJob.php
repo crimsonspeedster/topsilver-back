@@ -1,0 +1,121 @@
+<?php
+namespace App\Jobs;
+
+use App\Enums\IntegrationBatchStatus;
+use App\Models\IntegrationBatch;
+use App\Models\Product;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
+
+class ProcessBatchProductPricesJob implements ShouldQueue
+{
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
+
+    public function __construct(
+        public IntegrationBatch $batch
+    ) {}
+
+    public function handle(): void
+    {
+        $lock = Cache::lock('products-prices-batch-' . $this->batch->id, 600);
+
+        if (!$lock->get()) {
+            return;
+        }
+
+        try {
+            $this->batch->update([
+                'status' => IntegrationBatchStatus::Processing,
+                'processed_count' => 0,
+                'failed_count' => 0,
+                'processed_at' => now(),
+            ]);
+
+            $data = json_decode($this->batch->payload, true);
+
+            if (!is_array($data) || empty($data['items'])) {
+                $this->failBatch('Empty payload');
+                return;
+            }
+
+            $processed = 0;
+            $failed = 0;
+
+            collect($data['items'])
+                ->chunk(500)
+                ->each(function ($chunk) use (&$processed, &$failed) {
+                    [$p, $f, $rows] = $this->updateChunk($chunk->toArray());
+
+                    if (!empty($rows)) {
+                        Product::upsert(
+                            $rows,
+                            ['external_id'],
+                            [
+                                'price',
+                                'price_on_sale',
+                                'updated_at',
+                            ]
+                        );
+                    }
+
+                    $processed += $p;
+                    $failed += $f;
+                });
+
+            $this->batch->update([
+                'status' => IntegrationBatchStatus::Completed,
+                'processed_count' => $processed,
+                'failed_count' => $failed,
+            ]);
+        } finally {
+            optional($lock)->release();
+        }
+    }
+
+    private function updateChunk(array $items): array
+    {
+        $processed = 0;
+        $failed = 0;
+
+        $rows = [];
+
+        foreach ($items as $item) {
+            $externalId = $item['id'] ?? null;
+
+            if (
+                empty($externalId) ||
+                !array_key_exists('price', $item)
+            ) {
+                $failed++;
+                continue;
+            }
+
+            $rows[] = [
+                'external_id' => $externalId,
+                'price' => $item['price'],
+                'price_on_sale' => $item['price_on_sale'] ?? null,
+                'updated_at' => now(),
+            ];
+
+            $processed++;
+        }
+
+        return [
+            $processed,
+            $failed,
+            $rows,
+        ];
+    }
+
+    private function failBatch(string $message): void
+    {
+        $this->batch->update([
+            'status' => IntegrationBatchStatus::Failed,
+            'error_message' => $message,
+        ]);
+    }
+}

@@ -64,7 +64,8 @@ use OpenApi\Attributes as OA;
             property: "manage_stock",
             type: "boolean",
             example: true,
-            nullable: true
+            nullable: true,
+            default: false
         ),
         new OA\Property(
             property: "stock",
