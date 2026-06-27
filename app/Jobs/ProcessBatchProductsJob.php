@@ -299,10 +299,17 @@ class ProcessBatchProductsJob implements ShouldQueue
             $externalID = $item['id'] ?? '';
             $sku = $item['sku'] ?? '';
             $title = $item['title'] ?? '';
+            $price = $item['price'] ?? '';
 
-            if ($externalID === '' || $sku === '' || $title === '') {
+            if ($externalID === '' || $sku === '' || $title === '' || $price === '') {
                 $failed++;
                 continue;
+            }
+
+            $status = EntityStatus::tryFrom($item['status']);
+
+            if (!$status) {
+                $status = EntityStatus::Published;
             }
 
             $rows[] = [
@@ -319,7 +326,7 @@ class ProcessBatchProductsJob implements ShouldQueue
                 'stock_status' => ((bool) ($item['manage_stock'] ?? false) && (int) ($item['stock'] ?? 0) === 0)
                     ? StockStatus::OutOfStock
                     : StockStatus::InStock,
-                'status' => EntityStatus::Published,
+                'status' => $status,
                 'published_at' => $now,
                 'created_at' => $now,
                 'updated_at' => $now,

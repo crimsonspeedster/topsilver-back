@@ -99,7 +99,7 @@ class ProcessBatchLabelsJob implements ShouldQueue
                 $upserts[] = [
                     'external_id' => $item['id'],
                     'name' => $item['name'],
-                    'type' => $type->value,
+                    'type' => $type,
                     'updated_at' => $now,
                     'created_at' => $now,
                 ];
