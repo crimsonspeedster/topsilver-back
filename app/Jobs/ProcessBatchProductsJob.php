@@ -4,6 +4,7 @@ namespace App\Jobs;
 use App\Enums\EntityStatus;
 use App\Enums\IntegrationBatchStatus;
 use App\Enums\StockStatus;
+use App\Models\AttributeTerm;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\IntegrationBatch;
@@ -15,6 +16,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -57,6 +59,10 @@ class ProcessBatchProductsJob implements ShouldQueue
             $collectionsMap = Collection::pluck('id', 'external_id');
             $promotionsMap = Promotion::pluck('id', 'external_id');
             $labelsMap = Label::pluck('id', 'external_id');
+            $attributeTerms = AttributeTerm::query()
+                ->select('id', 'external_id', 'attribute_id')
+                ->get()
+                ->keyBy('external_id');
 
             $processed = 0;
             $failed = 0;
@@ -68,6 +74,7 @@ class ProcessBatchProductsJob implements ShouldQueue
             $productCollections = [];
             $productPromotions = [];
             $productLabels = [];
+            $productAttributeTerms = [];
 
             $mediaPayload = [];
 
@@ -82,6 +89,7 @@ class ProcessBatchProductsJob implements ShouldQueue
                     &$productCollections,
                     &$productPromotions,
                     &$productLabels,
+                    &$productAttributeTerms,
                     &$mediaPayload,
                     &$processed,
                     &$failed,
@@ -89,15 +97,17 @@ class ProcessBatchProductsJob implements ShouldQueue
                     $collectionsMap,
                     $promotionsMap,
                     $labelsMap,
+                    $attributeTerms,
                     $now
                 ) {
-                    [$p, $f, $chunkRows, $chunkIds, $chunkCats, $chunkCols, $chunkPromos, $chunkLabels, $chunkMedia] =
+                    [$p, $f, $chunkRows, $chunkIds, $chunkCats, $chunkCols, $chunkPromos, $chunkLabels, $chunkAttributeTerms, $chunkMedia] =
                         $this->updateChunk(
                             $chunk->toArray(),
                             $categoriesMap,
                             $collectionsMap,
                             $promotionsMap,
                             $labelsMap,
+                            $attributeTerms,
                             $now
                         );
 
@@ -108,6 +118,7 @@ class ProcessBatchProductsJob implements ShouldQueue
                     $productCollections = array_merge($productCollections, $chunkCols);
                     $productPromotions = array_merge($productPromotions, $chunkPromos);
                     $productLabels = array_merge($productLabels, $chunkLabels);
+                    $productAttributeTerms = array_merge($productAttributeTerms, $chunkAttributeTerms);
 
                     $mediaPayload = array_merge($mediaPayload, $chunkMedia);
 
@@ -127,6 +138,7 @@ class ProcessBatchProductsJob implements ShouldQueue
                 $productCollections,
                 $productPromotions,
                 $productLabels,
+                $productAttributeTerms,
                 &$productsGrouped,
             ) {
                 Product::upsert(
@@ -223,6 +235,18 @@ class ProcessBatchProductsJob implements ShouldQueue
                     }
                 }
 
+                $attributeTerms = [];
+                foreach ($productAttributeTerms as $row) {
+                    $id = $map($row['external_product_id']);
+                    if ($id) {
+                        $attributeTerms[] = [
+                            'product_id' => $id,
+                            'attribute_term_id' => $row['attribute_term_id'],
+                            'is_variation' => $row['is_variation'],
+                        ];
+                    }
+                }
+
                 if ($cats) {
                     DB::table('product_category')->insert($cats);
                 }
@@ -237,6 +261,10 @@ class ProcessBatchProductsJob implements ShouldQueue
 
                 if ($labels) {
                     DB::table('label_products')->insert($labels);
+                }
+
+                if ($attributeTerms) {
+                    DB::table('product_attribute_terms')->insert($attributeTerms);
                 }
             });
 
@@ -280,6 +308,7 @@ class ProcessBatchProductsJob implements ShouldQueue
             $collectionsMap,
             $promotionsMap,
             $labelsMap,
+        SupportCollection $attributeTerms,
             $now
     ): array {
         $processed = 0;
@@ -292,6 +321,7 @@ class ProcessBatchProductsJob implements ShouldQueue
         $productCollections = [];
         $productPromotions = [];
         $productLabels = [];
+        $productAttributeTerms = [];
 
         $mediaPayload = [];
 
@@ -370,6 +400,18 @@ class ProcessBatchProductsJob implements ShouldQueue
                 }
             }
 
+            foreach (($item['attributes'] ?? []) as $attributeItem) {
+                $term = $attributeTerms->get($attributeItem['id']);
+
+                if ($term) {
+                    $productAttributeTerms[] = [
+                        'external_product_id' => $externalID,
+                        'attribute_term_id' => $term->id,
+                        'is_variation' => $attributeItem['is_variation'] ?? false,
+                    ];
+                }
+            }
+
             if (!empty($item['main_image'])) {
                 $mediaPayload[] = [
                     'id' => $externalID,
@@ -398,6 +440,7 @@ class ProcessBatchProductsJob implements ShouldQueue
             $productCollections,
             $productPromotions,
             $productLabels,
+            $productAttributeTerms,
             $mediaPayload,
         ];
     }

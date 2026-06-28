@@ -119,6 +119,39 @@ use OpenApi\Attributes as OA;
             example: ["1c_label_2"],
             nullable: true
         ),
+        new OA\Property(
+            property: "attributes",
+            required: ['id'],
+            type: "array",
+            items: new OA\Items(
+                properties: [
+                    new OA\Property(
+                        property: "id",
+                        type: "string",
+                        example: "1c_term_1"
+                    ),
+                    new OA\Property(
+                        property: "is_variation",
+                        type: "boolean",
+                        example: true,
+                        nullable: true,
+                        default: false,
+                    ),
+                ],
+                type: "object"
+            ),
+            example: [
+                [
+                    "id" => "1c_term_1",
+                    "is_variation" => true
+                ],
+                [
+                    "id" => "1c_term_2",
+                    "is_variation" => false
+                ]
+            ],
+            nullable: true
+        ),
     ],
     type: "object"
 )]
