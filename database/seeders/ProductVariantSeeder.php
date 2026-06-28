@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\StockStatus;
 use App\Models\Product;
+use App\Support\VariantKeyGenerator;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -44,7 +45,7 @@ class ProductVariantSeeder extends Seeder
         $combinations = $this->cartesian($grouped);
 
         foreach ($combinations as $combination) {
-            $variantKey = $this->makeVariantKey($combination);
+            $variantKey = VariantKeyGenerator::make($combination);
             $manage_stock = $product->manage_stock;
             $stock = $manage_stock ? rand(0, $product->stock) : 0;
             $stock_status = $manage_stock ?
@@ -90,13 +91,5 @@ class ProductVariantSeeder extends Seeder
         }
 
         return $result;
-    }
-
-    private function makeVariantKey(array $terms): string
-    {
-        return collect($terms)
-            ->sortBy(fn ($term) => $term->attribute_id)
-            ->map(fn ($term) => $term->attribute_id . ':' . $term->id)
-            ->implode('|');
     }
 }

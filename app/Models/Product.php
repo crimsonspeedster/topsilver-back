@@ -54,6 +54,7 @@ class Product extends Model implements HasMedia, HasMeta
         'rating_count',
         'selling_count',
         'rating_distribution',
+        'external_id',
     ];
 
     public function registerMediaCollections(): void

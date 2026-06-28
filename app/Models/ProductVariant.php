@@ -27,6 +27,7 @@ class ProductVariant extends Model
         'stock',
         'stock_status',
         'variant_key',
+        'external_id',
     ];
 
     public function product (): BelongsTo
