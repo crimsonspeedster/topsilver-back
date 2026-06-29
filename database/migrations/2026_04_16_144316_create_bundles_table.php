@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('bundles', function (Blueprint $table) {
             $table->id();
+            $table->string('external_id')->unique();
             $table->string('sku')->unique();
             $table->string('title');
             $table->decimal('price', 8, 2);

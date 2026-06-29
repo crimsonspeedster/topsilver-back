@@ -20,6 +20,7 @@ class Bundle extends Model
     ];
 
     protected $fillable = [
+        'external_id',
         'sku',
         'title',
         'price',

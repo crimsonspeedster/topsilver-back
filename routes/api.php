@@ -41,6 +41,7 @@ use App\Http\Controllers\Api\V1\BuyInOneClickController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\TaxonomySyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\ShopsSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\ProductsSyncController;
+use App\Http\Controllers\Api\V1\Integrations\OneC\BundlesSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\ProductVariantSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\LabelsSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\CertificatesSyncController;
@@ -64,6 +65,11 @@ Route::prefix('v1')->group(function () {
         Route::post('/products/prices', [ProductsSyncController::class, 'price']);
         Route::post('/products/stocks', [ProductsSyncController::class, 'stock']);
         Route::post('/products/delete', [ProductsSyncController::class, 'delete']);
+
+        Route::post('/bundles', [BundlesSyncController::class, 'update']);
+        Route::post('/bundles/prices', [BundlesSyncController::class, 'price']);
+        Route::post('/bundles/stocks', [BundlesSyncController::class, 'stock']);
+        Route::post('/bundles/delete', [BundlesSyncController::class, 'delete']);
 
         Route::post('/product-variants', [ProductVariantSyncController::class, 'update']);
         Route::post('/product-variants/prices', [ProductVariantSyncController::class, 'price']);
