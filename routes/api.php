@@ -48,6 +48,7 @@ use App\Http\Controllers\Api\V1\Integrations\OneC\CertificatesSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\CouponsSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\BonusesSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\UsersGetController;
+use App\Http\Controllers\Api\V1\Integrations\OneC\OrdersGetController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\AttributesSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\AttributeTermsSyncController;
 use App\Http\Middleware\ResolveCart;
@@ -96,6 +97,9 @@ Route::prefix('v1')->group(function () {
         Route::post('/attribute-terms/delete', [AttributeTermsSyncController::class, 'delete']);
 
         Route::get('/users', UsersGetController::class);
+
+        Route::get('/orders', [OrdersGetController::class, 'show']);
+        Route::post('/orders', [OrdersGetController::class, 'update']);
     });
 
     Route::middleware('throttle:api')->group(function () {

@@ -19,6 +19,7 @@ class OrderItemCollectionResource extends JsonResource
         $currency = app(CurrencyService::class);
 
         return [
+            'external_id' => $this->external_id,
             'entity_name' => $this->entity_name,
             'entity_type' => $this->resolveEntityResource(),
             'entity_image' => $this->entity_image,

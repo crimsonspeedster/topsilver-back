@@ -179,6 +179,7 @@ class CheckoutService
                 $shop = Shop::with(['city.region'])
                     ->findOrFail($data['shop_id']);
 
+                $shippingData['external_id'] = $shop->external_id;
                 $shippingData['shop_address'] = $shop->title . ' (' . $shop->address . ') (' . $shop->city->name . ') (' . $shop->city->region->name . ')';
                 $shippingData['shop_link'] = $shop->address_link;
                 $shippingData['shop_phone'] = $shop->phone;
@@ -316,8 +317,10 @@ class CheckoutService
             $variantObject = [];
 
             if ($variant) {
+                $variantObject['external_id'] = $variant->external_id;
+
                 foreach ($variant->attributeTerms as $attributeTerm) {
-                    $variantObject[] = [
+                    $variantObject['attributes'][] = [
                         'attribute_name' => $attributeTerm->attribute->title,
                         'attribute_value' => $attributeTerm->title,
                     ];
@@ -327,6 +330,7 @@ class CheckoutService
             switch ($item->entity_type) {
                 case Product::class:
                     $order->items()->create([
+                        'external_id' => $entity->external_id,
                         'entity_id' => $entity->id,
                         'entity_type' => $item->entity_type,
                         'entity_name' => $entity->title,
@@ -342,6 +346,7 @@ class CheckoutService
 
                 case Bundle::class:
                     $order->items()->create([
+                        'external_id' => $entity->external_id,
                         'entity_id' => $entity->id,
                         'entity_type' => $item->entity_type,
                         'entity_name' => $entity->title,
