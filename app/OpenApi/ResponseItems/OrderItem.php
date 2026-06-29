@@ -20,8 +20,20 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: "email", type: "string", example: "test@gmail.com", nullable: true),
         new OA\Property(property: "discount_amount", type: "string", example: "30", nullable: true),
         new OA\Property(property: "coupon_code", type: "string", example: "COUPON", nullable: true),
-        new OA\Property(property: "paid_at", type: "datetime", example: "", nullable: true),
-        new OA\Property(property: "created_at", type: "datetime", example: ""),
+        new OA\Property(
+            property: "paid_at",
+            type: "string",
+            format: "date-time",
+            example: "2026-06-29T12:34:56Z",
+            nullable: true,
+        ),
+
+        new OA\Property(
+            property: "created_at",
+            type: "string",
+            format: "date-time",
+            example: "2026-06-29T12:34:56Z",
+        ),
         new OA\Property(property: "payment_type", type: "string", example: "cod", enum: ['cod', 'liqpay', 'plata_by_mono']),
         new OA\Property(property: "shipping_type", type: "string", example: "nova_poshta_courier", enum: ['nova_poshta_courier', 'nova_poshta_warehouse', 'local_pickup']),
         new OA\Property(

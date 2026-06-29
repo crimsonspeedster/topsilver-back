@@ -67,7 +67,7 @@ use OpenApi\Attributes as OA;
             content: new OA\JsonContent(
                 properties: [
                     new OA\Property(
-                        property: "users",
+                        property: "orders",
                         type: "array",
                         items: new OA\Items(ref: "#/components/schemas/OrderItem")
                     ),
