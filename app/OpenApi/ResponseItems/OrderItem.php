@@ -1,6 +1,9 @@
 <?php
 namespace App\OpenApi\ResponseItems;
 
+use App\Enums\OrderStatus;
+use App\Enums\PaymentMethods;
+use App\Enums\ShippingMethods;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -8,8 +11,8 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: "id", type: "number", example: 1),
         new OA\Property(property: "public_token", type: "string", example: "TOKEN"),
-        new OA\Property(property: "status_label", type: "string", example: "created", enum: ['created', 'processing', 'shipped', 'delivered', 'completed', 'cancelled', 'pending_payment']),
-        new OA\Property(property: "status_value", type: "string", example: "Created"),
+        new OA\Property(property: "status_label", type: "string", example: OrderStatus::SHIPPED->value, enum: OrderStatus::class),
+        new OA\Property(property: "status_value", type: "string", example: OrderStatus::SHIPPED->name),
         new OA\Property(property: "total", type: "number", format: "float", example: 1500),
         new OA\Property(property: "subtotal", type: "number", format: "float", example: 1500),
         new OA\Property(property: "total_formatted", type: "string", example: "1500$"),
@@ -35,8 +38,8 @@ use OpenApi\Attributes as OA;
             format: "date-time",
             example: "2026-06-29T12:34:56Z",
         ),
-        new OA\Property(property: "payment_type", type: "string", example: "cod", enum: ['cod', 'liqpay', 'plata_by_mono']),
-        new OA\Property(property: "shipping_type", type: "string", example: "nova_poshta_courier", enum: ['nova_poshta_courier', 'nova_poshta_warehouse', 'local_pickup']),
+        new OA\Property(property: "payment_type", type: "string", example: PaymentMethods::COD->value, enum: PaymentMethods::class),
+        new OA\Property(property: "shipping_type", type: "string", example: ShippingMethods::NOVA_POSHTA_COURIER->value, enum: ShippingMethods::class),
         new OA\Property(
             property: "payment_data",
             properties: [
@@ -59,8 +62,8 @@ use OpenApi\Attributes as OA;
                 new OA\Schema(
                     properties: [
                         new OA\Property(property: "shipping_method_id", type: "number", example: 1),
-                        new OA\Property(property: "shipping_method_name", type: "string", example: "Local Pickup"),
-                        new OA\Property(property: "shipping_method_type", type: "string", enum: ["local_pickup"]),
+                        new OA\Property(property: "shipping_method_name", type: "string", example: ShippingMethods::LOCAL_PICKUP->name),
+                        new OA\Property(property: "shipping_method_type", type: "string", enum: [ShippingMethods::LOCAL_PICKUP->value]),
                         new OA\Property(property: "external_id", type: "string", example: "1c_test_1"),
                         new OA\Property(property: "shop_address", type: "string"),
                         new OA\Property(property: "shop_link", type: "string"),
@@ -71,8 +74,8 @@ use OpenApi\Attributes as OA;
                 new OA\Schema(
                     properties: [
                         new OA\Property(property: "shipping_method_id", type: "number", example: 2),
-                        new OA\Property(property: "shipping_method_name", type: "string", example: "NP Warehouse"),
-                        new OA\Property(property: "shipping_method_type", type: "string", enum: ["nova_poshta_warehouse"]),
+                        new OA\Property(property: "shipping_method_name", type: "string", example: ShippingMethods::NOVA_POSHTA_WAREHOUSE->name),
+                        new OA\Property(property: "shipping_method_type", type: "string", enum: [ShippingMethods::NOVA_POSHTA_WAREHOUSE->value]),
                         new OA\Property(property: "np_area", type: "string"),
                         new OA\Property(property: "np_city", type: "string"),
                         new OA\Property(property: "np_warehouse", type: "string"),
@@ -84,8 +87,8 @@ use OpenApi\Attributes as OA;
                 new OA\Schema(
                     properties: [
                         new OA\Property(property: "shipping_method_id", type: "number", example: 3),
-                        new OA\Property(property: "shipping_method_name", type: "string", example: "NP Courier"),
-                        new OA\Property(property: "shipping_method_type", type: "string", enum: ["nova_poshta_courier"]),
+                        new OA\Property(property: "shipping_method_name", type: "string", example: ShippingMethods::NOVA_POSHTA_COURIER->name),
+                        new OA\Property(property: "shipping_method_type", type: "string", enum: [ShippingMethods::NOVA_POSHTA_COURIER->value]),
                         new OA\Property(property: "np_street_ref", type: "string"),
                         new OA\Property(property: "np_street_name", type: "string"),
                         new OA\Property(property: "np_locality_ref", type: "string"),

@@ -1,6 +1,7 @@
 <?php
 namespace App\OpenApi\RequestItems;
 
+use App\Enums\EntityStatus;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -25,9 +26,9 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: "status",
             type: "string",
-            example: "published",
+            example: EntityStatus::Published->value,
             nullable: true,
-            enum: ['draft', 'published'],
+            enum: EntityStatus::class,
         ),
         new OA\Property(
             property: "group_key",

@@ -1,6 +1,7 @@
 <?php
 namespace App\OpenApi\RequestItems;
 
+use App\Enums\LabelTypes;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -9,7 +10,7 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: "id", type: "string", example: "1c_1001"),
         new OA\Property(property: "name", type: "string", example: "NEW"),
-        new OA\Property(property: "type", type: "string", example: "new", enum: ['new', 'top', 'promotion', '1plus1']),
+        new OA\Property(property: "type", type: "string", example: LabelTypes::NEW->value, enum: LabelTypes::class),
     ],
     type: "object",
 )]

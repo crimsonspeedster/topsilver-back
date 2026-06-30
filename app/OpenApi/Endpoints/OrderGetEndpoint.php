@@ -1,6 +1,7 @@
 <?php
 namespace App\OpenApi\Endpoints;
 
+use App\Enums\OrderStatus;
 use OpenApi\Attributes as OA;
 
 #[OA\Get(
@@ -46,18 +47,10 @@ use OpenApi\Attributes as OA;
                 type: "array",
                 items: new OA\Items(
                     type: "string",
-                    enum: [
-                        "pending_payment",
-                        "created",
-                        "processing",
-                        "shipped",
-                        "delivered",
-                        "completed",
-                        "cancelled",
-                    ]
+                    enum: OrderStatus::class
                 )
             ),
-            example: ["created", "pending_payment"]
+            example: [OrderStatus::CREATED->value, OrderStatus::PENDING_PAYMENT->value],
         ),
     ],
     responses: [

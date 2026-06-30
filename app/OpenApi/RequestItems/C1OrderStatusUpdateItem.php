@@ -1,6 +1,7 @@
 <?php
 namespace App\OpenApi\RequestItems;
 
+use App\Enums\OrderStatus;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -8,7 +9,7 @@ use OpenApi\Attributes as OA;
     required: ['public_token', 'status'],
     properties: [
         new OA\Property(property: "public_token", type: "string", example: "TOKEN"),
-        new OA\Property(property: "status", type: "string", example: "processing", enum: ['pending_payment', 'created', 'processing', 'shipped', 'delivered', 'completed', 'cancelled']),
+        new OA\Property(property: "status", type: "string", example: OrderStatus::SHIPPED->value, enum: OrderStatus::class),
     ],
     type: "object",
 )]
