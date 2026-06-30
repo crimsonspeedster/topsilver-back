@@ -1,26 +1,24 @@
 <?php
-namespace App\OpenApi\ResponseItems;
+
+namespace App\OpenApi\RequestItems;
 
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: "OrderItem",
+    schema: "C1OrderRebuildItem",
+    required: ['public_token', 'status'],
     properties: [
-        new OA\Property(property: "id", type: "number", example: 1),
         new OA\Property(property: "public_token", type: "string", example: "TOKEN"),
-        new OA\Property(property: "status_label", type: "string", example: "created", enum: ['created', 'processing', 'shipped', 'delivered', 'completed', 'cancelled', 'pending_payment']),
-        new OA\Property(property: "status_value", type: "string", example: "Created"),
+        new OA\Property(property: "status", type: "string", example: "processing", enum: ['pending_payment', 'created', 'processing', 'shipped', 'delivered', 'completed', 'cancelled']),
         new OA\Property(property: "total", type: "number", format: "float", example: 1500),
         new OA\Property(property: "subtotal", type: "number", format: "float", example: 1500),
-        new OA\Property(property: "total_formatted", type: "string", example: "1500$"),
-        new OA\Property(property: "subtotal_formatted", type: "string", example: "1500$"),
         new OA\Property(property: "notes", type: "string", example: "Notes", nullable: true),
         new OA\Property(property: "first_name", type: "string", example: "Name"),
         new OA\Property(property: "last_name", type: "string", example: "Surname"),
         new OA\Property(property: "middle_name", type: "string", example: "Middle Name"),
         new OA\Property(property: "phone", type: "string", example: "380630000000"),
         new OA\Property(property: "email", type: "string", example: "test@gmail.com", nullable: true),
-        new OA\Property(property: "discount_amount", type: "string", example: "30", nullable: true),
+        new OA\Property(property: "discount_amount", type: "number", example: 15, nullable: true, default: 0),
         new OA\Property(property: "coupon_code", type: "string", example: "COUPON", nullable: true),
         new OA\Property(
             property: "paid_at",
@@ -28,12 +26,6 @@ use OpenApi\Attributes as OA;
             format: "date-time",
             example: "2026-06-29T12:34:56Z",
             nullable: true,
-        ),
-        new OA\Property(
-            property: "created_at",
-            type: "string",
-            format: "date-time",
-            example: "2026-06-29T12:34:56Z",
         ),
         new OA\Property(property: "payment_type", type: "string", example: "cod", enum: ['cod', 'liqpay', 'plata_by_mono']),
         new OA\Property(property: "shipping_type", type: "string", example: "nova_poshta_courier", enum: ['nova_poshta_courier', 'nova_poshta_warehouse', 'local_pickup']),
@@ -95,16 +87,16 @@ use OpenApi\Attributes as OA;
                     ],
                     type: "object"
                 ),
+                new OA\Property(
+                    property: "items",
+                    type: "array",
+                    items: new OA\Items(
+                        ref: "#/components/schemas/C1OrderItemObject"
+                    ),
+                ),
             ]
         ),
-        new OA\Property(
-            property: "items",
-            type: "array",
-            items: new OA\Items(
-                ref: "#/components/schemas/OrderItemItem"
-            ),
-        ),
     ],
-    type: "object"
+    type: "object",
 )]
-class OrderItem {}
+class C1OrderRebuildItem {}

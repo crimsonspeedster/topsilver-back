@@ -37,7 +37,7 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: "stock",
-            type: "integer",
+            type: "number",
             example: 15,
             nullable: true,
             default: 0,

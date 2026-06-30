@@ -6,7 +6,7 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: "C1DeleteElementItem",
     properties: [
-        new OA\Property(property: "total_requested", type: "integer", example: 3),
+        new OA\Property(property: "total_requested", type: "number", example: 3),
         new OA\Property(
             property: "deleted",
             type: "array",

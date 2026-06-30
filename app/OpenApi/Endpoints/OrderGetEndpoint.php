@@ -26,7 +26,7 @@ use OpenApi\Attributes as OA;
             description: "Pagination page number",
             in: "query",
             required: false,
-            schema: new OA\Schema(type: "integer", default: 1),
+            schema: new OA\Schema(type: "number", default: 1),
             example: 1
         ),
         new OA\Parameter(
@@ -34,7 +34,7 @@ use OpenApi\Attributes as OA;
             description: "Items per page (max 500)",
             in: "query",
             required: false,
-            schema: new OA\Schema(type: "integer", default: 100),
+            schema: new OA\Schema(type: "number", default: 100),
             example: 100
         ),
         new OA\Parameter(
