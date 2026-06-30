@@ -20,6 +20,8 @@ class OrderResource extends JsonResource
             'public_token' => $this->public_token,
             'status_label' => $this->status->label(),
             'status_value' => $this->status->value,
+            'total' => $this->total,
+            'subtotal' => $this->subtotal,
             'total_formatted' => $currency->format($this->total)->format(),
             'subtotal_formatted' => $currency->format($this->subtotal)->format(),
             'paid_at' => $this->paid_at,

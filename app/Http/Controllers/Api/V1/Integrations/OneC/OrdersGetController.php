@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
 use App\Http\Resources\PaginationResource;
 use App\Jobs\ProcessBatchOrdersJob;
+use App\Jobs\ProcessBatchOrderStatusesJob;
 use App\Models\IntegrationBatch;
 use App\Models\Order;
 use Illuminate\Http\Request;
@@ -44,7 +45,7 @@ class OrdersGetController extends Controller
         ]);
     }
 
-    public function update(Request $request)
+    public function rebuild(Request $request)
     {
         $data = json_decode($request->getContent(), true);
 
@@ -63,6 +64,31 @@ class OrdersGetController extends Controller
         ]);
 
         ProcessBatchOrdersJob::dispatch($batch)->onQueue('import');
+
+        return response()->json([
+            'success' => true,
+        ]);
+    }
+
+    public function update(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (empty($data)) {
+            return response()->json([
+                'message' => 'Empty payload'
+            ], 422);
+        }
+
+        $batch = IntegrationBatch::create([
+            'integration' => '1c',
+            'entity' => 'order_statuses',
+            'status' => IntegrationBatchStatus::Pending,
+            'items_count' => count($data),
+            'payload' => $request->getContent(),
+        ]);
+
+        ProcessBatchOrderStatusesJob::dispatch($batch)->onQueue('import');
 
         return response()->json([
             'success' => true,

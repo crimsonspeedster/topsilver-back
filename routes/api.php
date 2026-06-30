@@ -99,7 +99,8 @@ Route::prefix('v1')->group(function () {
         Route::get('/users', UsersGetController::class);
 
         Route::get('/orders', [OrdersGetController::class, 'show']);
-        Route::post('/orders', [OrdersGetController::class, 'update']);
+        Route::post('/orders/update', [OrdersGetController::class, 'update']);
+        Route::post('/orders/rebuild', [OrdersGetController::class, 'rebuild']);
     });
 
     Route::middleware('throttle:api')->group(function () {
