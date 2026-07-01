@@ -223,6 +223,14 @@ return [
                 'timeout' => 60,
                 'memory' => 128,
             ],
+            'supervisor-filters' => [
+                'connection' => 'redis',
+                'queue' => ['filters'],
+                'balance' => 'auto',
+                'processes' => 2,
+                'tries' => 3,
+                'timeout' => 60,
+            ],
             'supervisor-import' => [
                 'connection' => 'redis',
                 'queue' => ['import'],
@@ -247,6 +255,14 @@ return [
             'supervisor-high' => [
                 'connection' => 'redis',
                 'queue' => ['high'],
+                'balance' => 'auto',
+                'processes' => 2,
+                'tries' => 3,
+                'timeout' => 60,
+            ],
+            'supervisor-filters' => [
+                'connection' => 'redis',
+                'queue' => ['filters'],
                 'balance' => 'auto',
                 'processes' => 2,
                 'tries' => 3,
