@@ -19,9 +19,9 @@ use OpenApi\Attributes as OA;
             content: new OA\JsonContent(
                 properties: [
                     new OA\Property(
-                        property: "success",
-                        type: "boolean",
-                        example: true,
+                        property: "job_id",
+                        type: "number",
+                        example: 3,
                     ),
                 ]
             )

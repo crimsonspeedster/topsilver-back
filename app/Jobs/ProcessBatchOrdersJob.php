@@ -2,11 +2,13 @@
 namespace App\Jobs;
 
 use App\Enums\IntegrationBatchStatus;
+use App\Enums\IntegrationErrorCode;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethods;
 use App\Enums\ShippingMethods;
 use App\Models\Bundle;
 use App\Models\IntegrationBatch;
+use App\Models\IntegrationBatchError;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
@@ -18,6 +20,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use Throwable;
 
 class ProcessBatchOrdersJob implements ShouldQueue
 {
@@ -27,6 +30,9 @@ class ProcessBatchOrdersJob implements ShouldQueue
         public IntegrationBatch $batch
     ) {}
 
+    /**
+     * @throws Throwable
+     */
     public function handle(): void
     {
         $lock = Cache::lock('orders-batch-import', 600);
@@ -40,7 +46,7 @@ class ProcessBatchOrdersJob implements ShouldQueue
                 'status' => IntegrationBatchStatus::Processing,
                 'processed_count' => 0,
                 'failed_count' => 0,
-                'processed_at' => now(),
+                'started_at' => now(),
             ]);
 
             $data = is_string($this->batch->payload)
@@ -52,10 +58,17 @@ class ProcessBatchOrdersJob implements ShouldQueue
                 return;
             }
 
+            $items = $data['items'];
+
+            if (!is_array($items) || empty($items)) {
+                $this->failBatch('Empty payload');
+                return;
+            }
+
             $processed = 0;
             $failed = 0;
 
-            collect($data['items'])
+            collect($items)
                 ->chunk(100)
                 ->each(function ($chunk) use (&$processed, &$failed) {
                     [$p, $f] = $this->processChunk($chunk->toArray());
@@ -68,9 +81,17 @@ class ProcessBatchOrdersJob implements ShouldQueue
                 'status' => IntegrationBatchStatus::Completed,
                 'processed_count' => $processed,
                 'failed_count' => $failed,
+                'finished_at' => now(),
+                'items_count' => count($items),
             ]);
 
-        } finally {
+        }
+        catch (Throwable $e) {
+            $this->failBatch($e->getMessage());
+
+            throw $e;
+        }
+        finally {
             optional($lock)->release();
         }
     }
@@ -82,136 +103,148 @@ class ProcessBatchOrdersJob implements ShouldQueue
 
         $now = now();
 
-        foreach ($orders as $orderData) {
-            try {
-                if (
-                    empty($orderData['public_token']) ||
-                    empty($orderData['status']) ||
-                    empty($orderData['first_name']) ||
-                    empty($orderData['last_name']) ||
-                    empty($orderData['middle_name']) ||
-                    empty($orderData['phone']) ||
-                    empty($orderData['payment_type']) ||
-                    empty($orderData['payment_data']) ||
-                    empty($orderData['shipping_type']) ||
-                    empty($orderData['shipping_data']) ||
-                    empty($orderData['items'])
-                ) {
-                    $failed++;
-                    continue;
-                }
+        foreach ($orders as $index => $orderData) {
+            $errors = $this->validateItem($orderData);
 
-                $order = Order::where('public_token', $orderData['public_token'])->first();
-
-                if (!$order) {
-                    $failed++;
-                    continue;
-                }
-
-                $status = OrderStatus::tryFrom($orderData['status']);
-                $payment_type = PaymentMethods::tryFrom($orderData['payment_type']);
-                $shipping_type = ShippingMethods::tryFrom($orderData['shipping_type']);
-
-                $subtotal = floatval($orderData['subtotal']);
-                $total = floatval($orderData['total']);
-                $discount_amount = floatval($orderData['discount_amount']);
-
-                $is_shipping_data_valid = $this->validateShippingData($orderData['shipping_data']);
-                $is_payment_data_valid = $this->validatePaymentData($orderData['payment_data']);
-
-                if (!$status || !$payment_type || !$shipping_type || !$subtotal || !$total || !$is_shipping_data_valid || !$is_payment_data_valid) {
-                    $failed++;
-                    continue;
-                }
-
-                DB::transaction(function () use ($order, $orderData, $status, $payment_type, $shipping_type, $subtotal, $total, $discount_amount) {
-                    $order->update([
-                        'status' => $status,
-
-                        'subtotal' => $subtotal,
-                        'total' => $total,
-                        'discount_amount' => $discount_amount,
-
-                        'coupon_code' => $orderData['coupon_code'] ?? null,
-
-                        'paid_at' => $orderData['paid_at'] ?? null,
-
-                        'notes' => $orderData['notes'] ?? null,
-
-                        'first_name' => $orderData['first_name'] ?? null,
-                        'last_name' => $orderData['last_name'] ?? null,
-                        'middle_name' => $orderData['middle_name'] ?? null,
-                        'phone' => $orderData['phone'] ?? null,
-                        'email' => $orderData['email'] ?? null,
-
-                        'payment_type' => $payment_type,
-                        'payment_data' => $orderData['payment_data'],
-
-                        'shipping_type' => $shipping_type,
-                        'shipping_data' => $orderData['shipping_data']
-                    ]);
-
-                    if (!empty($orderData['items'])) {
-                        $order->items()->delete();
-
-                        foreach ($orderData['items'] as $item) {
-                            $entity = $this->resolveEntity(
-                                $item['entity_type'] ?? null,
-                                $item['id'] ?? null
-                            );
-
-                            $variant = $this->resolveVariant(
-                                $item['product_variant'] ?? null
-                            );
-
-                            if (
-                                !$entity ||
-                                empty($item['total']) ||
-                                empty($item['price'])
-                            ) {
-                                throw new Exception(
-                                    "Invalid order item: {$item['id']}"
-                                );
-                            }
-
-                            $variant_attributes = [];
-
-                            if ($variant) {
-                                foreach ($variant->attributeTerms as $attributeTerm) {
-                                    $variant_attributes[] = [
-                                        'attribute_name' => $attributeTerm->attribute->title,
-                                        'attribute_value' => $attributeTerm->title,
-                                    ];
-                                }
-                            }
-
-                            $order->items()->create([
-                                'external_id' => $item['id'],
-
-                                'entity_id' => $entity->id,
-                                'entity_name' => $entity->title,
-                                'entity_type' => $item['entity_type'] ?? 'product',
-
-                                'entity_image' => $entity?->getFirstMediaUrl('media') ?? null,
-                                'entity_price' => floatval($item['price']),
-
-                                'quantity' => (int) $item['quantity'] ?? 1,
-                                'total' => $item['total'],
-
-                                'product_variant' => $variant ? [
-                                    'external_id' => $variant->external_id,
-                                    'attributes' => $variant_attributes,
-                                ] : [],
-                            ]);
-                        }
-                    }
-                });
-
-                $processed++;
-            } catch (\Throwable $e) {
+            if (!empty($errors)) {
                 $failed++;
-                report($e);
+
+                foreach ($errors as $error) {
+                    $this->logError(
+                        index: $index,
+                        code: $error['code']->value,
+                        message: $error['message'],
+                        field: $error['field'],
+                        externalId: $orderData['public_token'] ?: null,
+                    );
+                }
+
+                continue;
             }
+
+            $order = Order::where('public_token', $orderData['public_token'])->first();
+
+            if (!$order) {
+                $failed++;
+
+                $this->logError(
+                    index: $index,
+                    code: IntegrationErrorCode::InvalidValue->value,
+                    message: 'Not found Order',
+                    externalId: $orderData['public_token'],
+                );
+
+                continue;
+            }
+
+            $status = OrderStatus::tryFrom($orderData['status']);
+            $payment_type = PaymentMethods::tryFrom($orderData['payment_type']);
+            $shipping_type = ShippingMethods::tryFrom($orderData['shipping_type']);
+
+            $subtotal = floatval($orderData['subtotal']);
+            $total = floatval($orderData['total']);
+            $discount_amount = floatval($orderData['discount_amount']);
+
+            $is_shipping_data_valid = $this->validateShippingData($orderData['shipping_data']);
+            $is_payment_data_valid = $this->validatePaymentData($orderData['payment_data']);
+
+            if (!$status || !$payment_type || !$shipping_type || !$subtotal || !$total || !$is_shipping_data_valid || !$is_payment_data_valid) {
+                $failed++;
+
+                $this->logError(
+                    index: $index,
+                    code: IntegrationErrorCode::InvalidValue->value,
+                    message: 'Invalid order data',
+                    externalId: $orderData['public_token'],
+                );
+
+                continue;
+            }
+
+            DB::transaction(function () use ($order, $orderData, $status, $payment_type, $shipping_type, $subtotal, $total, $discount_amount) {
+                $order->update([
+                    'status' => $status,
+
+                    'subtotal' => $subtotal,
+                    'total' => $total,
+                    'discount_amount' => $discount_amount,
+
+                    'coupon_code' => $orderData['coupon_code'] ?? null,
+
+                    'paid_at' => $orderData['paid_at'] ?? null,
+
+                    'notes' => $orderData['notes'] ?? null,
+
+                    'first_name' => $orderData['first_name'] ?? null,
+                    'last_name' => $orderData['last_name'] ?? null,
+                    'middle_name' => $orderData['middle_name'] ?? null,
+                    'phone' => $orderData['phone'] ?? null,
+                    'email' => $orderData['email'] ?? null,
+
+                    'payment_type' => $payment_type,
+                    'payment_data' => $orderData['payment_data'],
+
+                    'shipping_type' => $shipping_type,
+                    'shipping_data' => $orderData['shipping_data']
+                ]);
+
+                if (!empty($orderData['items'])) {
+                    $order->items()->delete();
+
+                    foreach ($orderData['items'] as $item) {
+                        $entity = $this->resolveEntity(
+                            $item['entity_type'] ?? null,
+                            $item['id'] ?? null
+                        );
+
+                        $variant = $this->resolveVariant(
+                            $item['product_variant'] ?? null
+                        );
+
+                        if (
+                            !$entity ||
+                            empty($item['total']) ||
+                            empty($item['price'])
+                        ) {
+                            throw new Exception(
+                                "Invalid order item: {$item['id']}"
+                            );
+                        }
+
+                        $variant_attributes = [];
+
+                        if ($variant) {
+                            foreach ($variant->attributeTerms as $attributeTerm) {
+                                $variant_attributes[] = [
+                                    'attribute_name' => $attributeTerm->attribute->title,
+                                    'attribute_value' => $attributeTerm->title,
+                                ];
+                            }
+                        }
+
+                        $order->items()->create([
+                            'external_id' => $item['id'],
+
+                            'entity_id' => $entity->id,
+                            'entity_name' => $entity->title,
+                            'entity_type' => $item['entity_type'] ?? 'product',
+
+                            'entity_image' => $entity?->getFirstMediaUrl('media') ?? null,
+                            'entity_price' => floatval($item['price']),
+
+                            'quantity' => (int) $item['quantity'] ?? 1,
+                            'total' => $item['total'],
+
+                            'product_variant' => $variant ? [
+                                'external_id' => $variant->external_id,
+                                'attributes' => $variant_attributes,
+                            ] : [],
+                        ]);
+                    }
+                }
+            });
+
+            $processed++;
         }
 
         return [$processed, $failed];
@@ -302,6 +335,85 @@ class ProcessBatchOrdersJob implements ShouldQueue
         $this->batch->update([
             'status' => IntegrationBatchStatus::Failed,
             'error_message' => $message,
+            'finished_at' => now(),
         ]);
+    }
+
+    private function logError(
+        int $index,
+        string $code,
+        string $message,
+        ?string $field = null,
+        ?string $externalId = null,
+    ): void {
+        IntegrationBatchError::create([
+            'integration_batch_id' => $this->batch->id,
+            'item_index' => $index,
+            'external_id' => $externalId,
+            'field' => $field,
+            'code' => $code,
+            'message' => $message,
+        ]);
+    }
+
+    private function rules(): array
+    {
+        return [
+            'public_token' => [
+                'required' => true,
+            ],
+            'status' => [
+                'required' => true,
+            ],
+            'first_name' => [
+                'required' => true,
+            ],
+            'last_name' => [
+                'required' => true,
+            ],
+            'middle_name' => [
+                'required' => true,
+            ],
+            'phone' => [
+                'required' => true,
+            ],
+            'payment_type' => [
+                'required' => true,
+            ],
+            'payment_data' => [
+                'required' => true,
+            ],
+            'shipping_type' => [
+                'required' => true,
+            ],
+            'shipping_data' => [
+                'required' => true,
+            ],
+            'items' => [
+                'required' => true,
+            ],
+        ];
+    }
+
+    private function validateItem(array $item): array
+    {
+        $rules = $this->rules();
+        $errors = [];
+
+        foreach ($rules as $field => $fieldRules) {
+            $value = $item[$field] ?? null;
+
+            $valueStr = is_string($value) ? trim($value) : $value;
+
+            if (($fieldRules['required'] ?? false) && empty($valueStr)) {
+                $errors[] = [
+                    'field' => $field,
+                    'code' => IntegrationErrorCode::Required,
+                    'message' => ucfirst($field) . ' is required',
+                ];
+            }
+        }
+
+        return $errors;
     }
 }

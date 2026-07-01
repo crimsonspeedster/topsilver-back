@@ -2,8 +2,10 @@
 namespace App\Jobs;
 
 use App\Enums\IntegrationBatchStatus;
+use App\Enums\IntegrationErrorCode;
 use App\Enums\OrderStatus;
 use App\Models\IntegrationBatch;
+use App\Models\IntegrationBatchError;
 use App\Models\Order;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -11,6 +13,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
+use Throwable;
 
 class ProcessBatchOrderStatusesJob implements ShouldQueue
 {
@@ -20,6 +23,9 @@ class ProcessBatchOrderStatusesJob implements ShouldQueue
         public IntegrationBatch $batch
     ) {}
 
+    /**
+     * @throws Throwable
+     */
     public function handle(): void
     {
         $lock = Cache::lock('orders-status-batch-import', 600);
@@ -33,7 +39,7 @@ class ProcessBatchOrderStatusesJob implements ShouldQueue
                 'status' => IntegrationBatchStatus::Processing,
                 'processed_count' => 0,
                 'failed_count' => 0,
-                'processed_at' => now(),
+                'started_at' => now(),
             ]);
 
             $data = is_string($this->batch->payload)
@@ -45,10 +51,17 @@ class ProcessBatchOrderStatusesJob implements ShouldQueue
                 return;
             }
 
+            $items = $data['items'];
+
+            if (!is_array($items) || empty($items)) {
+                $this->failBatch('Empty payload');
+                return;
+            }
+
             $processed = 0;
             $failed = 0;
 
-            collect($data['items'])
+            collect($items)
                 ->chunk(200)
                 ->each(function ($chunk) use (&$processed, &$failed) {
                     [$p, $f] = $this->processChunk($chunk->toArray());
@@ -61,9 +74,17 @@ class ProcessBatchOrderStatusesJob implements ShouldQueue
                 'status' => IntegrationBatchStatus::Completed,
                 'processed_count' => $processed,
                 'failed_count' => $failed,
+                'finished_at' => now(),
+                'items_count' => count($items),
             ]);
 
-        } finally {
+        }
+        catch (Throwable $e) {
+            $this->failBatch($e->getMessage());
+
+            throw $e;
+        }
+        finally {
             optional($lock)->release();
         }
     }
@@ -73,39 +94,61 @@ class ProcessBatchOrderStatusesJob implements ShouldQueue
         $processed = 0;
         $failed = 0;
 
-        foreach ($orders as $orderData) {
-            try {
-                if (
-                    empty($orderData['public_token']) ||
-                    empty($orderData['status'])
-                ) {
-                    $failed++;
-                    continue;
-                }
+        foreach ($orders as $index => $item) {
+            $errors = $this->validateItem($item);
 
-                $order = Order::where('public_token', $orderData['public_token'])->first();
-
-                if (!$order) {
-                    $failed++;
-                    continue;
-                }
-
-                $status = OrderStatus::tryFrom($orderData['status']);
-
-                if (!$status) {
-                    $failed++;
-                    continue;
-                }
-
-                $order->update([
-                    'status' => $status,
-                ]);
-
-                $processed++;
-            } catch (\Throwable $e) {
+            if (!empty($errors)) {
                 $failed++;
-                report($e);
+
+                foreach ($errors as $error) {
+                    $this->logError(
+                        index: $index,
+                        code: $error['code']->value,
+                        message: $error['message'],
+                        field: $error['field'],
+                        externalId: $item['id'] ?: null,
+                    );
+                }
+
+                continue;
             }
+
+            $order = Order::where('public_token', $item['public_token'])->first();
+
+            if (!$order) {
+                $failed++;
+
+                $this->logError(
+                    index: $index,
+                    code: IntegrationErrorCode::InvalidValue->value,
+                    message: 'Order not found',
+                    externalId: $item['id'],
+                );
+
+                continue;
+            }
+
+            $status = OrderStatus::tryFrom($item['status']);
+
+            if (!$status) {
+                $failed++;
+
+                $this->logError(
+                    index: $index,
+                    code: IntegrationErrorCode::InvalidValue->value,
+                    message: 'Invalid value',
+                    field: 'status',
+                    externalId: $item['id'],
+                );
+
+                continue;
+            }
+
+            $order->update([
+                'status' => $status,
+            ]);
+
+            $processed++;
         }
 
         return [$processed, $failed];
@@ -116,6 +159,58 @@ class ProcessBatchOrderStatusesJob implements ShouldQueue
         $this->batch->update([
             'status' => IntegrationBatchStatus::Failed,
             'error_message' => $message,
+            'finished_at' => now(),
         ]);
+    }
+
+    private function logError(
+        int $index,
+        string $code,
+        string $message,
+        ?string $field = null,
+        ?string $externalId = null,
+    ): void {
+        IntegrationBatchError::create([
+            'integration_batch_id' => $this->batch->id,
+            'item_index' => $index,
+            'external_id' => $externalId,
+            'field' => $field,
+            'code' => $code,
+            'message' => $message,
+        ]);
+    }
+
+    private function rules(): array
+    {
+        return [
+            'public_token' => [
+                'required' => true,
+            ],
+            'status' => [
+                'required' => true,
+            ],
+        ];
+    }
+
+    private function validateItem(array $item): array
+    {
+        $rules = $this->rules();
+        $errors = [];
+
+        foreach ($rules as $field => $fieldRules) {
+            $value = $item[$field] ?? null;
+
+            $valueStr = is_string($value) ? trim($value) : $value;
+
+            if (($fieldRules['required'] ?? false) && empty($valueStr)) {
+                $errors[] = [
+                    'field' => $field,
+                    'code' => IntegrationErrorCode::Required,
+                    'message' => ucfirst($field) . ' is required',
+                ];
+            }
+        }
+
+        return $errors;
     }
 }

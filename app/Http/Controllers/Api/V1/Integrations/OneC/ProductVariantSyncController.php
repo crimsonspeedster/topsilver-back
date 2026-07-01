@@ -33,7 +33,7 @@ class ProductVariantSyncController extends Controller
         ProcessBatchProductVariantsJob::dispatch($batch)->onQueue('import');
 
         return response()->json([
-            'success' => true,
+            'job_id' => $batch->id,
         ]);
     }
 
@@ -58,7 +58,7 @@ class ProductVariantSyncController extends Controller
         ProcessBatchProductVariantPricesJob::dispatch($batch)->onQueue('import');
 
         return response()->json([
-            'success' => true,
+            'job_id' => $batch->id,
         ]);
     }
 
@@ -83,7 +83,7 @@ class ProductVariantSyncController extends Controller
         ProcessBatchProductVariantStocksJob::dispatch($batch)->onQueue('import');
 
         return response()->json([
-            'success' => true,
+            'job_id' => $batch->id,
         ]);
     }
 

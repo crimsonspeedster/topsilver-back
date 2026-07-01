@@ -33,7 +33,7 @@ class BundlesSyncController extends Controller
         ProcessBatchBundlesJob::dispatch($batch)->onQueue('import');
 
         return response()->json([
-            'success' => true,
+            'job_id' => $batch->id,
         ]);
     }
 
@@ -58,7 +58,7 @@ class BundlesSyncController extends Controller
         ProcessBatchBundlePricesJob::dispatch($batch)->onQueue('import');
 
         return response()->json([
-            'success' => true,
+            'job_id' => $batch->id,
         ]);
     }
 
@@ -83,7 +83,7 @@ class BundlesSyncController extends Controller
         ProcessBatchBundleStocksJob::dispatch($batch)->onQueue('import');
 
         return response()->json([
-            'success' => true,
+            'job_id' => $batch->id,
         ]);
     }
 

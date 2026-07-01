@@ -3,8 +3,10 @@ namespace App\Jobs;
 
 use App\Enums\CouponTypes;
 use App\Enums\IntegrationBatchStatus;
+use App\Enums\IntegrationErrorCode;
 use App\Models\Coupon;
 use App\Models\IntegrationBatch;
+use App\Models\IntegrationBatchError;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -12,6 +14,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Throwable;
 
 class ProcessBatchCouponsJob implements ShouldQueue
 {
@@ -21,6 +24,9 @@ class ProcessBatchCouponsJob implements ShouldQueue
         public IntegrationBatch $batch
     ) {}
 
+    /**
+     * @throws Throwable
+     */
     public function handle(): void
     {
         $lock = Cache::lock('coupons-batch-import', 600);
@@ -34,7 +40,7 @@ class ProcessBatchCouponsJob implements ShouldQueue
                 'status' => IntegrationBatchStatus::Processing,
                 'processed_count' => 0,
                 'failed_count' => 0,
-                'processed_at' => now(),
+                'started_at' => now(),
             ]);
 
             $data = json_decode($this->batch->payload, true);
@@ -66,8 +72,16 @@ class ProcessBatchCouponsJob implements ShouldQueue
                 'status' => IntegrationBatchStatus::Completed,
                 'processed_count' => $processed,
                 'failed_count' => $failed,
+                'finished_at' => now(),
+                'items_count' => count($items),
             ]);
-        } finally {
+        }
+        catch (Throwable $e) {
+            $this->failBatch($e->getMessage());
+
+            throw $e;
+        }
+        finally {
             optional($lock)->release();
         }
     }
@@ -79,47 +93,58 @@ class ProcessBatchCouponsJob implements ShouldQueue
 
         $rows = [];
 
-        foreach ($items as $item) {
-            try {
-                if (
-                    empty($item['id']) ||
-                    empty($item['code']) ||
-                    empty($item['type']) ||
-                    empty($item['value'])
-                ) {
-                    $failed++;
-                    continue;
-                }
+        foreach ($items as $index => $item) {
+            $errors = $this->validateItem($item);
 
-                $type = CouponTypes::tryFrom($item['type']);
-
-                if (!$type) {
-                    $failed++;
-
-                    continue;
-                }
-
-                $rows[] = [
-                    'external_id' => $item['id'],
-                    'code' => $item['code'],
-                    'type' => $type,
-                    'value' => $item['value'],
-                    'starts_at' => !empty($item['starts_at'])
-                        ? Carbon::parse($item['starts_at'])
-                        : null,
-                    'expires_at' => !empty($item['expires_at'])
-                        ? Carbon::parse($item['expires_at'])
-                        : null,
-                    'is_active' => $item['is_active'] ?? true,
-                    'updated_at' => now(),
-                    'created_at' => now(),
-                ];
-
-                $processed++;
-            } catch (\Throwable $e) {
-                report($e);
+            if (!empty($errors)) {
                 $failed++;
+
+                foreach ($errors as $error) {
+                    $this->logError(
+                        index: $index,
+                        code: $error['code']->value,
+                        message: $error['message'],
+                        field: $error['field'],
+                        externalId: $item['id'] ?: null,
+                    );
+                }
+
+                continue;
             }
+
+            $type = CouponTypes::tryFrom($item['type']);
+
+            if (!$type) {
+                $failed++;
+
+                $this->logError(
+                    index: $index,
+                    code: IntegrationErrorCode::InvalidValue->value,
+                    message: 'Invalid value',
+                    field: 'type',
+                    externalId: $item['id'],
+                );
+
+                continue;
+            }
+
+            $rows[] = [
+                'external_id' => $item['id'],
+                'code' => $item['code'],
+                'type' => $type,
+                'value' => $item['value'],
+                'starts_at' => !empty($item['starts_at'])
+                    ? Carbon::parse($item['starts_at'])
+                    : null,
+                'expires_at' => !empty($item['expires_at'])
+                    ? Carbon::parse($item['expires_at'])
+                    : null,
+                'is_active' => $item['is_active'] ?? true,
+                'updated_at' => now(),
+                'created_at' => now(),
+            ];
+
+            $processed++;
         }
 
         if (!empty($rows)) {
@@ -146,6 +171,64 @@ class ProcessBatchCouponsJob implements ShouldQueue
         $this->batch->update([
             'status' => IntegrationBatchStatus::Failed,
             'error_message' => $message,
+            'finished_at' => now(),
         ]);
+    }
+
+    private function logError(
+        int $index,
+        string $code,
+        string $message,
+        ?string $field = null,
+        ?string $externalId = null,
+    ): void {
+        IntegrationBatchError::create([
+            'integration_batch_id' => $this->batch->id,
+            'item_index' => $index,
+            'external_id' => $externalId,
+            'field' => $field,
+            'code' => $code,
+            'message' => $message,
+        ]);
+    }
+
+    private function rules(): array
+    {
+        return [
+            'id' => [
+                'required' => true,
+            ],
+            'code' => [
+                'required' => true,
+            ],
+            'type' => [
+                'required' => true,
+            ],
+            'value' => [
+                'required' => true,
+            ],
+        ];
+    }
+
+    private function validateItem(array $item): array
+    {
+        $rules = $this->rules();
+        $errors = [];
+
+        foreach ($rules as $field => $fieldRules) {
+            $value = $item[$field] ?? null;
+
+            $valueStr = is_string($value) ? trim($value) : $value;
+
+            if (($fieldRules['required'] ?? false) && empty($valueStr)) {
+                $errors[] = [
+                    'field' => $field,
+                    'code' => IntegrationErrorCode::Required,
+                    'message' => ucfirst($field) . ' is required',
+                ];
+            }
+        }
+
+        return $errors;
     }
 }

@@ -19,7 +19,7 @@ return new class extends Migration
 
             $table->string('status')->default('pending');
 
-            $table->unsignedInteger('items_count');
+            $table->unsignedInteger('items_count')->default(0);
             $table->unsignedInteger('processed_count')->default(0);
             $table->unsignedInteger('failed_count')->default(0);
 
@@ -27,7 +27,8 @@ return new class extends Migration
 
             $table->text('error_message')->nullable();
 
-            $table->timestamp('processed_at')->nullable();
+            $table->timestamp('started_at')->nullable();
+            $table->timestamp('finished_at')->nullable();
             $table->timestamps();
         });
     }

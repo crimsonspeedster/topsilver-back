@@ -31,7 +31,7 @@ class CertificatesSyncController extends Controller
         ProcessBatchCertificatesJob::dispatch($batch)->onQueue('import');
 
         return response()->json([
-            'success' => true,
+            'job_id' => $batch->id,
         ]);
     }
 }

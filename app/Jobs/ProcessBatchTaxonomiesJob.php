@@ -3,9 +3,11 @@ namespace App\Jobs;
 
 use App\Enums\EntityStatus;
 use App\Enums\IntegrationBatchStatus;
+use App\Enums\IntegrationErrorCode;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\IntegrationBatch;
+use App\Models\IntegrationBatchError;
 use App\Models\Promotion;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -46,7 +48,7 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
                 'status' => IntegrationBatchStatus::Processing,
                 'processed_count' => 0,
                 'failed_count' => 0,
-                'processed_at' => now(),
+                'started_at' => now(),
             ]);
 
             $data = json_decode($this->batch->payload, true);
@@ -92,8 +94,10 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
 
             $this->batch->update([
                 'status' => IntegrationBatchStatus::Completed,
+                'items_count' => count($items),
                 'processed_count' => $processed,
                 'failed_count' => $failed,
+                'finished_at' => now(),
             ]);
 
             if ($this->config['parentable']) {
@@ -120,12 +124,25 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
         $entityRows = [];
         $externalIds = [];
 
-        foreach ($items as $item) {
+        foreach ($items as $index => $item) {
             $externalId = trim((string) ($item['id'] ?? ''));
             $title = trim((string) ($item['title'] ?? ''));
 
-            if ($externalId === '' || $title === '') {
+            $errors = $this->validateItem($item);
+
+            if (!empty($errors)) {
                 $failed++;
+
+                foreach ($errors as $error) {
+                    $this->logError(
+                        index: $index,
+                        code: $error['code']->value,
+                        message: $error['message'],
+                        field: $error['field'],
+                        externalId: $externalId ?: null,
+                    );
+                }
+
                 continue;
             }
 
@@ -166,11 +183,7 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
             ->pluck('id')
             ->all();
 
-        return [
-            $processed,
-            $failed,
-            $entityIds,
-        ];
+        return [$processed, $failed, $entityIds];
     }
 
     private function failBatch(string $message): void
@@ -178,6 +191,7 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
         $this->batch->update([
             'status' => IntegrationBatchStatus::Failed,
             'error_message' => $message,
+            'finished_at' => now(),
         ]);
     }
 
@@ -201,5 +215,62 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
 
             default => [],
         };
+    }
+
+    private function logError(
+        int $index,
+        string $code,
+        string $message,
+        ?string $field = null,
+        ?string $externalId = null,
+    ): void {
+        IntegrationBatchError::create([
+            'integration_batch_id' => $this->batch->id,
+            'item_index' => $index,
+            'external_id' => $externalId,
+            'field' => $field,
+            'code' => $code,
+            'message' => $message,
+        ]);
+    }
+
+    private function rules(): array
+    {
+        return [
+            'id' => [
+                'required' => true,
+            ],
+            'title' => [
+                'required' => true,
+            ],
+            'description' => [
+                'required' => false,
+            ],
+            'parent_id' => [
+                'required' => false,
+            ],
+        ];
+    }
+
+    private function validateItem(array $item): array
+    {
+        $rules = $this->rules();
+        $errors = [];
+
+        foreach ($rules as $field => $fieldRules) {
+            $value = $item[$field] ?? null;
+
+            $valueStr = is_string($value) ? trim($value) : $value;
+
+            if (($fieldRules['required'] ?? false) && empty($valueStr)) {
+                $errors[] = [
+                    'field' => $field,
+                    'code' => IntegrationErrorCode::Required,
+                    'message' => ucfirst($field) . ' is required',
+                ];
+            }
+        }
+
+        return $errors;
     }
 }

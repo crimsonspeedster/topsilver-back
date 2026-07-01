@@ -33,7 +33,7 @@ class ShopsSyncController extends Controller
         ProcessBatchShopsJob::dispatch($batch)->onQueue('import');
 
         return response()->json([
-            'success' => true,
+            'job_id' => $batch->id,
         ]);
     }
 

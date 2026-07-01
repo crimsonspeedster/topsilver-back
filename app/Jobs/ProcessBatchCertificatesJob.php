@@ -2,8 +2,10 @@
 namespace App\Jobs;
 
 use App\Enums\IntegrationBatchStatus;
+use App\Enums\IntegrationErrorCode;
 use App\Models\Certificate;
 use App\Models\IntegrationBatch;
+use App\Models\IntegrationBatchError;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -11,6 +13,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Throwable;
 
 class ProcessBatchCertificatesJob implements ShouldQueue {
     use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
@@ -19,6 +22,9 @@ class ProcessBatchCertificatesJob implements ShouldQueue {
         public IntegrationBatch $batch
     ) {}
 
+    /**
+     * @throws Throwable
+     */
     public function handle(): void
     {
         $lock = Cache::lock('certificates-batch-import', 600);
@@ -32,7 +38,7 @@ class ProcessBatchCertificatesJob implements ShouldQueue {
                 'status' => IntegrationBatchStatus::Processing,
                 'processed_count' => 0,
                 'failed_count' => 0,
-                'processed_at' => now(),
+                'started_at' => now(),
             ]);
 
             $data = json_decode($this->batch->payload, true);
@@ -64,8 +70,16 @@ class ProcessBatchCertificatesJob implements ShouldQueue {
                 'status' => IntegrationBatchStatus::Completed,
                 'processed_count' => $processed,
                 'failed_count' => $failed,
+                'finished_at' => now(),
+                'items_count' => count($items),
             ]);
-        } finally {
+        }
+        catch (Throwable $e) {
+            $this->failBatch($e->getMessage());
+
+            throw $e;
+        }
+        finally {
             optional($lock)->release();
         }
     }
@@ -77,37 +91,41 @@ class ProcessBatchCertificatesJob implements ShouldQueue {
 
         $rows = [];
 
-        foreach ($items as $item) {
-            try {
-                if (
-                    empty($item['id']) ||
-                    empty($item['code']) ||
-                    !isset($item['value'])
-                ) {
-                    $failed++;
-                    continue;
+        foreach ($items as $index => $item) {
+            $errors = $this->validateItem($item);
+
+            if (!empty($errors)) {
+                $failed++;
+
+                foreach ($errors as $error) {
+                    $this->logError(
+                        index: $index,
+                        code: $error['code']->value,
+                        message: $error['message'],
+                        field: $error['field'],
+                        externalId: $item['id'] ?: null,
+                    );
                 }
 
-                $rows[] = [
-                    'external_id' => (string) $item['id'],
-                    'code' => (string) $item['code'],
-                    'value' => (float) $item['value'],
-                    'activated_at' => !empty($item['activated_at'])
-                        ? Carbon::parse($item['activated_at'])
-                        : null,
-                    'expires_at' => !empty($item['expires_at'])
-                        ? Carbon::parse($item['expires_at'])
-                        : null,
-                    'is_used' => (bool) ($item['is_used'] ?? false),
-                    'updated_at' => now(),
-                    'created_at' => now(),
-                ];
-
-                $processed++;
-            } catch (\Throwable $e) {
-                report($e);
-                $failed++;
+                continue;
             }
+
+            $rows[] = [
+                'external_id' => (string) $item['id'],
+                'code' => (string) $item['code'],
+                'value' => (float) $item['value'],
+                'activated_at' => !empty($item['activated_at'])
+                    ? Carbon::parse($item['activated_at'])
+                    : null,
+                'expires_at' => !empty($item['expires_at'])
+                    ? Carbon::parse($item['expires_at'])
+                    : null,
+                'is_used' => (bool) ($item['is_used'] ?? false),
+                'updated_at' => now(),
+                'created_at' => now(),
+            ];
+
+            $processed++;
         }
 
         if (!empty($rows)) {
@@ -133,6 +151,61 @@ class ProcessBatchCertificatesJob implements ShouldQueue {
         $this->batch->update([
             'status' => IntegrationBatchStatus::Failed,
             'error_message' => $message,
+            'finished_at' => now(),
         ]);
+    }
+
+    private function logError(
+        int $index,
+        string $code,
+        string $message,
+        ?string $field = null,
+        ?string $externalId = null,
+    ): void {
+        IntegrationBatchError::create([
+            'integration_batch_id' => $this->batch->id,
+            'item_index' => $index,
+            'external_id' => $externalId,
+            'field' => $field,
+            'code' => $code,
+            'message' => $message,
+        ]);
+    }
+
+    private function rules(): array
+    {
+        return [
+            'id' => [
+                'required' => true,
+            ],
+            'code' => [
+                'required' => true,
+            ],
+            'value' => [
+                'required' => true,
+            ],
+        ];
+    }
+
+    private function validateItem(array $item): array
+    {
+        $rules = $this->rules();
+        $errors = [];
+
+        foreach ($rules as $field => $fieldRules) {
+            $value = $item[$field] ?? null;
+
+            $valueStr = is_string($value) ? trim($value) : $value;
+
+            if (($fieldRules['required'] ?? false) && empty($valueStr)) {
+                $errors[] = [
+                    'field' => $field,
+                    'code' => IntegrationErrorCode::Required,
+                    'message' => ucfirst($field) . ' is required',
+                ];
+            }
+        }
+
+        return $errors;
     }
 }

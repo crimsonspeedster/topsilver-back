@@ -31,7 +31,7 @@ class BonusesSyncController extends Controller
         ProcessBatchBonusesJob::dispatch($batch)->onQueue('import');
 
         return response()->json([
-            'success' => true,
+            'job_id' => $batch->id,
         ]);
     }
 }

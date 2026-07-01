@@ -51,6 +51,7 @@ use App\Http\Controllers\Api\V1\Integrations\OneC\UsersGetController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\OrdersGetController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\AttributesSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\AttributeTermsSyncController;
+use App\Http\Controllers\Api\V1\Integrations\OneC\BatchController;
 use App\Http\Middleware\ResolveCart;
 use App\Http\Middleware\OneCAuthMiddleware;
 use App\Http\Middleware\ResolveWishlist;
@@ -59,6 +60,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('integrations/1c')->middleware([OneCAuthMiddleware::class])->group(function () {
+        Route::get('/jobs/{batch}', [BatchController::class, 'status']);
+
         Route::post('/taxonomy/{entity}', [TaxonomySyncController::class, 'update']);
         Route::post('/taxonomy/{entity}/delete', [TaxonomySyncController::class, 'delete']);
 

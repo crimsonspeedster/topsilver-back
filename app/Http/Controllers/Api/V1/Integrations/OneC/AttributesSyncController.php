@@ -31,7 +31,7 @@ class AttributesSyncController extends Controller
         ProcessBatchAttributesJob::dispatch($batch)->onQueue('import');
 
         return response()->json([
-            'success' => true,
+            'job_id' => $batch->id,
         ]);
     }
 

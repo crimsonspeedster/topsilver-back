@@ -31,7 +31,7 @@ class CouponsSyncController extends Controller
         ProcessBatchCouponsJob::dispatch($batch)->onQueue('import');
 
         return response()->json([
-            'success' => true,
+            'job_id' => $batch->id,
         ]);
     }
 

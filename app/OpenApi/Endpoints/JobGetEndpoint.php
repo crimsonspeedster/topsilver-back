@@ -1,17 +1,15 @@
 <?php
 namespace App\OpenApi\Endpoints;
 
+use App\Enums\OrderStatus;
 use OpenApi\Attributes as OA;
 
-#[OA\Post(
-    path: "/api/v1/integrations/1c/attributes",
-    description: "Sync attribute from 1c with site",
-    summary: "Add / Update attribute",
+#[OA\Get(
+    path: "/api/v1/integrations/1c/jobs/{batch}",
+    description: "Get job info by id from site",
+    summary: "Get job info",
     security: [["bearerAuth" => []]],
-    requestBody: new OA\RequestBody(
-        ref: "#/components/requestBodies/C1AttributeRequestBody"
-    ),
-    tags: ["attributes"],
+    tags: ["jobs"],
     responses: [
         new OA\Response(
             response: 200,
@@ -19,9 +17,9 @@ use OpenApi\Attributes as OA;
             content: new OA\JsonContent(
                 properties: [
                     new OA\Property(
-                        property: "job_id",
-                        type: "number",
-                        example: 3,
+                        property: "data",
+                        type: "object",
+                        items: new OA\Items(ref: "#/components/schemas/JobItem")
                     ),
                 ]
             )
@@ -32,4 +30,4 @@ use OpenApi\Attributes as OA;
         )
     ]
 )]
-class AttributeAddEndpoint {}
+class JobGetEndpoint {}

@@ -31,7 +31,7 @@ class AttributeTermsSyncController extends Controller
         ProcessBatchAttributeTermsJob::dispatch($batch)->onQueue('import');
 
         return response()->json([
-            'success' => true,
+            'job_id' => $batch->id,
         ]);
     }
 

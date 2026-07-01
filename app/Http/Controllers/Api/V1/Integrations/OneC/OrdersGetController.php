@@ -66,7 +66,7 @@ class OrdersGetController extends Controller
         ProcessBatchOrdersJob::dispatch($batch)->onQueue('import');
 
         return response()->json([
-            'success' => true,
+            'job_id' => $batch->id,
         ]);
     }
 
@@ -91,7 +91,7 @@ class OrdersGetController extends Controller
         ProcessBatchOrderStatusesJob::dispatch($batch)->onQueue('import');
 
         return response()->json([
-            'success' => true,
+            'job_id' => $batch->id,
         ]);
     }
 }

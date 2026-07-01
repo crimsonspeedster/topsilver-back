@@ -2,8 +2,10 @@
 namespace App\Jobs;
 
 use App\Enums\IntegrationBatchStatus;
+use App\Enums\IntegrationErrorCode;
 use App\Models\Bundle;
 use App\Models\IntegrationBatch;
+use App\Models\IntegrationBatchError;
 use App\Models\Product;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -13,6 +15,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class ProcessBatchBundlesJob implements ShouldQueue
 {
@@ -22,6 +25,9 @@ class ProcessBatchBundlesJob implements ShouldQueue
         public IntegrationBatch $batch
     ) {}
 
+    /**
+     * @throws Throwable
+     */
     public function handle(): void
     {
         $lock = Cache::lock('bundles-batch-import-' . $this->batch->id, 600);
@@ -35,7 +41,7 @@ class ProcessBatchBundlesJob implements ShouldQueue
                 'status' => IntegrationBatchStatus::Processing,
                 'processed_count' => 0,
                 'failed_count' => 0,
-                'processed_at' => now(),
+                'started_at' => now(),
             ]);
 
             $data = json_decode($this->batch->payload, true);
@@ -46,6 +52,11 @@ class ProcessBatchBundlesJob implements ShouldQueue
             }
 
             $items = $data['items'];
+
+            if (!is_array($items) || empty($items)) {
+                $this->failBatch('Empty payload');
+                return;
+            }
 
             $productsMap = Product::pluck('id', 'external_id');
 
@@ -146,8 +157,16 @@ class ProcessBatchBundlesJob implements ShouldQueue
                 'status' => IntegrationBatchStatus::Completed,
                 'processed_count' => $processed,
                 'failed_count' => $failed,
+                'finished_at' => now(),
+                'items_count' => count($items),
             ]);
-        } finally {
+        }
+        catch (Throwable $e) {
+            $this->failBatch($e->getMessage());
+
+            throw $e;
+        }
+        finally {
             optional($lock)->release();
         }
     }
@@ -164,21 +183,29 @@ class ProcessBatchBundlesJob implements ShouldQueue
         $externalIds = [];
         $bundleItems = [];
 
-        foreach ($items as $item) {
+        foreach ($items as $index => $item) {
+            $errors = $this->validateItem($item);
+
+            if (!empty($errors)) {
+                $failed++;
+
+                foreach ($errors as $error) {
+                    $this->logError(
+                        index: $index,
+                        code: $error['code']->value,
+                        message: $error['message'],
+                        field: $error['field'],
+                        externalId: $item['id'] ?: null,
+                    );
+                }
+
+                continue;
+            }
+
             $externalId = $item['id'] ?? '';
             $sku = $item['sku'] ?? '';
             $title = $item['title'] ?? '';
             $price = $item['price'] ?? null;
-
-            if (
-                $externalId === '' ||
-                $sku === '' ||
-                $title === '' ||
-                $price === null
-            ) {
-                $failed++;
-                continue;
-            }
 
             $rows[] = [
                 'external_id' => $externalId,
@@ -197,6 +224,14 @@ class ProcessBatchBundlesJob implements ShouldQueue
                 $productId = $productsMap[$bundleItem['product_id'] ?? ''] ?? null;
 
                 if (!$productId) {
+                    $this->logError(
+                        index: $index,
+                        code: IntegrationErrorCode::InvalidValue->value,
+                        message: 'Product not found',
+                        externalId: $externalId,
+                    );
+
+                    $failed++;
                     continue;
                 }
 
@@ -227,6 +262,64 @@ class ProcessBatchBundlesJob implements ShouldQueue
         $this->batch->update([
             'status' => IntegrationBatchStatus::Failed,
             'error_message' => $message,
+            'finished_at' => now(),
         ]);
+    }
+
+    private function logError(
+        int $index,
+        string $code,
+        string $message,
+        ?string $field = null,
+        ?string $externalId = null,
+    ): void {
+        IntegrationBatchError::create([
+            'integration_batch_id' => $this->batch->id,
+            'item_index' => $index,
+            'external_id' => $externalId,
+            'field' => $field,
+            'code' => $code,
+            'message' => $message,
+        ]);
+    }
+
+    private function rules(): array
+    {
+        return [
+            'id' => [
+                'required' => true,
+            ],
+            'sku' => [
+                'required' => true,
+            ],
+            'title' => [
+                'required' => true,
+            ],
+            'price' => [
+                'required' => true,
+            ],
+        ];
+    }
+
+    private function validateItem(array $item): array
+    {
+        $rules = $this->rules();
+        $errors = [];
+
+        foreach ($rules as $field => $fieldRules) {
+            $value = $item[$field] ?? null;
+
+            $valueStr = is_string($value) ? trim($value) : $value;
+
+            if (($fieldRules['required'] ?? false) && empty($valueStr)) {
+                $errors[] = [
+                    'field' => $field,
+                    'code' => IntegrationErrorCode::Required,
+                    'message' => ucfirst($field) . ' is required',
+                ];
+            }
+        }
+
+        return $errors;
     }
 }

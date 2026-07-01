@@ -2,8 +2,10 @@
 namespace App\Jobs;
 
 use App\Enums\IntegrationBatchStatus;
+use App\Enums\IntegrationErrorCode;
 use App\Enums\LabelTypes;
 use App\Models\IntegrationBatch;
+use App\Models\IntegrationBatchError;
 use App\Models\Label;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -21,6 +23,9 @@ class ProcessBatchLabelsJob implements ShouldQueue
         public IntegrationBatch $batch
     ) {}
 
+    /**
+     * @throws Throwable
+     */
     public function handle(): void
     {
         $lock = Cache::lock('shops-batch-import', 600);
@@ -34,7 +39,7 @@ class ProcessBatchLabelsJob implements ShouldQueue
                 'status' => IntegrationBatchStatus::Processing,
                 'processed_count' => 0,
                 'failed_count' => 0,
-                'processed_at' => now(),
+                'started_at' => now(),
             ]);
 
             $data = json_decode($this->batch->payload, true);
@@ -44,10 +49,17 @@ class ProcessBatchLabelsJob implements ShouldQueue
                 return;
             }
 
+            $items = $data['items'];
+
+            if (!is_array($items) || empty($items)) {
+                $this->failBatch('Empty payload');
+                return;
+            }
+
             $processed = 0;
             $failed = 0;
 
-            collect($data['items'])
+            collect($items)
                 ->chunk(200)
                 ->each(function ($chunk) use (&$processed, &$failed, &$shopIds) {
                     [$p, $f] = $this->updateChunk(
@@ -62,9 +74,17 @@ class ProcessBatchLabelsJob implements ShouldQueue
                 'status' => IntegrationBatchStatus::Completed,
                 'processed_count' => $processed,
                 'failed_count' => $failed,
+                'finished_at' => now(),
+                'items_count' => count($items),
             ]);
 
-        } finally {
+        }
+        catch (Throwable $e) {
+            $this->failBatch($e->getMessage());
+
+            throw $e;
+        }
+        finally {
             optional($lock)->release();
         }
     }
@@ -78,37 +98,50 @@ class ProcessBatchLabelsJob implements ShouldQueue
 
         $upserts = [];
 
-        foreach ($items as $item) {
-            try {
-                if (
-                    empty($item['id']) ||
-                    empty($item['name']) ||
-                    empty($item['type'])
-                ) {
-                    $failed++;
-                    continue;
-                }
+        foreach ($items as $index => $item) {
+            $errors = $this->validateItem($item);
 
-                $type = LabelTypes::tryFrom($item['type']);
-
-                if (!$type) {
-                    $failed++;
-                    continue;
-                }
-
-                $upserts[] = [
-                    'external_id' => $item['id'],
-                    'name' => $item['name'],
-                    'type' => $type,
-                    'updated_at' => $now,
-                    'created_at' => $now,
-                ];
-
-                $processed++;
-            } catch (Throwable $e) {
+            if (!empty($errors)) {
                 $failed++;
-                report($e);
+
+                foreach ($errors as $error) {
+                    $this->logError(
+                        index: $index,
+                        code: $error['code']->value,
+                        message: $error['message'],
+                        field: $error['field'],
+                        externalId: $item['id'] ?: null,
+                    );
+                }
+
+                continue;
             }
+
+            $type = LabelTypes::tryFrom($item['type']);
+
+            if (!$type) {
+                $failed++;
+
+                $this->logError(
+                    index: $index,
+                    code: IntegrationErrorCode::InvalidValue->value,
+                    message: 'Invalid value',
+                    field: 'type',
+                    externalId: $item['id'],
+                );
+
+                continue;
+            }
+
+            $upserts[] = [
+                'external_id' => $item['id'],
+                'name' => $item['name'],
+                'type' => $type,
+                'updated_at' => $now,
+                'created_at' => $now,
+            ];
+
+            $processed++;
         }
 
         if (!empty($upserts)) {
@@ -127,6 +160,61 @@ class ProcessBatchLabelsJob implements ShouldQueue
         $this->batch->update([
             'status' => IntegrationBatchStatus::Failed,
             'error_message' => $message,
+            'finished_at' => now(),
         ]);
+    }
+
+    private function logError(
+        int $index,
+        string $code,
+        string $message,
+        ?string $field = null,
+        ?string $externalId = null,
+    ): void {
+        IntegrationBatchError::create([
+            'integration_batch_id' => $this->batch->id,
+            'item_index' => $index,
+            'external_id' => $externalId,
+            'field' => $field,
+            'code' => $code,
+            'message' => $message,
+        ]);
+    }
+
+    private function rules(): array
+    {
+        return [
+            'id' => [
+                'required' => true,
+            ],
+            'name' => [
+                'required' => true,
+            ],
+            'type' => [
+                'required' => true,
+            ],
+        ];
+    }
+
+    private function validateItem(array $item): array
+    {
+        $rules = $this->rules();
+        $errors = [];
+
+        foreach ($rules as $field => $fieldRules) {
+            $value = $item[$field] ?? null;
+
+            $valueStr = is_string($value) ? trim($value) : $value;
+
+            if (($fieldRules['required'] ?? false) && empty($valueStr)) {
+                $errors[] = [
+                    'field' => $field,
+                    'code' => IntegrationErrorCode::Required,
+                    'message' => ucfirst($field) . ' is required',
+                ];
+            }
+        }
+
+        return $errors;
     }
 }
