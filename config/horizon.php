@@ -196,6 +196,8 @@ return [
     |
     */
 
+    'defaults' => [],
+
     'environments' => [
         'production' => [
             'supervisor-high' => [
@@ -247,6 +249,7 @@ return [
         'staging' => [
             'supervisor-high' => [
                 'connection' => 'redis',
+                'balance' => 'auto',
                 'queue' => ['high'],
                 'processes' => 2,
                 'tries' => 3,
@@ -257,6 +260,7 @@ return [
             'supervisor-filters' => [
                 'connection' => 'redis',
                 'queue' => ['filters'],
+                'balance' => 'auto',
                 'processes' => 1,
                 'tries' => 3,
                 'timeout' => 60,
@@ -266,6 +270,7 @@ return [
             'supervisor-import' => [
                 'connection' => 'redis',
                 'queue' => ['import'],
+                'balance' => 'auto',
                 'processes' => 1,
                 'tries' => 3,
                 'timeout' => 180,
@@ -275,6 +280,7 @@ return [
             'supervisor-import_1c' => [
                 'connection' => 'redis',
                 'queue' => ['import_1c'],
+                'balance' => 'auto',
                 'processes' => 1,
                 'tries' => 5,
                 'timeout' => 300,
@@ -284,6 +290,7 @@ return [
             'supervisor-media' => [
                 'connection' => 'redis',
                 'queue' => ['media'],
+                'balance' => 'auto',
                 'processes' => 1,
                 'tries' => 3,
                 'timeout' => 120,
