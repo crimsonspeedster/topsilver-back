@@ -215,46 +215,40 @@ return [
     'environments' => [
         'production' => [
             'supervisor-high' => [
-                'connection' => 'redis',
                 'queue' => ['high'],
-                'balance' => 'auto',
-                'processes' => 3,
+                'processes' => 2,
                 'tries' => 3,
                 'timeout' => 60,
                 'memory' => 128,
             ],
+
             'supervisor-filters' => [
-                'connection' => 'redis',
                 'queue' => ['filters'],
-                'balance' => 'auto',
-                'processes' => 2,
+                'processes' => 1,
                 'tries' => 3,
                 'timeout' => 60,
                 'memory' => 128,
             ],
+
             'supervisor-import' => [
-                'connection' => 'redis',
                 'queue' => ['import'],
-                'balance' => 'auto',
-                'processes' => 2,
+                'processes' => 1,
                 'tries' => 3,
                 'timeout' => 180,
                 'memory' => 256,
             ],
+
             'supervisor-import_1c' => [
-                'connection' => 'redis',
                 'queue' => ['import_1c'],
-                'balance' => 'auto',
-                'processes' => 2,
-                'tries' => 3,
+                'processes' => 1,
+                'tries' => 5,
                 'timeout' => 300,
                 'memory' => 256,
             ],
+
             'supervisor-media' => [
-                'connection' => 'redis',
                 'queue' => ['media'],
-                'balance' => 'auto',
-                'processes' => 4,
+                'processes' => 1,
                 'tries' => 3,
                 'timeout' => 120,
                 'memory' => 256,
@@ -263,46 +257,40 @@ return [
 
         'staging' => [
             'supervisor-high' => [
-                'connection' => 'redis',
                 'queue' => ['high'],
-                'balance' => 'auto',
-                'processes' => 3,
+                'processes' => 2,
                 'tries' => 3,
                 'timeout' => 60,
                 'memory' => 128,
             ],
+
             'supervisor-filters' => [
-                'connection' => 'redis',
                 'queue' => ['filters'],
-                'balance' => 'auto',
-                'processes' => 2,
+                'processes' => 1,
                 'tries' => 3,
                 'timeout' => 60,
                 'memory' => 128,
             ],
+
             'supervisor-import' => [
-                'connection' => 'redis',
                 'queue' => ['import'],
-                'balance' => 'auto',
-                'processes' => 2,
+                'processes' => 1,
                 'tries' => 3,
                 'timeout' => 180,
                 'memory' => 256,
             ],
+
             'supervisor-import_1c' => [
-                'connection' => 'redis',
                 'queue' => ['import_1c'],
-                'balance' => 'auto',
-                'processes' => 2,
-                'tries' => 3,
+                'processes' => 1,
+                'tries' => 5,
                 'timeout' => 300,
                 'memory' => 256,
             ],
+
             'supervisor-media' => [
-                'connection' => 'redis',
                 'queue' => ['media'],
-                'balance' => 'auto',
-                'processes' => 4,
+                'processes' => 1,
                 'tries' => 3,
                 'timeout' => 120,
                 'memory' => 256,
