@@ -19,7 +19,9 @@ class SyncNovaPoshta extends Command
             new SyncAreasJob(),
             new SyncCitiesJob(),
             new SyncWarehousesStartJob(),
-        ])->dispatch()->onQueue('import');
+        ])
+            ->onQueue('import')
+            ->dispatch();
 
         $this->info('Nova-poshta sync started');
     }
