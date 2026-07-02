@@ -199,6 +199,7 @@ return [
     'environments' => [
         'production' => [
             'supervisor-high' => [
+                'connection' => 'redis',
                 'queue' => ['high'],
                 'processes' => 2,
                 'tries' => 3,
@@ -207,6 +208,7 @@ return [
             ],
 
             'supervisor-filters' => [
+                'connection' => 'redis',
                 'queue' => ['filters'],
                 'processes' => 1,
                 'tries' => 3,
@@ -215,6 +217,7 @@ return [
             ],
 
             'supervisor-import' => [
+                'connection' => 'redis',
                 'queue' => ['import'],
                 'processes' => 1,
                 'tries' => 3,
@@ -223,6 +226,7 @@ return [
             ],
 
             'supervisor-import_1c' => [
+                'connection' => 'redis',
                 'queue' => ['import_1c'],
                 'processes' => 1,
                 'tries' => 5,
@@ -231,6 +235,7 @@ return [
             ],
 
             'supervisor-media' => [
+                'connection' => 'redis',
                 'queue' => ['media'],
                 'processes' => 1,
                 'tries' => 3,
@@ -241,6 +246,7 @@ return [
 
         'staging' => [
             'supervisor-high' => [
+                'connection' => 'redis',
                 'queue' => ['high'],
                 'processes' => 2,
                 'tries' => 3,
@@ -249,6 +255,7 @@ return [
             ],
 
             'supervisor-filters' => [
+                'connection' => 'redis',
                 'queue' => ['filters'],
                 'processes' => 1,
                 'tries' => 3,
@@ -257,6 +264,7 @@ return [
             ],
 
             'supervisor-import' => [
+                'connection' => 'redis',
                 'queue' => ['import'],
                 'processes' => 1,
                 'tries' => 3,
@@ -265,6 +273,7 @@ return [
             ],
 
             'supervisor-import_1c' => [
+                'connection' => 'redis',
                 'queue' => ['import_1c'],
                 'processes' => 1,
                 'tries' => 5,
@@ -273,6 +282,7 @@ return [
             ],
 
             'supervisor-media' => [
+                'connection' => 'redis',
                 'queue' => ['media'],
                 'processes' => 1,
                 'tries' => 3,
