@@ -15,6 +15,7 @@ class Image extends Resource
 
     public static $search = ['name'];
     public static $title = 'name';
+    public static $displayInNavigation = false;
 
 
     public function fields(Request $request): array

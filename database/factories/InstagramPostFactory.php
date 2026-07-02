@@ -2,8 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Enums\InstagramPostTypes;
 use App\Models\InstagramPost;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<InstagramPost>
@@ -19,6 +21,9 @@ class InstagramPostFactory extends Factory
     {
         return [
             'link' => $this->faker->url(),
+            'type' => InstagramPostTypes::IMAGE,
+            'published_at' => now(),
+            'instagram_media_id' => 'local_' . Str::uuid()->toString(),
         ];
     }
 }

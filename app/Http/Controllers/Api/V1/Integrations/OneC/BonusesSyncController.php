@@ -28,7 +28,7 @@ class BonusesSyncController extends Controller
             'payload' => $request->getContent(),
         ]);
 
-        ProcessBatchBonusesJob::dispatch($batch)->onQueue('import');
+        ProcessBatchBonusesJob::dispatch($batch)->onQueue('import_1c');
 
         return response()->json([
             'job_id' => $batch->id,

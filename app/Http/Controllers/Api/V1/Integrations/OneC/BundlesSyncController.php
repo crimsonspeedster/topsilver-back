@@ -30,7 +30,7 @@ class BundlesSyncController extends Controller
             'payload' => $request->getContent(),
         ]);
 
-        ProcessBatchBundlesJob::dispatch($batch)->onQueue('import');
+        ProcessBatchBundlesJob::dispatch($batch)->onQueue('import_1c');
 
         return response()->json([
             'job_id' => $batch->id,
@@ -55,7 +55,7 @@ class BundlesSyncController extends Controller
             'payload' => $request->getContent(),
         ]);
 
-        ProcessBatchBundlePricesJob::dispatch($batch)->onQueue('import');
+        ProcessBatchBundlePricesJob::dispatch($batch)->onQueue('import_1c');
 
         return response()->json([
             'job_id' => $batch->id,
@@ -80,7 +80,7 @@ class BundlesSyncController extends Controller
             'payload' => $request->getContent(),
         ]);
 
-        ProcessBatchBundleStocksJob::dispatch($batch)->onQueue('import');
+        ProcessBatchBundleStocksJob::dispatch($batch)->onQueue('import_1c');
 
         return response()->json([
             'job_id' => $batch->id,

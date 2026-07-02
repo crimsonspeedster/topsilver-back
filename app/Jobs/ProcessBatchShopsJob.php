@@ -81,7 +81,7 @@ class ProcessBatchShopsJob implements ShouldQueue
                 GenerateEntityMetaJob::dispatch(
                     Shop::class,
                     array_unique($shopIds)
-                )->onQueue('import');
+                )->onQueue('import_1c');
             }
 
             $this->batch->update([

@@ -63,7 +63,7 @@ class OrdersGetController extends Controller
             'payload' => $request->getContent(),
         ]);
 
-        ProcessBatchOrdersJob::dispatch($batch)->onQueue('import');
+        ProcessBatchOrdersJob::dispatch($batch)->onQueue('import_1c');
 
         return response()->json([
             'job_id' => $batch->id,
@@ -88,7 +88,7 @@ class OrdersGetController extends Controller
             'payload' => $request->getContent(),
         ]);
 
-        ProcessBatchOrderStatusesJob::dispatch($batch)->onQueue('import');
+        ProcessBatchOrderStatusesJob::dispatch($batch)->onQueue('import_1c');
 
         return response()->json([
             'job_id' => $batch->id,

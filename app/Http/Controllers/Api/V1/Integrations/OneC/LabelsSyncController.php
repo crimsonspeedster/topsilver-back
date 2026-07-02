@@ -28,7 +28,7 @@ class LabelsSyncController extends Controller
             'payload' => $request->getContent(),
         ]);
 
-        ProcessBatchLabelsJob::dispatch($batch)->onQueue('import');
+        ProcessBatchLabelsJob::dispatch($batch)->onQueue('import_1c');
 
         return response()->json([
             'job_id' => $batch->id,

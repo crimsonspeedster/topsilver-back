@@ -30,7 +30,7 @@ class ProductVariantSyncController extends Controller
             'payload' => $request->getContent(),
         ]);
 
-        ProcessBatchProductVariantsJob::dispatch($batch)->onQueue('import');
+        ProcessBatchProductVariantsJob::dispatch($batch)->onQueue('import_1c');
 
         return response()->json([
             'job_id' => $batch->id,
@@ -55,7 +55,7 @@ class ProductVariantSyncController extends Controller
             'payload' => $request->getContent(),
         ]);
 
-        ProcessBatchProductVariantPricesJob::dispatch($batch)->onQueue('import');
+        ProcessBatchProductVariantPricesJob::dispatch($batch)->onQueue('import_1c');
 
         return response()->json([
             'job_id' => $batch->id,
@@ -80,7 +80,7 @@ class ProductVariantSyncController extends Controller
             'payload' => $request->getContent(),
         ]);
 
-        ProcessBatchProductVariantStocksJob::dispatch($batch)->onQueue('import');
+        ProcessBatchProductVariantStocksJob::dispatch($batch)->onQueue('import_1c');
 
         return response()->json([
             'job_id' => $batch->id,

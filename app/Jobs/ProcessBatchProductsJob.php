@@ -177,7 +177,7 @@ class ProcessBatchProductsJob implements ShouldQueue
                 GenerateEntityMetaJob::dispatch(
                     Product::class,
                     $productsQuery->pluck('id')->all()
-                )->onQueue('import');
+                )->onQueue('import_1c');
 
                 DB::table('product_category')
                     ->whereIn('product_id', $productsGrouped->pluck('id'))

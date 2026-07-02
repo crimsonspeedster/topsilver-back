@@ -13,7 +13,10 @@ return new class extends Migration
     {
         Schema::create('instagram_posts', function (Blueprint $table) {
             $table->id();
+            $table->string('instagram_media_id');
+            $table->string('type')->default('IMAGE');
             $table->string('link');
+            $table->timestamp('published_at');
             $table->timestamps();
         });
     }

@@ -89,7 +89,7 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
                 GenerateEntityMetaJob::dispatch(
                     $this->entityClass,
                     array_unique($entityIds)
-                )->onQueue('import');
+                )->onQueue('import_1c');
             }
 
             $this->batch->update([
@@ -101,7 +101,7 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
             ]);
 
             if ($this->config['parentable']) {
-                ProcessTaxonomyParentsJob::dispatch($this->entityClass)->onQueue('import');
+                ProcessTaxonomyParentsJob::dispatch($this->entityClass)->onQueue('import_1c');
             }
         } catch (Throwable $e) {
             $this->failBatch($e->getMessage());

@@ -14,6 +14,14 @@ class InstagramPost extends Model implements HasMedia
 
     protected $fillable = [
         'link',
+        'type',
+        'published_at',
+        'instagram_media_id',
+    ];
+
+    protected $casts = [
+        'type' => InstagramPostTypes::class,
+        'published_at' => 'datetime',
     ];
 
     public function registerMediaCollections(): void

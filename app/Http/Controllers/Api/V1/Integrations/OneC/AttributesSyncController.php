@@ -28,7 +28,7 @@ class AttributesSyncController extends Controller
             'payload' => $request->getContent(),
         ]);
 
-        ProcessBatchAttributesJob::dispatch($batch)->onQueue('import');
+        ProcessBatchAttributesJob::dispatch($batch)->onQueue('import_1c');
 
         return response()->json([
             'job_id' => $batch->id,

@@ -4,8 +4,8 @@ namespace App\Enums;
 
 enum InstagramPostTypes : string
 {
-    case IMAGE = 'image';
-    case VIDEO = 'video';
+    case IMAGE = 'IMAGE';
+    case VIDEO = 'VIDEO';
 
     public static function options(): array
     {

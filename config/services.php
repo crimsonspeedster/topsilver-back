@@ -39,6 +39,14 @@ return [
         'token' => env('ONE_C_TOKEN'),
     ],
 
+    'instagram' => [
+        'app_id' => env('INSTAGRAM_APP_ID'),
+        'app_secret' => env('INSTAGRAM_APP_SECRET'),
+
+        'temp_client_id' => env('TEMP_INSTAGRAM_ID'),
+        'temp_client_token' => env('TEMP_INSTAGRAM_TOKEN'),
+    ],
+
     'liqpay' => [
         'public_key' => env('LIQPAY_PUBLIC_KEY', ''),
         'private_key' => env('LIQPAY_PRIVATE_KEY', ''),

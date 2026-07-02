@@ -28,7 +28,7 @@ class CouponsSyncController extends Controller
             'payload' => $request->getContent(),
         ]);
 
-        ProcessBatchCouponsJob::dispatch($batch)->onQueue('import');
+        ProcessBatchCouponsJob::dispatch($batch)->onQueue('import_1c');
 
         return response()->json([
             'job_id' => $batch->id,

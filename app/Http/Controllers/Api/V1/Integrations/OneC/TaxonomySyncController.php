@@ -34,7 +34,7 @@ class TaxonomySyncController extends Controller
             'payload' => $request->getContent(),
         ]);
 
-        ProcessBatchTaxonomiesJob::dispatch($batch, $modelClass)->onQueue('import');
+        ProcessBatchTaxonomiesJob::dispatch($batch, $modelClass)->onQueue('import_1c');
 
         return response()->json([
             'job_id' => $batch->id,
