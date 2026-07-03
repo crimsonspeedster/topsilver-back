@@ -4,6 +4,7 @@ namespace App\Jobs;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Spatie\MediaLibrary\HasMedia;
+use Throwable;
 
 class SyncMediaBatchJob implements ShouldQueue
 {
@@ -49,12 +50,17 @@ class SyncMediaBatchJob implements ShouldQueue
                 continue;
             }
 
-            $model
-                ->addMediaFromUrl($url)
-                ->withCustomProperties([
-                    'source_url' => $url,
-                ])
-                ->toMediaCollection($collection);
+            try {
+                $model
+                    ->addMediaFromUrl($url)
+                    ->withCustomProperties([
+                        'source_url' => $url,
+                    ])
+                    ->toMediaCollection($collection);
+            } catch (Throwable $e) {
+                report($e);
+                continue;
+            }
         }
     }
 }

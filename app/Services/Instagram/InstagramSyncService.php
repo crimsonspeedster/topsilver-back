@@ -29,13 +29,24 @@ class InstagramSyncService
             $post = $this->upsertMedia($media);
 
             if ($post && $post->wasRecentlyCreated) {
-                $media_url = $media['media_url'] ?? null;
+                if ($post->type === InstagramPostTypes::VIDEO) {
+                    $batchItems[] = [
+                        'id' => $post->id,
+                        'collection' => 'videos',
+                        'urls' => [$post->media_url],
+                    ];
 
-                if ($media_url) {
                     $batchItems[] = [
                         'id' => $post->id,
                         'collection' => 'media',
-                        'urls' => [$media_url],
+                        'urls' => [$post->thumbnail_url],
+                    ];
+                }
+                else {
+                    $batchItems[] = [
+                        'id' => $post->id,
+                        'collection' => 'media',
+                        'urls' => [$post->media_url],
                     ];
                 }
             }
@@ -72,6 +83,12 @@ class InstagramSyncService
             return null;
         }
 
+        if ($media['media_type'] === 'CAROUSEL_ALBUM' && !empty($media['children']['data']) && !empty($media['children']['data'][0])) {
+            $media_child = $media['children']['data'][0];
+            $media_child['timestamp'] = $media['timestamp'];
+            $media = $media_child;
+        }
+
         $type = InstagramPostTypes::tryFrom($media['media_type']);
 
         if (!$type) {
@@ -85,7 +102,10 @@ class InstagramSyncService
             [
                 'type' => $type,
                 'link' => $media['permalink'],
+                'caption' => $media['caption'] ?? null,
                 'published_at' => $media['timestamp'],
+                'thumbnail_url' => $type === InstagramPostTypes::VIDEO ? $media['thumbnail_url'] :  null,
+                'media_url' => $media['media_url'],
             ]
         );
     }

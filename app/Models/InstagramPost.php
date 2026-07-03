@@ -15,6 +15,9 @@ class InstagramPost extends Model implements HasMedia
     protected $fillable = [
         'link',
         'type',
+        'thumbnail_url',
+        'media_url',
+        'caption',
         'published_at',
         'instagram_media_id',
     ];
@@ -29,5 +32,9 @@ class InstagramPost extends Model implements HasMedia
         $this
             ->addMediaCollection('media')
             ->singleFile();
+
+        $this
+            ->addMediaCollection('videos')
+            ->acceptsMimeTypes(['video/mp4']);
     }
 }

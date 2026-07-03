@@ -21,6 +21,9 @@ class InstagramPostFactory extends Factory
     {
         return [
             'link' => $this->faker->url(),
+            'thumbnail_url' => $this->faker->url(),
+            'media_url' => $this->faker->url(),
+            'caption' => $this->faker->text(),
             'type' => InstagramPostTypes::IMAGE,
             'published_at' => now(),
             'instagram_media_id' => 'local_' . Str::uuid()->toString(),
