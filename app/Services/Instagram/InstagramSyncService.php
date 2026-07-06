@@ -86,6 +86,7 @@ class InstagramSyncService
         if ($media['media_type'] === 'CAROUSEL_ALBUM' && !empty($media['children']['data']) && !empty($media['children']['data'][0])) {
             $media_child = $media['children']['data'][0];
             $media_child['timestamp'] = $media['timestamp'];
+            $media_child['caption'] = $media['caption'];
             $media = $media_child;
         }
 
