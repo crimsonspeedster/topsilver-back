@@ -34,6 +34,7 @@ use App\Http\Controllers\Api\V1\SubscribersController;
 use App\Http\Controllers\Api\V1\TaxonomyController;
 use App\Http\Controllers\Api\V1\User\BonusController;
 use App\Http\Controllers\Api\V1\User\OrdersController;
+use App\Http\Controllers\Api\V1\User\QuickOrdersController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use App\Http\Controllers\Api\V1\User\UserUpdateController;
 use App\Http\Controllers\Api\V1\WishlistController;
@@ -211,6 +212,8 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/orders', [OrdersController::class, 'index']);
             Route::get('/orders/{order}', [OrdersController::class, 'show']);
+
+            Route::get('/quick-orders', [QuickOrdersController::class, 'index']);
         });
     });
 

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\OneClickOrderStatus;
+use App\Enums\OrderStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -11,7 +11,12 @@ class OneClickRequest extends Model
     protected $fillable = [
         'product_id',
         'product_variant_id',
+        'total',
+        'user_id',
         'name',
+        'product_name',
+        'product_image',
+        'product_variant',
         'phone',
         'email',
         'comment',
@@ -19,7 +24,9 @@ class OneClickRequest extends Model
     ];
 
     protected $casts = [
-        'status' => OneClickOrderStatus::class,
+        'total' => 'decimal:2',
+        'status' => OrderStatus::class,
+        'product_variant' => 'array',
     ];
 
     public function product(): BelongsTo
@@ -33,7 +40,13 @@ class OneClickRequest extends Model
     {
         return $this->belongsTo(
             ProductVariant::class,
-            'product_variant_id',
+        );
+    }
+
+    public function user (): BelongsTo
+    {
+        return $this->belongsTo(
+            User::class,
         );
     }
 }

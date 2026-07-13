@@ -58,6 +58,13 @@ class User extends Authenticatable implements MustVerifyEmail
         );
     }
 
+    public function quickOrders(): HasMany
+    {
+        return $this->hasMany(
+            OneClickRequest::class,
+        );
+    }
+
     public function profile (): HasOne
     {
         return $this->hasOne(

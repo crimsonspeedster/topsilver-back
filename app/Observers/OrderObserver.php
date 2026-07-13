@@ -2,25 +2,37 @@
 namespace App\Observers;
 
 use App\Enums\OrderStatus;
+use App\Jobs\UpdateOneClickRequestSellingCounts;
 use App\Jobs\UpdateOrderSellingCounts;
+use App\Models\OneClickRequest;
 use App\Models\Order;
 
 class OrderObserver
 {
-    public function created(Order $order): void
+    public function created(Order | OneClickRequest $order): void
     {
         if ($order->status === OrderStatus::COMPLETED) {
-            UpdateOrderSellingCounts::dispatch($order->id)->onQueue('high');
+            if ($order instanceof OneClickRequest) {
+                UpdateOneClickRequestSellingCounts::dispatch($order->id)->onQueue('high');
+            }
+            else {
+                UpdateOrderSellingCounts::dispatch($order->id)->onQueue('high');
+            }
         }
     }
 
-    public function updated(Order $order): void
+    public function updated(Order | OneClickRequest $order): void
     {
         if (
             $order->wasChanged('status')
             && $order->status === OrderStatus::COMPLETED
         ) {
-            UpdateOrderSellingCounts::dispatch($order->id)->onQueue('high');
+            if ($order instanceof OneClickRequest) {
+                UpdateOneClickRequestSellingCounts::dispatch($order->id)->onQueue('high');
+            }
+            else {
+                UpdateOrderSellingCounts::dispatch($order->id)->onQueue('high');
+            }
         }
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Enums\CouponTypes;
-use App\Enums\OneClickOrderStatus;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethods;
 use App\Enums\ShippingMethods;
@@ -31,22 +30,43 @@ class CheckoutService
         return DB::transaction(function () use ($data) {
             $product = Product::query()->findOrFail($data['product_id']);
             $variant = null;
+            $variantObject = null;
+            $total = $product->price_on_sale ?? $product->price;
 
             if (!empty($data['variant_id'])) {
                 $variant = ProductVariant::query()
+                    ->with(['attributeTerms.attribute'])
                     ->where('id', $data['variant_id'])
                     ->where('product_id', $product->id)
                     ->firstOrFail();
+
+                $total = $variant->price_on_sale ?? $variant->price;
+            }
+
+            if ($variant) {
+                $variantObject['external_id'] = $variant->external_id;
+
+                foreach ($variant->attributeTerms as $attributeTerm) {
+                    $variantObject['attributes'][] = [
+                        'attribute_name' => $attributeTerm->attribute->title,
+                        'attribute_value' => $attributeTerm->title,
+                    ];
+                }
             }
 
             return OneClickRequest::create([
                 'product_id' => $product->id,
                 'product_variant_id' => $variant?->id,
+                'user_id' => auth()?->user()?->id,
                 'name' => $data['name'],
                 'phone' => $data['phone'],
                 'email' => $data['email'] ?? null,
                 'comment' => $data['comment'] ?? null,
-                'status' => OneClickOrderStatus::CREATED,
+                'total' => $total,
+                'product_variant' => $variantObject,
+                'product_name' => $product->title,
+                'product_image' => $product->getFirstMediaUrl('media'),
+                'status' => OrderStatus::CREATED,
             ]);
         });
     }
@@ -314,7 +334,7 @@ class CheckoutService
             $entity = $item->entity;
             $variant = $item->variant?->loadMissing(['attributeTerms.attribute']);
             $price = $this->getItemPrice($entity, $variant);
-            $variantObject = [];
+            $variantObject = null;
 
             if ($variant) {
                 $variantObject['external_id'] = $variant->external_id;
@@ -352,7 +372,7 @@ class CheckoutService
                         'entity_name' => $entity->title,
                         'entity_image' => null,
                         'entity_price' => $price,
-                        'product_variant' => [],
+                        'product_variant' => null,
                         'quantity' => $item->quantity,
                         'total' => $price * $item->quantity,
                     ]);

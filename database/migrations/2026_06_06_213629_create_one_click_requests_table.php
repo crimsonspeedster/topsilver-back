@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('one_click_requests', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('product_id')->nullable();
             $table->unsignedBigInteger('product_variant_id')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
 
             $table->string('name');
             $table->string('phone');
@@ -24,8 +25,13 @@ return new class extends Migration
             $table->text('comment')->nullable();
 
             $table->string('status');
+            $table->string('product_name');
+            $table->string('product_image')->nullable();
+            $table->json('product_variant')->nullable();
+            $table->decimal('total', 10, 2);
 
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('set null');
             $table->foreign('product_variant_id')->references('id')->on('product_variants')->onDelete('set null');
 
             $table->timestamps();

@@ -11,6 +11,12 @@ use Illuminate\Support\Facades\Mail;
 
 class SendOrderNotification implements ShouldQueue
 {
+    public int $tries = 3;
+
+    public int $timeout = 15;
+
+    public string $queue = 'high';
+
     /**
      * Create the event listener.
      */

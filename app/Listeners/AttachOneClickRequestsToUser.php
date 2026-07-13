@@ -4,11 +4,12 @@ namespace App\Listeners;
 
 use App\Events\UserLoggedIn;
 use App\Events\UserRegistered;
+use App\Models\OneClickRequest;
 use App\Models\Order;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class AttachOrdersToUser implements ShouldQueue
+class AttachOneClickRequestsToUser implements ShouldQueue
 {
     public int $tries = 3;
 
@@ -31,7 +32,7 @@ class AttachOrdersToUser implements ShouldQueue
     {
         $user = $event->user;
 
-        Order::query()
+        OneClickRequest::query()
             ->whereNull('user_id')
             ->where('phone', $user->phone)
             ->update([

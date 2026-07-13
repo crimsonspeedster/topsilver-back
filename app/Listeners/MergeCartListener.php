@@ -11,7 +11,9 @@ class MergeCartListener implements ShouldQueue
 {
     public int $tries = 3;
 
-    public int $timeout = 10;
+    public int $timeout = 15;
+
+    public string $queue = 'high';
 
     public function __construct()
     {
