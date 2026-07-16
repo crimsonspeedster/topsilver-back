@@ -20,6 +20,7 @@ class ProductQuickShopResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'external_id' => $this->external_id,
             'slug' => $this->whenLoaded('sluggable', fn () => $this->sluggable?->slug),
             'title' => $this->title,
             'media' => new MediaResource($this->getFirstMedia('media')),

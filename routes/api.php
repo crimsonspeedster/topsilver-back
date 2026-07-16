@@ -50,6 +50,7 @@ use App\Http\Controllers\Api\V1\Integrations\OneC\CouponsSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\BonusesSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\UsersGetController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\OrdersGetController;
+use App\Http\Controllers\Api\V1\Integrations\OneC\OneClickBuySyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\AttributesSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\AttributeTermsSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\BatchController;
@@ -105,6 +106,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/orders', [OrdersGetController::class, 'show']);
         Route::post('/orders/update', [OrdersGetController::class, 'update']);
         Route::post('/orders/rebuild', [OrdersGetController::class, 'rebuild']);
+
+        Route::get('/one-click-orders', [OneClickBuySyncController::class, 'show']);
+        Route::post('/one-click-orders/update', [OneClickBuySyncController::class, 'update']);
     });
 
     Route::middleware('throttle:api')->group(function () {

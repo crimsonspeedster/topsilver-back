@@ -23,6 +23,7 @@ class ProductQuickViewResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'external_id' => $this->external_id,
             'slug' => $this->whenLoaded('sluggable', fn () => $this->sluggable?->slug),
             'title' => $this->title,
             'short_description' => $this->short_description,

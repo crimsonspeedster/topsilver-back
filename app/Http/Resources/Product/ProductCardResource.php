@@ -21,6 +21,7 @@ class ProductCardResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'external_id' => $this->external_id,
             'title' => $this->title,
             'slug' => $this->whenLoaded('sluggable', fn () => $this->sluggable?->slug),
             'price' => $this->price,
