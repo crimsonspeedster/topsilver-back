@@ -3,23 +3,15 @@
 namespace App\Providers;
 
 use App\Events\UserLoggedIn;
-use App\Events\UserRegistered;
 use App\Listeners\AttachOneClickRequestsToUser;
 use App\Listeners\AttachOrdersToUser;
 use App\Listeners\MergeCartListener;
 use App\Listeners\MergeWishlistListener;
-use App\Models\AttributeTerm;
-use App\Models\Category;
-use App\Models\Collection;
 use App\Models\OneClickRequest;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductReview;
-use App\Observers\AttributeTermObserver;
-use App\Observers\CategoryObserver;
-use App\Observers\CollectionObserver;
 use App\Observers\OrderObserver;
-use App\Observers\ProductObserver;
 use App\Observers\ProductReviewObserver;
 use App\Policies\ProductReviewPolicy;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -70,10 +62,6 @@ class AppServiceProvider extends ServiceProvider
 
     protected function observeHandle (): void
     {
-        Product::observe(ProductObserver::class);
-        AttributeTerm::observe(AttributeTermObserver::class);
-        Collection::observe(CollectionObserver::class);
-        Category::observe(CategoryObserver::class);
         ProductReview::observe(ProductReviewObserver::class);
         Order::observe(OrderObserver::class);
         OneClickRequest::observe(OrderObserver::class);

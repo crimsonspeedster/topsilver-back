@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
+use Throwable;
 
 class RebuildProductFilterIndexJob implements ShouldQueue, ShouldBeUnique
 {
@@ -32,7 +33,7 @@ class RebuildProductFilterIndexJob implements ShouldQueue, ShouldBeUnique
     }
 
     /**
-     * Execute the job.
+     * @throws Throwable
      */
     public function handle(ProductFilterIndexService $service): void
     {

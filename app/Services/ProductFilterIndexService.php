@@ -4,9 +4,13 @@ namespace App\Services;
 use App\Models\Product;
 use App\Models\ProductFilterIndex;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class ProductFilterIndexService
 {
+    /**
+     * @throws Throwable
+     */
     public function rebuild(Product $product): void
     {
         DB::transaction(function () use ($product) {
