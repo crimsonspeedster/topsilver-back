@@ -14,30 +14,6 @@ class LabelSeeder extends Seeder
      */
     public function run(): void
     {
-        $labels = [
-            [
-                'type' => LabelTypes::NEW,
-                'name' => 'New',
-            ],
-            [
-                'type' => LabelTypes::TOP,
-                'name' => 'TOP',
-            ],
-            [
-                'type' => LabelTypes::PROMOTION,
-                'name' => 'Акція',
-            ],
-            [
-                'type' => LabelTypes::ONE_PLUS_ONE,
-                'name' => '1+1=3',
-            ],
-        ];
-
-        foreach ($labels as $item) {
-            Label::factory()->create([
-                'name' => $item['name'],
-                'type' => $item['type'],
-            ]);
-        }
+        Label::factory()->count(3)->create();
     }
 }

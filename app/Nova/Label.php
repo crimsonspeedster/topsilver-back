@@ -60,11 +60,6 @@ class Label extends Resource
                 ->sortable()
                 ->rules('required', 'string'),
 
-            Select::make('Type')
-                ->options(LabelTypes::options())
-                ->displayUsingLabels()
-                ->rules('required'),
-
             Text::make('External ID', 'external_id')
                 ->sortable()
                 ->readonly(),

@@ -20,6 +20,8 @@ class LabelFactory extends Factory
     {
         return [
             'name' => $this->faker->title(),
+            'background_color' => $this->faker->hexColor(),
+            'text_color' => $this->faker->hexColor(),
             'external_id' => 'local_' . Str::uuid()->toString(),
         ];
     }

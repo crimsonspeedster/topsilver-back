@@ -14,7 +14,8 @@ class LabelResource extends JsonResource
     {
         return [
             'name' => $this->name,
-            'slug' => $this->slug,
+            'background_color' => $this->background_color,
+            'text_color' => $this->text_color,
         ];
     }
 }

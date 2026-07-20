@@ -117,26 +117,11 @@ class ProcessBatchLabelsJob implements ShouldQueue
                 continue;
             }
 
-            $type = LabelTypes::tryFrom($item['type']);
-
-            if (!$type) {
-                $failed++;
-
-                $this->logError(
-                    index: $index,
-                    code: IntegrationErrorCode::InvalidValue->value,
-                    message: 'Invalid value',
-                    field: 'type',
-                    externalId: $item['id'],
-                );
-
-                continue;
-            }
-
             $upserts[] = [
                 'external_id' => $item['id'],
                 'name' => $item['name'],
-                'type' => $type,
+                'background_color' => $item['background_color'],
+                'text_color' => $item['text_color'],
                 'updated_at' => $now,
                 'created_at' => $now,
             ];
