@@ -29,4 +29,20 @@ class InstagramApiService
 
         return $response->throw()->json();
     }
+
+    /**
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function getMe(string $token)
+    {
+        $query = [
+            'fields' => 'id,username,name',
+            'access_token' => $token,
+        ];
+
+        $response = Http::get("{$this->baseUrl}/me", $query);
+
+        return $response->throw()->json();
+    }
 }

@@ -8,6 +8,10 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+Schedule::command('renew:instagram-token')
+    ->dailyAt('00:30')
+    ->timezone('Europe/Kyiv');
+
 Schedule::command('sync:instagram-posts')
     ->dailyAt('01:00')
     ->timezone('Europe/Kyiv');

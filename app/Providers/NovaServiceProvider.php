@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Instagram\Instagram;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -87,7 +88,9 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
      */
     public function tools(): array
     {
-        return [];
+        return [
+            new Instagram(),
+        ];
     }
 
     /**

@@ -2,6 +2,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\SyncInstagramMediaJob;
+use App\Models\InstagramAccount;
 use Illuminate\Console\Command;
 
 class SyncInstagramPosts extends Command
@@ -12,16 +13,19 @@ class SyncInstagramPosts extends Command
 
     public function handle(): void
     {
-        $access_token = config('services.instagram.temp_client_token');
-        $account_id = config('services.instagram.temp_client_id');
+        $instagram_account = InstagramAccount::first();
 
-        if ($access_token && $account_id) {
-            SyncInstagramMediaJob::dispatch(
-                $account_id,
-                $access_token,
-            )
-                ->onQueue('import');
+        if (!$instagram_account) {
+            $this->info('Instagram account not found');
+
+            return;
         }
+
+        SyncInstagramMediaJob::dispatch(
+            $instagram_account->instagram_id,
+            $instagram_account->access_token,
+        )
+            ->onQueue('import');
 
         $this->info('Instagram posts sync started');
     }
