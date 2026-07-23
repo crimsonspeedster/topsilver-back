@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\EntityStatus;
+use App\Enums\ProductTypes;
 use App\Enums\StockStatus;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -33,6 +34,7 @@ class ProductFactory extends Factory
         return [
             'external_id' => 'local_' . Str::uuid()->toString(),
             'title' => $this->faker->sentence(3),
+            'type' => ProductTypes::SIMPLE,
             'description' => $this->faker->paragraph(10),
             'short_description' => $this->faker->paragraph(2),
             'sku' => $this->faker->unique()->ean8(),

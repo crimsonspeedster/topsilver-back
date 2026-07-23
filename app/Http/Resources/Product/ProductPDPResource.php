@@ -1,13 +1,11 @@
 <?php
 namespace App\Http\Resources\Product;
 
-use App\Enums\ProductTypes;
 use App\Http\Resources\BundleResource;
 use App\Http\Resources\LabelResource;
 use App\Http\Resources\MediaResource;
 use App\Http\Resources\ProductVariantResource;
 use App\Http\Resources\SeoBlockResource;
-use App\Http\Resources\SeoResource;
 use App\Http\Resources\TaxonomyCollectionResource;
 use App\Http\Resources\VideoResource;
 use App\Models\Product;
@@ -15,7 +13,6 @@ use App\Services\CurrencyService;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property-read ProductTypes $type
  * @mixin Product
  * */
 
@@ -46,7 +43,7 @@ class ProductPDPResource extends JsonResource
             'rating_avg' => $this->rating_avg,
             'rating_count' => $this->rating_count,
             'rating_distribution' => $this->rating_distribution,
-            'type' => $this->variants()->exists() ? ProductTypes::VARIABLE : ProductTypes::SIMPLE,
+            'type' => $this->type,
             'variant_attributes' => $this->variant_attributes,
             'variants' => ProductVariantResource::collection($this->whenLoaded('variants')),
             'labels' => LabelResource::collection($this->whenLoaded('labels')),

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\EntityStatus;
 use App\Enums\ProductRelationTypes;
+use App\Enums\ProductTypes;
 use App\Enums\StockStatus;
 use App\Interfaces\HasMeta;
 use App\Traits\HasPublishedAt;
@@ -35,6 +36,7 @@ class Product extends Model implements HasMedia, HasMeta
         'rating_count' => 'integer',
         'selling_count' => 'integer',
         'rating_distribution' => 'array',
+        'type' => ProductTypes::class,
     ];
 
     protected $fillable = [
@@ -42,6 +44,7 @@ class Product extends Model implements HasMedia, HasMeta
         'sku',
         'status',
         'title',
+        'type',
         'description',
         'short_description',
         'price',

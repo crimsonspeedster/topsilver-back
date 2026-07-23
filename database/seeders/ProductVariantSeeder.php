@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\ProductTypes;
 use App\Enums\StockStatus;
 use App\Models\Product;
 use App\Support\VariantKeyGenerator;
@@ -69,6 +70,7 @@ class ProductVariantSeeder extends Seeder
         }
 
         $product->update([
+            'type' => ProductTypes::VARIABLE,
             'price_on_sale' => null,
             'price' => $product->variants()->min('price'),
         ]);

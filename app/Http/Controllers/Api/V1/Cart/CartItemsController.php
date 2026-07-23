@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Api\V1\Cart;
 
+use App\Enums\ProductTypes;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCartItemRequest;
 use App\Http\Resources\CartResource;
@@ -81,6 +82,39 @@ class CartItemsController extends Controller
                     'quantity' => $data['quantity'],
                     'price' => $this->getEntityPrice($entity, $variant),
                 ]);
+            }
+
+            if (
+                $entity instanceof Product &&
+                $entity->type !== ProductTypes::COMPANION
+            ) {
+                $hasCompanion = CartItem::query()
+                    ->where('cart_id', $cart->id)
+                    ->where('entity_type', Product::class)
+                    ->whereExists(function ($query) {
+                        $query->selectRaw(1)
+                            ->from('products')
+                            ->whereColumn('products.id', 'cart_items.entity_id')
+                            ->where('products.type', ProductTypes::COMPANION);
+                    })
+                    ->exists();
+
+                if (!$hasCompanion) {
+                    $companion = Product::query()
+                        ->where('type', ProductTypes::COMPANION)
+                        ->first();
+
+                    if ($companion) {
+                        CartItem::create([
+                            'cart_id' => $cart->id,
+                            'entity_id' => $companion->id,
+                            'entity_type' => Product::class,
+                            'product_variant_id' => null,
+                            'quantity' => 1,
+                            'price' => $this->getEntityPrice($companion),
+                        ]);
+                    }
+                }
             }
 
             return $this->cartService->recalculateCart($cart);

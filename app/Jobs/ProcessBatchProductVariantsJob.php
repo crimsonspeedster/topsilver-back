@@ -3,6 +3,7 @@ namespace App\Jobs;
 
 use App\Enums\IntegrationBatchStatus;
 use App\Enums\IntegrationErrorCode;
+use App\Enums\ProductTypes;
 use App\Enums\StockStatus;
 use App\Models\AttributeTerm;
 use App\Models\IntegrationBatch;
@@ -291,6 +292,10 @@ class ProcessBatchProductVariantsJob implements ShouldQueue
                 'created_at' => $now,
                 'updated_at' => $now,
             ];
+
+            Product::whereKey($productId)->update([
+                'type' => ProductTypes::VARIABLE,
+            ]);
 
             $externalIds[] = $externalId;
 

@@ -4,6 +4,7 @@ namespace App\Jobs;
 use App\Enums\EntityStatus;
 use App\Enums\IntegrationBatchStatus;
 use App\Enums\IntegrationErrorCode;
+use App\Enums\ProductTypes;
 use App\Enums\StockStatus;
 use App\Models\AttributeTerm;
 use App\Models\Category;
@@ -151,6 +152,7 @@ class ProcessBatchProductsJob implements ShouldQueue
                     $rows,
                     ['external_id'],
                     [
+                        'type',
                         'group_key',
                         'sku',
                         'title',
@@ -369,8 +371,15 @@ class ProcessBatchProductsJob implements ShouldQueue
                 $status = EntityStatus::Published;
             }
 
+            $type = ProductTypes::tryFrom($item['type']);
+
+            if (!$type) {
+                $type = ProductTypes::SIMPLE;
+            }
+
             $rows[] = [
                 'external_id' => $externalID,
+                'type' => $type,
                 'group_key' => $item['group_key'] ?? null,
                 'sku' => $sku,
                 'title' => $title,

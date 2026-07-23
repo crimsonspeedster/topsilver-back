@@ -6,6 +6,7 @@ enum ProductTypes : string
 {
     case VARIABLE = 'variable';
     case SIMPLE = 'simple';
+    case COMPANION = 'companion';
 
     public static function options(): array
     {

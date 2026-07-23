@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\ProductTypes;
 use App\Jobs\RebuildProductFilterIndexJob;
 use App\Models\Attribute;
 use App\Models\Category;
@@ -36,6 +37,15 @@ class ProductSeeder extends Seeder
         $half = (int) ceil(count($products) / 2);
 
         Product::inRandomOrder()
+            ->limit(1)
+            ->update([
+                'type' => ProductTypes::COMPANION,
+                'price_on_sale' => null,
+                'price' => 1,
+            ]);
+
+        Product::inRandomOrder()
+            ->where('type', '=', ProductTypes::SIMPLE)
             ->limit($half)
             ->each(function ($product) {
                 $this->attachAttributes($product);

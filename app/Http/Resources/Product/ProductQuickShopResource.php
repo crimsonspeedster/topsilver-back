@@ -1,7 +1,6 @@
 <?php
 namespace App\Http\Resources\Product;
 
-use App\Enums\ProductTypes;
 use App\Http\Resources\MediaResource;
 use App\Http\Resources\ProductVariantResource;
 use App\Models\Product;
@@ -29,7 +28,7 @@ class ProductQuickShopResource extends JsonResource
             'price_formatted' => $currency->format($this->price)->format(),
             'price_on_sale_formatted' => $this->price_on_sale ? $currency->format($this->price_on_sale)->format(): null,
             'discount_percent' => $this->getDiscountPercent(),
-            'type' => $this->variants()->exists() ? ProductTypes::VARIABLE : ProductTypes::SIMPLE,
+            'type' => $this->type,
             'variant_attributes' => $this->variant_attributes,
             'variants' => ProductVariantResource::collection($this->whenLoaded('variants')),
             'stock_status' => $this->stock_status,

@@ -2,6 +2,7 @@
 namespace App\OpenApi\RequestItems;
 
 use App\Enums\EntityStatus;
+use App\Enums\ProductTypes;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -12,6 +13,13 @@ use OpenApi\Attributes as OA;
             property: "id",
             type: "string",
             example: "1c_test_1"
+        ),
+        new OA\Property(
+            property: "type",
+            type: "string",
+            example: ProductTypes::SIMPLE,
+            default: ProductTypes::SIMPLE,
+            enum: ProductTypes::class,
         ),
         new OA\Property(
             property: "sku",

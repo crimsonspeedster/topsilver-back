@@ -21,6 +21,7 @@ return new class extends Migration
             $table->unsignedInteger('rating_count')->default(0);
             $table->json('rating_distribution')->nullable();
             $table->string('title');
+            $table->string('type')->default('simple');
             $table->text('description')->nullable();
             $table->text('short_description')->nullable();
             $table->decimal('price', 8, 2)->nullable();
