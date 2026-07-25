@@ -64,23 +64,18 @@ class PromotionHandler implements DiscountHandler
             for ($i = 0; $i < $item->quantity; $i++) {
                 $products->push([
                     'item' => $item,
-                    'price' => $item->price,
+                    'price' => $item->base_price ?? $item->price,
                 ]);
             }
         }
 
         $products = $products
-            ->sortBy('price')
+            ->sortByDesc('price')
             ->values();
 
-        $groups = intdiv($products->count(), 3);
+        for ($i = 2; $i < $products->count(); $i += 3) {
 
-        if ($groups === 0) {
-            return;
-        }
-
-        for ($i = 0; $i < $groups; $i++) {
-            $freeProduct = $products[$i * 3];
+            $freeProduct = $products[$i];
 
             /** @var CartItem $item */
             $item = $freeProduct['item'];
