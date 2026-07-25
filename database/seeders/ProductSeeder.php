@@ -36,13 +36,7 @@ class ProductSeeder extends Seeder
 
         $half = (int) ceil(count($products) / 2);
 
-        Product::inRandomOrder()
-            ->limit(1)
-            ->update([
-                'type' => ProductTypes::COMPANION,
-                'price_on_sale' => null,
-                'price' => 1,
-            ]);
+        $this->makeProductCompanion();
 
         Product::inRandomOrder()
             ->where('type', '=', ProductTypes::SIMPLE)
@@ -55,6 +49,20 @@ class ProductSeeder extends Seeder
         Product::all()->each(function ($product) {
             RebuildProductFilterIndexJob::dispatchSync($product->id);
         });
+    }
+
+    private function makeProductCompanion(): void
+    {
+        $companion = Product::inRandomOrder()->first();
+        $companion->update([
+            'title' => 'COMPANION',
+            'type' => ProductTypes::COMPANION,
+            'price_on_sale' => null,
+            'price' => 1,
+        ]);
+        $companion->promotions()->detach();
+        $companion->labels()->detach();
+        $companion->collections()->detach();
     }
 
     private function attachRelations(Product $product): void

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('product_variant_id')->nullable();
             $table->unsignedInteger('quantity')->default(1);
             $table->decimal('price', 10, 2);
+            $table->decimal('promotion_discount', 10, 2)->default(0);
             $table->timestamps();
 
             $table->foreign('cart_id')->references('id')->on('carts')->onDelete('cascade');

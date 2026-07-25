@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\EntityStatus;
+use App\Enums\PromotionTypes;
 use App\Factories\Blocks\FlexibleContentBuilder;
 use App\Models\Promotion;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -28,6 +29,8 @@ class PromotionFactory extends Factory
             'status' => EntityStatus::Published,
             'published_at' => now(),
             'parent_id' => null,
+            'type' => PromotionTypes::ONE_PLUS_ONE_EQUALS_THREE,
+            'message_for_cart' => $this->faker->text(),
         ];
     }
 }

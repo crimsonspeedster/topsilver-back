@@ -7,11 +7,17 @@ use Closure;
 
 class FinalCalculator implements DiscountHandler
 {
-    public function handle(CartDiscountContext $context, Closure $next): CartDiscountContext
-    {
-        $context->cart->subtotal = $context->subtotal;
-        $context->cart->total = max(0, $context->subtotal - $context->discount);
+    public function handle(
+        CartDiscountContext $context,
+        Closure $next
+    ): CartDiscountContext {
+        $subtotal = $context->subtotal();
 
+        $context->cart->subtotal = $subtotal;
+        $context->cart->total = max(
+            0,
+            $subtotal - $context->discount
+        );
         $context->cart->save();
 
         return $next($context);

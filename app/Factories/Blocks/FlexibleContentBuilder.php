@@ -39,7 +39,7 @@ class FlexibleContentBuilder
             Banners::class,
             ProductsGridWithTabs::class,
             Banners::class,
-            LatestPromotions::class,
+//            LatestPromotions::class,
             InstagramGrid::class,
             ContentBlock::class,
             Advantages::class,

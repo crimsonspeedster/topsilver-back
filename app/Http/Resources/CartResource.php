@@ -27,6 +27,7 @@ class CartResource extends JsonResource
             'certificates' => CertificateResource::collection($this->whenLoaded('certificates')),
             'items_count' => $this->items_count,
             'total_qty' => $this->total_qty,
+            'promotion_messages' => $this->getPromotionMessages(),
         ];
     }
 }

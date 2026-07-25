@@ -9,7 +9,8 @@ class BonusHandler implements DiscountHandler
 {
     public function handle(CartDiscountContext $context, Closure $next): CartDiscountContext
     {
-        $max = $context->subtotal * 0.5;
+        $subtotal = $context->subtotal();
+        $max = $subtotal * 0.5;
         $bonus = min($context->cart->bonuses_used ?? 0, $max);
 
         $context->cart->bonuses_used = $bonus;

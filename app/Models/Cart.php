@@ -61,4 +61,18 @@ class Cart extends Model
     {
         return $this->items()->count();
     }
+
+    public function getPromotionMessages(): array
+    {
+        return $this->items
+            ->where('entity_type', Product::class)
+            ->map(fn (CartItem $item) => $item->entity)
+            ->filter()
+            ->flatMap(fn (Product $product) => $product->promotions)
+            ->filter(fn (Promotion $promotion) => filled($promotion->message_for_cart))
+            ->unique('id')
+            ->pluck('message_for_cart')
+            ->values()
+            ->all();
+    }
 }

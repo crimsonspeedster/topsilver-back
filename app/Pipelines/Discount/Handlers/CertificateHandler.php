@@ -10,10 +10,11 @@ class CertificateHandler implements DiscountHandler
     public function handle(CartDiscountContext $context, Closure $next): CartDiscountContext
     {
         $cart = $context->cart;
+        $subtotal = $context->subtotal();
         $valid = [];
 
         foreach ($cart->certificates as $certificate) {
-            if (($context->subtotal - $context->discount) < $certificate->value) {
+            if (($subtotal - $context->discount) < $certificate->value) {
                 continue;
             }
 

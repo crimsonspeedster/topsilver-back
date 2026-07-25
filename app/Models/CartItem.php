@@ -15,11 +15,13 @@ class CartItem extends Model
         'product_variant_id',
         'quantity',
         'price',
+        'promotion_discount',
     ];
 
     protected $casts = [
         'quantity' => 'integer',
         'price' => 'decimal:2',
+        'promotion_discount' => 'decimal:2',
     ];
 
     public function entity (): MorphTo
@@ -41,6 +43,10 @@ class CartItem extends Model
 
     public function getTotalPriceAttribute(): string
     {
-        return bcmul($this->price, $this->quantity, 2);
+        return bcsub(
+            bcmul($this->price, $this->quantity, 2),
+            $this->promotion_discount,
+            2
+        );
     }
 }

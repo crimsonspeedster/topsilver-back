@@ -18,9 +18,11 @@ return new class extends Migration
             $table->string('title');
             $table->string('status')->default('draft');
             $table->text('description')->nullable();
+            $table->text('message_for_cart')->nullable();
             $table->json('content')->nullable();
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->timestamp('published_at')->nullable();
+            $table->string('type')->default('one_plus_one_equals_three');
             $table->timestamps();
 
             $table->foreign('parent_id')->references('id')->on('promotions')->onDelete('set null');

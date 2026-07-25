@@ -16,6 +16,7 @@ use App\Pipelines\Discount\DiscountPipeline;
 use App\Pipelines\Discount\Handlers\BonusHandler;
 use App\Pipelines\Discount\Handlers\CertificateHandler;
 use App\Pipelines\Discount\Handlers\CouponHandler;
+use App\Pipelines\Discount\Handlers\PromotionHandler;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -99,6 +100,7 @@ class CartService
                 $morphTo->morphWith([
                     Product::class => [
                         'sluggable',
+                        'promotions',
                     ],
 
                     Bundle::class => [
@@ -231,18 +233,16 @@ class CartService
 
     public function recalculateCart(Cart $cart): Cart
     {
-        $cart->loadMissing(['items', 'coupon', 'certificates']);
-
-        $subtotal = $cart->items->sum(fn ($i) => $i->price * $i->quantity);
+        $cart->load(['items.entity', 'items.variant', 'coupon', 'certificates']);
 
         $context = new CartDiscountContext(
             cart: $cart,
-            subtotal: $subtotal,
         );
 
         $pipeline = new DiscountPipeline();
 
         $context = $pipeline->through([
+            new PromotionHandler(),
             new CouponHandler(),
             new CertificateHandler(),
             new BonusHandler(),

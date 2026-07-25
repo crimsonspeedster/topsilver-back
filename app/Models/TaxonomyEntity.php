@@ -27,11 +27,14 @@ abstract class TaxonomyEntity extends Model implements ContentEntityInterface, H
         HasTaxonomyHierarchy,
         InteractsWithMedia;
 
-    protected $casts = [
-        'status' => EntityStatus::class,
-        'published_at' => 'datetime',
-        'content' => 'array',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'status' => EntityStatus::class,
+            'published_at' => 'datetime',
+            'content' => 'array',
+        ];
+    }
 
     protected function baseFillable(): array
     {

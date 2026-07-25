@@ -19,7 +19,7 @@ class LatestPromotions implements Block
                 'promotions' => json_encode(
                     fake()->randomElements(
                         Promotion::pluck('id')->all(),
-                        rand(2, 5)
+                        rand(1, 5)
                     )
                 ),
             ],
