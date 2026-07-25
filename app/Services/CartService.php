@@ -9,6 +9,7 @@ use App\Models\Certificate;
 use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\Promotion;
 use App\Models\User;
 use App\Pipelines\Discount\Calculator\FinalCalculator;
 use App\Pipelines\Discount\Context\CartDiscountContext;
@@ -16,6 +17,7 @@ use App\Pipelines\Discount\DiscountPipeline;
 use App\Pipelines\Discount\Handlers\BonusHandler;
 use App\Pipelines\Discount\Handlers\CertificateHandler;
 use App\Pipelines\Discount\Handlers\CouponHandler;
+use App\Pipelines\Discount\Handlers\PromotionCouponCompatibilityHandler;
 use App\Pipelines\Discount\Handlers\PromotionHandler;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
@@ -64,6 +66,23 @@ class CartService
             'cart' => $cart,
             'new_token' => $isNew ? $token : null,
         ];
+    }
+
+    public function hasPromotionProducts(Cart $cart): bool
+    {
+        $productIds = $cart->items()
+            ->where('entity_type', Product::class)
+            ->pluck('entity_id');
+
+        if ($productIds->isEmpty()) {
+            return false;
+        }
+
+        return Promotion::query()
+            ->whereHas('products', function ($query) use ($productIds) {
+                $query->whereIn('products.id', $productIds);
+            })
+            ->exists();
     }
 
     public function resolveCartItem(Cart $cart, Model $entity, ProductVariant|null $variant = null): Builder
@@ -144,6 +163,10 @@ class CartService
 
         if ($cart->certificates()->exists()) {
             throw new Exception('Cannot combine coupon with certificates');
+        }
+
+        if ($this->hasPromotionProducts($cart)) {
+            throw new Exception('Coupons cannot be used with promotional products.');
         }
 
         $cart->coupon()->associate($coupon);
@@ -243,6 +266,7 @@ class CartService
 
         $context = $pipeline->through([
             new PromotionHandler(),
+            new PromotionCouponCompatibilityHandler($this),
             new CouponHandler(),
             new CertificateHandler(),
             new BonusHandler(),
