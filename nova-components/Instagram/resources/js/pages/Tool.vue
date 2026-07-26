@@ -46,6 +46,25 @@
                 >
                     Add Account
                 </a>
+
+                <button
+                    v-else
+                    @click="syncPosts"
+                    class="
+                        inline-flex
+                        items-center
+                        px-4
+                        py-2
+                        rounded
+                        text-sm
+                        font-semibold
+                        bg-primary-500
+                        text-white
+                        hover:bg-primary-600
+                    "
+                >
+                    Sync Posts
+                </button>
             </div>
 
             <div
@@ -171,6 +190,7 @@
 export default {
     data() {
         return {
+            loading: false,
             showToken: false,
             account: null,
         }
@@ -196,6 +216,22 @@ export default {
         }
     },
     methods: {
+        async syncPosts() {
+            if (!this.account || this.loading) {
+                return;
+            }
+
+            try {
+                const response = await Nova.request()
+                    .get('/nova-vendor/instagram/sync-posts');
+
+                Nova.success(response.data.message);
+            } catch (error) {
+                console.log(error);
+
+                Nova.error('Failed to sync posts');
+            }
+        },
         formatDate(date) {
             if (!date) {
                 return '-';

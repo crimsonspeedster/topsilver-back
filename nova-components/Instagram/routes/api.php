@@ -8,6 +8,8 @@ Route::get('/getData', [InstagramController::class, 'getData']);
 
 Route::get('/auth', [InstagramController::class, 'auth']);
 
+Route::get('/sync-posts', [InstagramController::class, 'sync']);
+
 Route::get('/callback', [InstagramController::class, 'callback'])
     ->name('instagram.callback');
 

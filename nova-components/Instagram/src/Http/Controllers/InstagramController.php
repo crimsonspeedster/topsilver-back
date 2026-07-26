@@ -3,6 +3,7 @@ namespace App\Instagram\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\InstagramAccountResource;
+use App\Jobs\SyncInstagramMediaJob;
 use App\Models\InstagramAccount;
 use App\Services\Instagram\InstagramApiService;
 use App\Services\Instagram\SocialFeedService;
@@ -19,6 +20,27 @@ class InstagramController extends Controller
 
         return response()->json([
             'data' => new InstagramAccountResource($instagram_account),
+        ]);
+    }
+
+    public function sync()
+    {
+        $instagram_account = InstagramAccount::firstOrFail();
+
+        if (!$instagram_account) {
+            return response()->json([
+                'message' => 'Instagram account not found',
+            ]);
+        }
+
+        SyncInstagramMediaJob::dispatch(
+            $instagram_account->instagram_id,
+            $instagram_account->access_token,
+        )
+            ->onQueue('import');
+
+        return response()->json([
+            'message' => 'Instagram posts sync started successfully',
         ]);
     }
 
