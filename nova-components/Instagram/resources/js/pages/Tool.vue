@@ -50,6 +50,7 @@
                 <button
                     v-else
                     @click="syncPosts"
+                    :disabled="loading"
                     class="
                         inline-flex
                         items-center
@@ -61,6 +62,9 @@
                         bg-primary-500
                         text-white
                         hover:bg-primary-600
+                        disabled:opacity-50
+                        disabled:cursor-not-allowed
+                        disabled:hover:bg-primary-500
                     "
                 >
                     Sync Posts
@@ -221,6 +225,8 @@ export default {
                 return;
             }
 
+            this.loading = true;
+
             try {
                 const response = await Nova.request()
                     .get('/nova-vendor/instagram/sync-posts');
@@ -230,6 +236,9 @@ export default {
                 console.log(error);
 
                 Nova.error('Failed to sync posts');
+            }
+            finally {
+                this.loading = false;
             }
         },
         formatDate(date) {
