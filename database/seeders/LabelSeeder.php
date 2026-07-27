@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Enums\LabelTypes;
 use App\Models\Label;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;

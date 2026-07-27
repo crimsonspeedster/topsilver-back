@@ -1,22 +1,19 @@
 <?php
 namespace App\Http\Controllers\Api\V1\Integrations\OneC;
 
-use App\Enums\IntegrationBatchStatus;
 use App\Http\Controllers\Controller;
-use App\Jobs\ProcessBatchTaxonomiesJob;
-use App\Models\Category;
-use App\Models\Collection;
-use App\Models\IntegrationBatch;
+use App\Models\Promotion;
 use App\Models\Seo;
 use App\Models\Slug;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
+use App\Models\IntegrationBatch;
+use App\Enums\IntegrationBatchStatus;
+use App\Jobs\ProcessBatchPromotionsJob;
 
-class TaxonomySyncController extends Controller
+class PromotionSyncController extends Controller
 {
-    public function update(Request $request, string $entity)
+    public function update(Request $request)
     {
-        $modelClass = $this->resolveEntity($entity);
         $data = json_decode($request->getContent(), true);
 
         if (empty($data)) {
@@ -27,22 +24,21 @@ class TaxonomySyncController extends Controller
 
         $batch = IntegrationBatch::create([
             'integration' => '1c',
-            'entity' => $entity,
+            'entity' => 'promotions',
             'status' => IntegrationBatchStatus::Pending,
             'items_count' => count($data),
             'payload' => $request->getContent(),
         ]);
 
-        ProcessBatchTaxonomiesJob::dispatch($batch, $modelClass)->onQueue('import_1c');
+        ProcessBatchPromotionsJob::dispatch($batch)->onQueue('import_1c');
 
         return response()->json([
             'job_id' => $batch->id,
         ]);
     }
 
-    public function delete(Request $request, string $entity)
+    public function delete(Request $request)
     {
-        $modelClass = $this->resolveEntity($entity);
         $externalIds = $request->input('ids', []);
 
         if (empty($externalIds)) {
@@ -51,7 +47,7 @@ class TaxonomySyncController extends Controller
             ], 422);
         }
 
-        $models = $modelClass::query()
+        $models = Promotion::query()
             ->whereIn('external_id', $externalIds)
             ->get(['id', 'external_id']);
 
@@ -59,13 +55,13 @@ class TaxonomySyncController extends Controller
         $entityIds = $models->pluck('id')->toArray();
 
         if (!empty($entityIds)) {
-            $modelClass::whereIn('id', $entityIds)->delete();
+            Promotion::whereIn('id', $entityIds)->delete();
 
-            Slug::where('entity_type', $modelClass)
+            Slug::where('entity_type', Promotion::class)
                 ->whereIn('entity_id', $entityIds)
                 ->delete();
 
-            Seo::where('entity_type', $modelClass)
+            Seo::where('entity_type', Promotion::class)
                 ->whereIn('entity_id', $entityIds)
                 ->delete();
         }
@@ -77,18 +73,5 @@ class TaxonomySyncController extends Controller
             'not_found' => $notFound,
             'total_requested' => count($externalIds),
         ]);
-    }
-
-    private function resolveEntity(string $entity): string
-    {
-
-        return match ($entity) {
-            'categories' => Category::class,
-            'collections' => Collection::class,
-
-            default => throw ValidationException::withMessages([
-                'entity' => 'Unsupported entity'
-            ]),
-        };
     }
 }

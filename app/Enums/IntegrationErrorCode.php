@@ -9,6 +9,14 @@ enum IntegrationErrorCode: string
     case Duplicate = 'DUPLICATE';
     case Exception = 'EXCEPTION';
 
+    public const array VALUES = [
+        self::Required->value,
+        self::InvalidValue->value,
+        self::NotFound->value,
+        self::Duplicate->value,
+        self::Exception->value,
+    ];
+
     public static function options(): array
     {
         return collect(self::cases())

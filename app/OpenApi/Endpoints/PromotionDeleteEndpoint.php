@@ -4,7 +4,7 @@ namespace App\OpenApi\Endpoints;
 use OpenApi\Attributes as OA;
 
 #[OA\Post(
-    path: "/api/v1/integrations/1c/taxonomy/promotions/delete",
+    path: "/api/v1/integrations/1c/promotions/delete",
     description: "Delete promotions",
     summary: "Delete promotions by ids array",
     security: [["bearerAuth" => []]],

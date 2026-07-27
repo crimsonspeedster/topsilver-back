@@ -10,6 +10,14 @@ enum UserRoles : string
     case ContentManager = 'content_manager';
     case ShopManager = 'shop_manager';
 
+    public const array VALUES = [
+        self::Admin->value,
+        self::Customer->value,
+        self::Developer->value,
+        self::ContentManager->value,
+        self::ShopManager->value,
+    ];
+
     public static function options(): array
     {
         return collect(self::cases())

@@ -40,6 +40,7 @@ use App\Http\Controllers\Api\V1\User\UserUpdateController;
 use App\Http\Controllers\Api\V1\WishlistController;
 use App\Http\Controllers\Api\V1\BuyInOneClickController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\TaxonomySyncController;
+use App\Http\Controllers\Api\V1\Integrations\OneC\PromotionSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\ShopsSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\ProductsSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\BundlesSyncController;
@@ -66,6 +67,9 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/taxonomy/{entity}', [TaxonomySyncController::class, 'update']);
         Route::post('/taxonomy/{entity}/delete', [TaxonomySyncController::class, 'delete']);
+
+        Route::post('/promotions', [PromotionSyncController::class, 'update']);
+        Route::post('/promotions/delete', [PromotionSyncController::class, 'delete']);
 
         Route::post('/products', [ProductsSyncController::class, 'update']);
         Route::post('/products/prices', [ProductsSyncController::class, 'price']);

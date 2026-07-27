@@ -9,7 +9,7 @@ use OpenApi\Attributes as OA;
     required: ['public_token', 'status'],
     properties: [
         new OA\Property(property: "public_token", type: "string", example: "TOKEN"),
-        new OA\Property(property: "status", type: "string", example: OrderStatus::SHIPPED->value, enum: OrderStatus::class),
+        new OA\Property(property: "status", type: "string", example: OrderStatus::SHIPPED->value, enum: OrderStatus::VALUES),
     ],
     type: "object",
 )]

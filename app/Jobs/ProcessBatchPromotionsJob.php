@@ -4,10 +4,10 @@ namespace App\Jobs;
 use App\Enums\EntityStatus;
 use App\Enums\IntegrationBatchStatus;
 use App\Enums\IntegrationErrorCode;
-use App\Models\Category;
-use App\Models\Collection;
+use App\Enums\PromotionTypes;
 use App\Models\IntegrationBatch;
 use App\Models\IntegrationBatchError;
+use App\Models\Promotion;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -16,27 +16,20 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Throwable;
 
-class ProcessBatchTaxonomiesJob implements ShouldQueue
+class ProcessBatchPromotionsJob implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
 
-    private array $config;
-
     public function __construct(
         public IntegrationBatch $batch,
-        public string $entityClass,
     ) {}
 
-    /**
-     * @throws Throwable
-     */
     public function handle(): void
     {
-        $this->config = $this->getConfig();
-        $lock = Cache::lock($this->config['lock'], 600);
+        $lock = Cache::lock('promotions-batch-import', 600);
 
         if (!$lock->get()) {
             return;
@@ -86,7 +79,7 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
 
             if ($entityIds) {
                 GenerateEntityMetaJob::dispatch(
-                    $this->entityClass,
+                    Promotion::class,
                     array_unique($entityIds)
                 )->onQueue('import_1c');
             }
@@ -98,10 +91,6 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
                 'failed_count' => $failed,
                 'finished_at' => now(),
             ]);
-
-            if ($this->config['parentable']) {
-                ProcessTaxonomyParentsJob::dispatch($this->entityClass)->onQueue('import_1c');
-            }
         } catch (Throwable $e) {
             $this->failBatch($e->getMessage());
 
@@ -113,8 +102,6 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
 
     private function updateChunk(array $items): array
     {
-        $modelClass = $this->entityClass;
-
         $processed = 0;
         $failed = 0;
 
@@ -145,11 +132,28 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
                 continue;
             }
 
+            $type = $this->resolveType($item['type'] ?? null);
+
+            if (!$type) {
+                $failed++;
+
+                $this->logError(
+                    index: $index,
+                    code: IntegrationErrorCode::InvalidValue->value,
+                    message: 'Invalid type',
+                    field: 'type',
+                    externalId: $item['id'] ?: null,
+                );
+
+                continue;
+            }
+
             $entityRows[$externalId] = [
                 'external_id' => $externalId,
                 'title' => $title,
                 'description' => $item['description'] ?? null,
-                'parent_external_id' => $item['parent_id'] ?? null,
+                'message_for_cart' => $item['message_for_cart'] ?? null,
+                'type' => $type,
                 'status' => EntityStatus::Published,
                 'published_at' => $now,
                 'created_at' => $now,
@@ -164,20 +168,21 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
             return [$processed, $failed, []];
         }
 
-        $modelClass::upsert(
+        Promotion::upsert(
             array_values($entityRows),
             ['external_id'],
             [
                 'title',
                 'description',
-                'parent_external_id',
+                'message_for_cart',
+                'type',
                 'status',
                 'published_at',
                 'updated_at',
             ]
         );
 
-        $entityIds = $modelClass::query()
+        $entityIds = Promotion::query()
             ->whereIn('external_id', $externalIds)
             ->pluck('id')
             ->all();
@@ -192,23 +197,6 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
             'error_message' => $message,
             'finished_at' => now(),
         ]);
-    }
-
-    private function getConfig(): array
-    {
-        return match ($this->entityClass) {
-            Category::class => [
-                'lock' => 'categories-batch-import',
-                'parentable' => true,
-            ],
-
-            Collection::class => [
-                'lock' => 'collections-batch-import',
-                'parentable' => true,
-            ],
-
-            default => [],
-        };
     }
 
     private function logError(
@@ -240,10 +228,22 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
             'description' => [
                 'required' => false,
             ],
-            'parent_id' => [
+            'message_for_cart' => [
+                'required' => false,
+            ],
+            'type' => [
                 'required' => false,
             ],
         ];
+    }
+
+    private function resolveType(?string $type): ?PromotionTypes
+    {
+        if (!$type) {
+            return PromotionTypes::ONE_PLUS_ONE_EQUALS_THREE;
+        }
+
+        return PromotionTypes::tryFrom($type);
     }
 
     private function validateItem(array $item): array

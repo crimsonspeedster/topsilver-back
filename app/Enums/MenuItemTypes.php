@@ -7,6 +7,11 @@ enum MenuItemTypes : string
     case CUSTOM = 'custom';
     case ENTITY = 'entity';
 
+    public const array VALUES = [
+        self::CUSTOM->value,
+        self::ENTITY->value,
+    ];
+
     public static function options(): array
     {
         return collect(self::cases())

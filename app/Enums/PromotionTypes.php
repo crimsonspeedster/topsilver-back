@@ -5,6 +5,10 @@ enum PromotionTypes: string
 {
     case ONE_PLUS_ONE_EQUALS_THREE = 'one_plus_one_equals_three';
 
+    public const array VALUES = [
+        self::ONE_PLUS_ONE_EQUALS_THREE->value,
+    ];
+
     public static function options(): array
     {
         return collect(self::cases())

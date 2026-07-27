@@ -7,6 +7,11 @@ enum SexTypes: string
     case MALE = 'male';
     case FEMALE = 'female';
 
+    public const array VALUES = [
+        self::MALE->value,
+        self::FEMALE->value,
+    ];
+
     public static function options(): array
     {
         return collect(self::cases())

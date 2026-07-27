@@ -7,6 +7,11 @@ enum VideoTypes : string
     case INTERNAL = 'internal';
     case EXTERNAL = 'external';
 
+    public const array VALUES = [
+        self::INTERNAL->value,
+        self::EXTERNAL->value,
+    ];
+
     public static function options(): array
     {
         return collect(self::cases())

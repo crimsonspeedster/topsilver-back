@@ -8,7 +8,7 @@ use OpenApi\Attributes as OA;
     schema: "OneClickOrderItem",
     properties: [
         new OA\Property(property: "id", type: "number", example: 1),
-        new OA\Property(property: "status_label", type: "string", example: OrderStatus::SHIPPED->value, enum: OrderStatus::class),
+        new OA\Property(property: "status_label", type: "string", example: OrderStatus::SHIPPED->value, enum: OrderStatus::VALUES),
         new OA\Property(property: "status_value", type: "string", example: OrderStatus::SHIPPED->name),
         new OA\Property(property: "total", type: "number", format: "float", example: 1500),
         new OA\Property(property: "total_formatted", type: "string", example: "1500$"),

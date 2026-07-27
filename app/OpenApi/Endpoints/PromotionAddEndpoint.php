@@ -4,7 +4,7 @@ namespace App\OpenApi\Endpoints;
 use OpenApi\Attributes as OA;
 
 #[OA\Post(
-    path: "/api/v1/integrations/1c/taxonomy/promotions",
+    path: "/api/v1/integrations/1c/promotions",
     description: "Sync promotions from 1c with site",
     summary: "Add / Update promotions",
     security: [["bearerAuth" => []]],

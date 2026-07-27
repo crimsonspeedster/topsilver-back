@@ -12,6 +12,16 @@ enum OrderStatus: string
     case COMPLETED = 'completed';
     case CANCELLED = 'cancelled';
 
+    public const array VALUES = [
+        self::PENDING_PAYMENT->value,
+        self::CREATED->value,
+        self::PROCESSING->value,
+        self::SHIPPED->value,
+        self::DELIVERED->value,
+        self::COMPLETED->value,
+        self::CANCELLED->value,
+    ];
+
     public static function withoutPending(): array
     {
         return array_filter(
@@ -24,21 +34,8 @@ enum OrderStatus: string
     {
         return collect(self::cases())
             ->mapWithKeys(fn ($case) => [
-                $case->value => $case->label(),
+                $case->value => ucfirst(str_replace('_', ' ', $case->name)),
             ])
             ->toArray();
-    }
-
-    public function label(): string
-    {
-        return match ($this) {
-            self::PENDING_PAYMENT => 'Очікує оплати',
-            self::CREATED => 'Створено',
-            self::PROCESSING => 'В обробці',
-            self::SHIPPED => 'Відправлено',
-            self::DELIVERED => 'Доставлено',
-            self::COMPLETED => 'Завершено',
-            self::CANCELLED => 'Скасовано',
-        };
     }
 }

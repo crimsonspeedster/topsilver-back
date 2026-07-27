@@ -3,7 +3,6 @@ namespace App\Jobs;
 
 use App\Enums\IntegrationBatchStatus;
 use App\Enums\IntegrationErrorCode;
-use App\Enums\LabelTypes;
 use App\Models\IntegrationBatch;
 use App\Models\IntegrationBatchError;
 use App\Models\Label;

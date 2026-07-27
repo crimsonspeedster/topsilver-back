@@ -7,6 +7,12 @@ enum ReviewPermissionStatus: string
     case NotPurchased = 'not_purchased';
     case AlreadyReviewed = 'already_reviewed';
 
+    public const array VALUES = [
+        self::Allowed->value,
+        self::NotPurchased->value,
+        self::AlreadyReviewed->value,
+    ];
+
     public static function options(): array
     {
         return collect(self::cases())

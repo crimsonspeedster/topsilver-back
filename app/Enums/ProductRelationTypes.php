@@ -6,6 +6,10 @@ enum ProductRelationTypes : string
 {
     case CROSS_SELL = 'cross_sell';
 
+    public const array VALUES = [
+        self::CROSS_SELL->value,
+    ];
+
     public static function options(): array
     {
         return collect(self::cases())

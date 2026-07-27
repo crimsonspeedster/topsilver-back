@@ -8,6 +8,12 @@ enum ReviewStatus : string
     case APPROVED = 'approved';
     case REJECTED = 'rejected';
 
+    public const array VALUES = [
+        self::PENDING->value,
+        self::APPROVED->value,
+        self::REJECTED->value,
+    ];
+
     public static function options(): array
     {
         return collect(self::cases())

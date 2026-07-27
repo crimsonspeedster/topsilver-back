@@ -47,7 +47,7 @@ use OpenApi\Attributes as OA;
                 type: "array",
                 items: new OA\Items(
                     type: "string",
-                    enum: OrderStatus::class
+                    enum: OrderStatus::VALUES
                 )
             ),
             example: [OrderStatus::CREATED->value, OrderStatus::PENDING_PAYMENT->value],

@@ -19,7 +19,7 @@ use OpenApi\Attributes as OA;
             type: "string",
             example: ProductTypes::SIMPLE,
             default: ProductTypes::SIMPLE,
-            enum: ProductTypes::class,
+            enum: ProductTypes::VALUES,
         ),
         new OA\Property(
             property: "sku",
@@ -36,7 +36,7 @@ use OpenApi\Attributes as OA;
             type: "string",
             example: EntityStatus::Published->value,
             nullable: true,
-            enum: EntityStatus::class,
+            enum: EntityStatus::VALUES,
         ),
         new OA\Property(
             property: "group_key",

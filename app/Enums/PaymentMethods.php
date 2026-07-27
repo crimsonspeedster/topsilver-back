@@ -8,6 +8,12 @@ enum PaymentMethods : string
     case LIQPAY = 'liqpay';
     case PLATA_BY_MONO = 'plata_by_mono';
 
+    public const array VALUES = [
+        self::COD->value,
+        self::LIQPAY->value,
+        self::PLATA_BY_MONO->value,
+    ];
+
     public static function options(): array
     {
         return collect(self::cases())

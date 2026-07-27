@@ -1,7 +1,6 @@
 <?php
 namespace App\OpenApi\RequestItems;
 
-use App\Enums\LabelTypes;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(

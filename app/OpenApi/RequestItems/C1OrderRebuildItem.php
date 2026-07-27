@@ -12,7 +12,7 @@ use OpenApi\Attributes as OA;
     required: ['public_token', 'status'],
     properties: [
         new OA\Property(property: "public_token", type: "string", example: "TOKEN"),
-        new OA\Property(property: "status", type: "string", example: OrderStatus::CREATED->value, enum: OrderStatus::class),
+        new OA\Property(property: "status", type: "string", example: OrderStatus::CREATED->value, enum: OrderStatus::VALUES),
         new OA\Property(property: "total", type: "number", format: "float", example: 1500),
         new OA\Property(property: "subtotal", type: "number", format: "float", example: 1500),
         new OA\Property(property: "notes", type: "string", example: "Notes", nullable: true),
@@ -30,8 +30,8 @@ use OpenApi\Attributes as OA;
             example: "2026-06-29T12:34:56Z",
             nullable: true,
         ),
-        new OA\Property(property: "payment_type", type: "string", example: PaymentMethods::COD->value, enum: PaymentMethods::class),
-        new OA\Property(property: "shipping_type", type: "string", example: ShippingMethods::NOVA_POSHTA_WAREHOUSE->value, enum: ShippingMethods::class),
+        new OA\Property(property: "payment_type", type: "string", example: PaymentMethods::COD->value, enum: PaymentMethods::VALUES),
+        new OA\Property(property: "shipping_type", type: "string", example: ShippingMethods::NOVA_POSHTA_WAREHOUSE->value, enum: ShippingMethods::VALUES),
         new OA\Property(
             property: "payment_data",
             properties: [

@@ -9,7 +9,7 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: "id", type: "number", example: 1),
         new OA\Property(property: "entity", type: "string", example: "categories"),
-        new OA\Property(property: "status", type: "string", example: IntegrationBatchStatus::Completed->value, enum: IntegrationBatchStatus::class),
+        new OA\Property(property: "status", type: "string", example: IntegrationBatchStatus::Completed->value, enum: IntegrationBatchStatus::VALUES),
         new OA\Property(property: "items_count", type: "number", example: 2),
         new OA\Property(property: "processed_count", type: "number", example: 1),
         new OA\Property(property: "failed_count", type: "number", example: 1),

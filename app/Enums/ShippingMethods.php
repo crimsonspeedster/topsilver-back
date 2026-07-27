@@ -9,6 +9,12 @@ enum ShippingMethods : string
     case NOVA_POSHTA_WAREHOUSE = 'nova_poshta_warehouse';
     case LOCAL_PICKUP = 'local_pickup';
 
+    public const array VALUES = [
+        self::NOVA_POSHTA_COURIER->value,
+        self::NOVA_POSHTA_WAREHOUSE->value,
+        self::LOCAL_PICKUP->value,
+    ];
+
     public static function options(): array
     {
         return collect(self::cases())
