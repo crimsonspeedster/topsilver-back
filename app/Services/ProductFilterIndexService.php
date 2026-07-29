@@ -16,6 +16,9 @@ class ProductFilterIndexService
         DB::transaction(function () use ($product) {
             ProductFilterIndex::where('product_id', $product->id)->delete();
 
+            $rows = [];
+            $now = now();
+
             $categoryIds = $product->categories->pluck('id');
             $collectionIds = $product->collections->pluck('id');
 
@@ -27,7 +30,7 @@ class ProductFilterIndexService
             if ($terms->isEmpty()) {
                 foreach ($categoryIds as $categoryId) {
                     foreach ($collectionIds as $collectionId) {
-                        ProductFilterIndex::create([
+                        $rows[] = [
                             'product_id' => $product->id,
                             'category_id' => $categoryId,
                             'collection_id' => $collectionId,
@@ -36,15 +39,16 @@ class ProductFilterIndexService
                             'price' => $product->price_on_sale ?? $product->price,
                             'stock_status' => $product->stock_status,
                             'is_variant' => false,
-                        ]);
+                            'created_at' => $now,
+                            'updated_at' => $now,
+                        ];
                     }
                 }
-            }
-            else {
-                foreach ($product->attributeTerms as $term) {
+            } else {
+                foreach ($terms as $term) {
                     foreach ($categoryIds as $categoryId) {
                         foreach ($collectionIds as $collectionId) {
-                            ProductFilterIndex::create([
+                            $rows[] = [
                                 'product_id' => $product->id,
                                 'category_id' => $categoryId,
                                 'collection_id' => $collectionId,
@@ -53,22 +57,38 @@ class ProductFilterIndexService
                                 'price' => $product->price_on_sale ?? $product->price,
                                 'stock_status' => $product->stock_status,
                                 'is_variant' => false,
-                            ]);
+                                'created_at' => $now,
+                                'updated_at' => $now,
+                            ];
                         }
                     }
                 }
             }
 
-            foreach ($product->variants as $variant) {
-                foreach ($variant->attributeTerms as $term) {
-                    ProductFilterIndex::create([
-                        'product_id' => $product->id,
-                        'attribute_id' => $term->attribute_id,
-                        'attribute_term_id' => $term->id,
-                        'price' => $variant->price_on_sale ?? $variant->price,
-                        'stock_status' => $variant->stock_status,
-                        'is_variant' => true,
-                    ]);
+            foreach ($categoryIds as $categoryId) {
+                foreach ($collectionIds as $collectionId) {
+                    foreach ($product->variants as $variant) {
+                        foreach ($variant->attributeTerms as $term) {
+                            $rows[] = [
+                                'product_id' => $product->id,
+                                'category_id' => $categoryId,
+                                'collection_id' => $collectionId,
+                                'attribute_id' => $term->attribute_id,
+                                'attribute_term_id' => $term->id,
+                                'price' => $variant->price_on_sale ?? $variant->price,
+                                'stock_status' => $variant->stock_status,
+                                'is_variant' => true,
+                                'created_at' => $now,
+                                'updated_at' => $now,
+                            ];
+                        }
+                    }
+                }
+            }
+
+            if (!empty($rows)) {
+                foreach (array_chunk($rows, 1000) as $chunk) {
+                    ProductFilterIndex::insert($chunk);
                 }
             }
         });

@@ -44,6 +44,7 @@ use App\Http\Controllers\Api\V1\Integrations\OneC\PromotionSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\ShopsSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\ProductsSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\BundlesSyncController;
+use App\Http\Controllers\Api\V1\Integrations\OneC\SyncCompleteController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\ProductVariantSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\LabelsSyncController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\CertificatesSyncController;
@@ -113,6 +114,8 @@ Route::prefix('v1')->group(function () {
 
         Route::get('/one-click-orders', [OneClickBuySyncController::class, 'show']);
         Route::post('/one-click-orders/update', [OneClickBuySyncController::class, 'update']);
+
+        Route::post('/sync/complete', [SyncCompleteController::class, 'update']);
     });
 
     Route::middleware('throttle:api')->group(function () {
