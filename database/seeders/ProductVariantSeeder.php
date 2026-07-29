@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\ProductTypes;
 use App\Enums\StockStatus;
+use App\Jobs\RebuildProductFilterIndexJob;
 use App\Models\Product;
 use App\Support\VariantKeyGenerator;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -74,6 +75,8 @@ class ProductVariantSeeder extends Seeder
             'price_on_sale' => null,
             'price' => $product->variants()->min('price'),
         ]);
+
+        RebuildProductFilterIndexJob::dispatchSync($product->id);
     }
 
     private function cartesian(array $input): array
