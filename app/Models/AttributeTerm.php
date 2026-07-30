@@ -15,6 +15,7 @@ class AttributeTerm extends Model
         'title',
         'slug',
         'meta_value',
+        'external_id',
     ];
 
     public function attribute (): BelongsTo

@@ -44,6 +44,7 @@ class CheckoutService
             }
 
             if ($variant) {
+                $variantObject['id'] = $variant->id;
                 $variantObject['external_id'] = $variant->external_id;
 
                 foreach ($variant->attributeTerms as $attributeTerm) {
@@ -118,12 +119,20 @@ class CheckoutService
                 $couponData,
             );
 
+            $this->attachCertificates($cart, $order);
             $this->createOrderItemsAndUpdateStock($order, $cart);
             $this->consumeCoupon($cart);
             $this->clearCart($cart, $status);
 
             return $order;
         });
+    }
+
+    private function attachCertificates(Cart $cart, Order $order): void
+    {
+        $order->certificates()->attach(
+            $cart->certificates->pluck('id')
+        );
     }
 
     private function calculateAndValidateStock(Cart $cart): float
@@ -276,6 +285,7 @@ class CheckoutService
         $paymentData = [
             'payment_method_id' => $paymentMethod->id,
             'payment_method_name' => $paymentMethod->name,
+            'payment_method_type' => $paymentMethod->type->value,
         ];
 
         $status = $paymentMethod->type === PaymentMethods::COD
@@ -324,6 +334,8 @@ class CheckoutService
             'payment_type' => $paymentMethod->type,
             'payment_data' => $paymentData,
 
+            'bonuses_used' => $cart->bonuses_used,
+
             'user_id' => $cart->user_id,
         ]);
     }
@@ -337,6 +349,7 @@ class CheckoutService
             $variantObject = null;
 
             if ($variant) {
+                $variantObject['id'] = $variant->id;
                 $variantObject['external_id'] = $variant->external_id;
 
                 foreach ($variant->attributeTerms as $attributeTerm) {

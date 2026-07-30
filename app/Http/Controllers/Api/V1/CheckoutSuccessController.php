@@ -13,6 +13,7 @@ class CheckoutSuccessController extends Controller
     public function show(string $token)
     {
         $order = Order::with([
+                'certificates',
                 'items.entity' => function (MorphTo $morphTo) {
                     $morphTo->morphWith([
                         Product::class => [

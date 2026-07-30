@@ -5,13 +5,17 @@ use App\Enums\IntegrationBatchStatus;
 use App\Enums\IntegrationErrorCode;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethods;
+use App\Enums\ProductTypes;
 use App\Enums\ShippingMethods;
 use App\Models\Bundle;
+use App\Models\Certificate;
 use App\Models\IntegrationBatch;
 use App\Models\IntegrationBatchError;
 use App\Models\Order;
+use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\ShippingMethod;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -146,9 +150,8 @@ class ProcessBatchOrdersJob implements ShouldQueue
             $discount_amount = floatval($orderData['discount_amount']);
 
             $is_shipping_data_valid = $this->validateShippingData($orderData['shipping_data']);
-            $is_payment_data_valid = $this->validatePaymentData($orderData['payment_data']);
 
-            if (!$status || !$payment_type || !$shipping_type || !$subtotal || !$total || !$is_shipping_data_valid || !$is_payment_data_valid) {
+            if (!$status || !$payment_type || !$shipping_type || !$subtotal || !$total || !$is_shipping_data_valid) {
                 $failed++;
 
                 $this->logError(
@@ -161,7 +164,37 @@ class ProcessBatchOrdersJob implements ShouldQueue
                 continue;
             }
 
-            DB::transaction(function () use ($order, $orderData, $status, $payment_type, $shipping_type, $subtotal, $total, $discount_amount) {
+            $payment_method = PaymentMethod::where('type', $payment_type)
+                ->first();
+
+            $shipping_method = ShippingMethod::where('type', $shipping_type)
+                ->first();
+
+            if (!$payment_method || !$shipping_method) {
+                $failed++;
+
+                $this->logError(
+                    index: $index,
+                    code: IntegrationErrorCode::InvalidValue->value,
+                    message: 'Invalid payment or shipping data',
+                    externalId: $orderData['public_token'],
+                );
+
+                continue;
+            }
+
+            $payment_data = [
+                'payment_method_id' => $payment_method->id,
+                'payment_method_name' => $payment_method->name,
+                'payment_method_type' => $payment_method->type->value,
+            ];
+
+            $shipping_data = $orderData['shipping_data'];
+            $shipping_data['shipping_method_id'] = $shipping_method->id;
+            $shipping_data['shipping_method_name'] = $shipping_method->name;
+            $shipping_method['shipping_method_type'] = $shipping_method->type->value;
+
+            DB::transaction(function () use ($order, $orderData, $status, $payment_type, $shipping_type, $subtotal, $total, $discount_amount, $payment_data, $shipping_data) {
                 $order->update([
                     'status' => $status,
 
@@ -182,10 +215,10 @@ class ProcessBatchOrdersJob implements ShouldQueue
                     'email' => $orderData['email'] ?? null,
 
                     'payment_type' => $payment_type,
-                    'payment_data' => $orderData['payment_data'],
+                    'payment_data' => $payment_data,
 
                     'shipping_type' => $shipping_type,
-                    'shipping_data' => $orderData['shipping_data']
+                    'shipping_data' => $shipping_data,
                 ]);
 
                 if (!empty($orderData['items'])) {
@@ -198,7 +231,7 @@ class ProcessBatchOrdersJob implements ShouldQueue
                         );
 
                         $variant = $this->resolveVariant(
-                            $item['product_variant'] ?? null
+                            $item['product_variant']['id'] ?? null
                         );
 
                         if (
@@ -208,6 +241,12 @@ class ProcessBatchOrdersJob implements ShouldQueue
                         ) {
                             throw new Exception(
                                 "Invalid order item: {$item['id']}"
+                            );
+                        }
+
+                        if ($entity instanceof Product && $entity->type === ProductTypes::VARIABLE && !$variant) {
+                            throw new Exception(
+                                "Invalid variant in item: {$item['id']}"
                             );
                         }
 
@@ -236,10 +275,27 @@ class ProcessBatchOrdersJob implements ShouldQueue
                             'total' => $item['total'],
 
                             'product_variant' => $variant ? [
+                                'id' => $variant->id,
                                 'external_id' => $variant->external_id,
                                 'attributes' => $variant_attributes,
                             ] : [],
                         ]);
+                    }
+                }
+
+                if (!empty($orderData['certificates'])) {
+                    $order->certificates()->detach();
+
+                    foreach ($orderData['certificates'] as $item) {
+                        $certificate = Certificate::where('external_id', $item['id'])->first();
+
+                        if (!$certificate) {
+                            throw new Exception(
+                                "Invalid certificate: {$item['id']}"
+                            );
+                        }
+
+                        $order->certificates()->attach($certificate->id);
                     }
                 }
             });
@@ -272,33 +328,14 @@ class ProcessBatchOrdersJob implements ShouldQueue
         return ProductVariant::where('external_id', $externalId)->first();
     }
 
-    private function validatePaymentData(array $data): bool
-    {
-        return
-            isset($data['payment_method_id']) &&
-            isset($data['payment_method_name']);
-    }
-
     private function validateShippingData(array $data): bool
     {
-        if (!$this->validateShippingBase($data)) {
-            return false;
-        }
-
         return match ($data['shipping_method_type']) {
             'local_pickup' => $this->validateLocalPickup($data),
             'nova_poshta_courier' => $this->validateNovaPoshtaCourier($data),
             'nova_poshta_warehouse' => $this->validateNovaPoshtaWarehouse($data),
             default => false,
         };
-    }
-
-    private function validateShippingBase(array $data): bool
-    {
-        return
-            isset($data['shipping_method_id']) &&
-            isset($data['shipping_method_name']) &&
-            isset($data['shipping_method_type']);
     }
 
     private function validateLocalPickup(array $data): bool

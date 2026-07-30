@@ -20,6 +20,7 @@ class OrderResource extends JsonResource
             'public_token' => $this->public_token,
             'status_label' => $this->status->label(),
             'status_value' => $this->status->value,
+            'bonuses_used' => $this->bonuses_used,
             'total' => $this->total,
             'subtotal' => $this->subtotal,
             'total_formatted' => $currency->format($this->total)->format(),
@@ -38,6 +39,7 @@ class OrderResource extends JsonResource
             'shipping_type' => $this->shipping_type,
             'shipping_data' => $this->shipping_data,
             'created_at' => $this->created_at,
+            'certificates' => CertificateResource::collection($this->whenLoaded('certificates')),
             'items' => OrderItemCollectionResource::collection($this->whenLoaded('items')),
         ];
     }

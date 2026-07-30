@@ -13,6 +13,7 @@ class ShopPickupResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'external_id' => $this->external_id,
             'title' => $this->title,
             'city' => new CityResource($this->whenLoaded('city')),
             'address' => $this->address,

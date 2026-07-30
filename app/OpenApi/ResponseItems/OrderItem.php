@@ -11,8 +11,7 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: "id", type: "number", example: 1),
         new OA\Property(property: "public_token", type: "string", example: "TOKEN"),
-        new OA\Property(property: "status_label", type: "string", example: OrderStatus::SHIPPED->value, enum: OrderStatus::VALUES),
-        new OA\Property(property: "status_value", type: "string", example: OrderStatus::SHIPPED->name),
+        new OA\Property(property: "status_value", type: "string", example: OrderStatus::SHIPPED->value, enum: OrderStatus::VALUES),
         new OA\Property(property: "total", type: "number", format: "float", example: 1500),
         new OA\Property(property: "subtotal", type: "number", format: "float", example: 1500),
         new OA\Property(property: "total_formatted", type: "string", example: "1500$"),
@@ -24,6 +23,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: "phone", type: "string", example: "380630000000"),
         new OA\Property(property: "email", type: "string", example: "test@gmail.com", nullable: true),
         new OA\Property(property: "discount_amount", type: "string", example: "30", nullable: true),
+        new OA\Property(property: "bonuses_used", type: "string", example: "1000", nullable: true),
         new OA\Property(property: "coupon_code", type: "string", example: "COUPON", nullable: true),
         new OA\Property(
             property: "paid_at",
@@ -106,6 +106,13 @@ use OpenApi\Attributes as OA;
             items: new OA\Items(
                 ref: "#/components/schemas/OrderItemItem"
             ),
+        ),
+        new OA\Property(
+            property: "certificates",
+            type: "array",
+            items: new OA\Items(
+                ref: "#/components/schemas/CertificateItem"
+            )
         ),
     ],
     type: "object"

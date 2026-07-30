@@ -14,6 +14,7 @@ class Certificate extends Model
         'value',
         'is_used',
         'activated_at',
+        'external_id',
         'expires_at',
     ];
 

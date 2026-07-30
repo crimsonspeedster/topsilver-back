@@ -19,6 +19,7 @@ class Attribute extends Model
     protected $fillable = [
         'title',
         'slug',
+        'external_id',
         'type',
     ];
 

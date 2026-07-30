@@ -38,4 +38,17 @@ enum OrderStatus: string
             ])
             ->toArray();
     }
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::PENDING_PAYMENT => 'Очікує оплати',
+            self::CREATED => 'Створено',
+            self::PROCESSING => 'В обробці',
+            self::SHIPPED => 'Відправлено',
+            self::DELIVERED => 'Доставлено',
+            self::COMPLETED => 'Завершено',
+            self::CANCELLED => 'Скасовано',
+        };
+    }
 }

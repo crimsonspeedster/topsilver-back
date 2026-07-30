@@ -46,6 +46,7 @@ class OrdersController extends Controller
         abort_unless($order->user_id === $request->user()->id, 404);
 
         $order->load([
+            'certificates',
             'items.entity' => function (MorphTo $morphTo) {
                 $morphTo->morphWith([
                     Product::class => [

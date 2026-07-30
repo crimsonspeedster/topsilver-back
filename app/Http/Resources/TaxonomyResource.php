@@ -14,6 +14,7 @@ class TaxonomyResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'external_id' => $this->external_id,
             'title' => $this->title,
             'description' => $this->description,
             'content' => $this->content,

@@ -61,6 +61,7 @@ class CheckoutController extends Controller
         return response()->json([
             'data' => new OrderResource(
                 $order->load([
+                    'certificates',
                     'items.entity' => function (MorphTo $morphTo) {
                         $morphTo->morphWith([
                             Product::class => [

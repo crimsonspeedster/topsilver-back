@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Order extends Model
 {
@@ -36,6 +37,7 @@ class Order extends Model
         'coupon_value',
         'discount_amount',
         'shipping_data',
+        'bonuses_used',
     ];
 
     protected $casts = [
@@ -73,6 +75,16 @@ class Order extends Model
     {
         return $this->hasMany(
             OrderItem::class,
+        );
+    }
+
+    public function certificates(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Certificate::class,
+            'order_certificates',
+            'order_id',
+            'certificate_id'
         );
     }
 }

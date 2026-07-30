@@ -13,6 +13,7 @@ class CouponResource extends JsonResource
     {
         return [
             'code' => $this->code,
+            'external_id' => $this->external_id,
             'type' => $this->type,
             'value' => $this->value,
         ];

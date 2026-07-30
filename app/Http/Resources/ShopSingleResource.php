@@ -14,6 +14,7 @@ class ShopSingleResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'external_id' => $this->external_id,
             'title' => $this->title,
             'short_description' => $this->short_description,
             'blocks' => $this->blocks,

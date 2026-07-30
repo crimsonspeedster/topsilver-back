@@ -14,6 +14,7 @@ class ShopSingleCollectionResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'external_id' => $this->external_id,
             'title' => $this->title,
             'slug' => $this->whenLoaded('sluggable', fn () => $this->sluggable?->slug),
             'address' => $this->address,

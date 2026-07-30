@@ -14,6 +14,7 @@ class AttributeTermResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'external_id' => $this->external_id,
             'title' => $this->title,
             'slug' => $this->slug,
             'meta_value' => $this->meta_value
