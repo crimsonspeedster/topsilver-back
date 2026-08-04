@@ -20,6 +20,7 @@ class Coupon extends Model
         'user_usage_limit',
         'starts_at',
         'expires_at',
+        'external_id',
         'is_active',
     ];
 

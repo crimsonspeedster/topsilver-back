@@ -2,9 +2,12 @@
 
 namespace App\Nova;
 
+use App\Enums\PromotionTypes;
 use App\Traits\HasTaxonomyCollectionFields;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\ID;
+use Laravel\Nova\Fields\Select;
+use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Promotion extends Resource
@@ -35,6 +38,7 @@ class Promotion extends Resource
     public static $search = [
         'id',
         'title',
+        'external_id',
     ];
 
     public static $group = 'Shop';
@@ -53,7 +57,18 @@ class Promotion extends Resource
      */
     public function fields(NovaRequest $request): array
     {
-        return $this->commonFields(self::class);
+        $basic_fields = $this->commonFields(self::class);
+        $promotion_fields = [
+            Textarea::make('Message for cart', 'message_for_cart'),
+
+            Select::make('Type')
+                ->options(PromotionTypes::options())
+                ->displayUsingLabels()
+                ->sortable()
+                ->rules('required'),
+        ];
+
+        return array_merge($basic_fields, $promotion_fields);
     }
 
     /**

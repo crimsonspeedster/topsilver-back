@@ -128,7 +128,7 @@ class ProcessBatchOrderInOneClickStatusesJob implements ShouldQueue
                 continue;
             }
 
-            $status = OrderStatus::tryFrom($item['status']);
+            $status = OrderStatus::tryFrom($item['status'] ?? '');
 
             if (!$status) {
                 $failed++;

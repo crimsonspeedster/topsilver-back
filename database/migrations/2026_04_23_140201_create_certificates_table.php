@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('certificates', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique();
+            $table->text('code');
+            $table->string('code_hash', 64)->unique();
             $table->decimal('value', 8, 2);
             $table->boolean('is_used')->default(false);
             $table->string('external_id')->unique();

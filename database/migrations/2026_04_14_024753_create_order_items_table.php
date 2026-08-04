@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
-            $table->string('external_id');
+            $table->string('external_id')->nullable();
             $table->unsignedBigInteger('order_id');
             $table->unsignedBigInteger('entity_id')->nullable();
             $table->string('entity_name');

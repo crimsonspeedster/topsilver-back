@@ -112,7 +112,7 @@ class ProcessBatchCouponsJob implements ShouldQueue
                 continue;
             }
 
-            $type = CouponTypes::tryFrom($item['type']);
+            $type = CouponTypes::tryFrom($item['type'] ?? '');
 
             if (!$type) {
                 $failed++;

@@ -34,7 +34,8 @@ class Attribute extends Resource
      */
     public static $search = [
         'id',
-        'title'
+        'external_id',
+        'title',
     ];
 
     public static $group = 'Shop';
@@ -46,9 +47,9 @@ class Attribute extends Resource
         return false;
     }
 
-    public function authorizedToUpdate(Request $request): bool
+    public function authorizedToDelete(Request $request): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -65,6 +66,9 @@ class Attribute extends Resource
                 ->rules(
                     'required',
                 ),
+
+            Text::make('External ID', 'external_id')
+                ->readonly(),
 
             Slug::make('Slug')
                 ->from('Title')

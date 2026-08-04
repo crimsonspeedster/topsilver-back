@@ -18,9 +18,12 @@ class CertificateFactory extends Factory
      */
     public function definition(): array
     {
+        $code = strtoupper($this->faker->unique()->regexify('[A-Z0-9]{16}'));
+
         return [
             'external_id' => 'local_' . Str::uuid()->toString(),
-            'code' => strtoupper($this->faker->unique()->regexify('[A-Z0-9]{16}')),
+            'code' => $code,
+            'code_hash' => hash('sha256', $code),
             'value' => $this->faker->numberBetween(1000, 10000),
             'is_used' => false,
             'activated_at' => now(),

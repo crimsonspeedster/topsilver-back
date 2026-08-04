@@ -27,7 +27,7 @@ class Coupon extends Resource
      *
      * @var string
      */
-    public static $title = 'code';
+    public static $title = 'external_id';
 
     /**
      * The columns that should be searched.
@@ -35,7 +35,7 @@ class Coupon extends Resource
      * @var array
      */
     public static $search = [
-        'id', 'code',
+        'id', 'external_id',
     ];
 
     public static $group = 'Shop';
@@ -54,7 +54,7 @@ class Coupon extends Resource
 
     public function authorizedToDelete(Request $request): bool
     {
-        return $request->user()?->canAccessNovaShopSettings() ?? false;
+        return false;
     }
 
     /**
@@ -66,6 +66,9 @@ class Coupon extends Resource
     {
         return [
             ID::make()->sortable(),
+
+            Text::make('External ID', 'external_id')
+                ->readonly(),
 
             Text::make('Code')
                 ->rules(
@@ -81,17 +84,7 @@ class Coupon extends Resource
 
             Number::make('Value')
                 ->sortable()
-                ->rules(function ($request) {
-                    return [
-                        'required',
-                        'numeric',
-                        'min:1',
-                        Rule::when(
-                            $request->type === CouponTypes::PERCENT->value,
-                            fn () => 'max:100'
-                        ),
-                    ];
-                }),
+                ->readonly(),
 
             Number::make('Usage Limit', 'usage_limit'),
 

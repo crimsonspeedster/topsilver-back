@@ -91,26 +91,10 @@ class User extends Authenticatable implements MustVerifyEmail
         ]);
     }
 
-    public function canAccessNovaPageSettings(): bool
-    {
-        return in_array($this->role, [
-            UserRoles::Admin,
-            UserRoles::Developer,
-            UserRoles::ContentManager,
-        ]);
-    }
-
     public function canAccessNovaGeneralSettings(): bool
     {
         return in_array($this->role, [
             UserRoles::Admin,
-            UserRoles::Developer,
-        ]);
-    }
-
-    public function canAccessHorizon(): bool
-    {
-        return in_array($this->role, [
             UserRoles::Developer,
         ]);
     }

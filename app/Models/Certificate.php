@@ -16,11 +16,13 @@ class Certificate extends Model
         'activated_at',
         'external_id',
         'expires_at',
+        'code_hash',
     ];
 
     protected $casts = [
         'is_used' => 'boolean',
         'activated_at' => 'datetime',
         'expires_at' => 'datetime',
+        'code' => 'encrypted',
     ];
 }

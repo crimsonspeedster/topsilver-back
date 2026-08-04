@@ -16,35 +16,17 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         User::factory()->create([
-            'email' => 'developer@gmail.com',
-            'password' => Hash::make('password'),
+            'email' => config('app.developer.email'),
+            'password' => Hash::make(config('app.developer.password')),
+            'phone' => config('app.developer.phone'),
             'role' => UserRoles::Developer,
         ]);
 
         User::factory()->create([
-            'email' => 'admin@gmail.com',
-            'password' => Hash::make('password'),
+            'email' => config('app.admin.email'),
+            'password' => Hash::make(config('app.admin.password')),
             'role' => UserRoles::Admin,
+            'phone' => config('app.admin.phone'),
         ]);
-
-        User::factory()->create([
-            'email' => 'content_manager@gmail.com',
-            'password' => Hash::make('password'),
-            'role' => UserRoles::ContentManager,
-        ]);
-
-        User::factory()->create([
-            'email' => 'shop_manager@gmail.com',
-            'password' => Hash::make('password'),
-            'role' => UserRoles::ShopManager,
-        ]);
-
-        User::factory()->create([
-            'email' => 'customer@gmail.com',
-            'password' => Hash::make('password'),
-            'role' => UserRoles::Customer,
-        ]);
-
-        User::factory()->count(45)->create();
     }
 }

@@ -32,6 +32,7 @@ class City extends Resource
      */
     public static $search = [
         'id',
+        'city_code',
         'name',
     ];
 
@@ -61,6 +62,9 @@ class City extends Resource
                         ];
                     }
                 ),
+
+            Text::make('City code', 'city_code')
+                ->readonly(),
 
             BelongsTo::make('Region', 'region', Region::class)
                 ->sortable()

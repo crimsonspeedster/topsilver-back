@@ -34,6 +34,7 @@ class Category extends Resource
     public static $search = [
         'id',
         'title',
+        'external_id',
     ];
 
     public static $group = 'Shop';
@@ -41,6 +42,11 @@ class Category extends Resource
     public static $showColumnBorders = true;
 
     public static function authorizedToCreate(Request $request): bool
+    {
+        return false;
+    }
+
+    public function authorizeToDelete(Request $request): bool
     {
         return false;
     }

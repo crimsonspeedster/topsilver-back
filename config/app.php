@@ -105,6 +105,18 @@ return [
         ),
     ],
 
+    'developer' => [
+        'password' => env('APP_DEV_PASSWORD', 'password'),
+        'email' => env('APP_DEV_EMAIL', 'developer@gmail.com'),
+        'phone' => env('APP_DEV_PHONE', '380630000000'),
+    ],
+
+    'admin' => [
+        'password' => env('APP_ADMIN_PASSWORD', 'password'),
+        'email' => env('APP_ADMIN_EMAIL', 'developer@gmail.com'),
+        'phone' => env('APP_ADMIN_PHONE', '380630000001'),
+    ],
+
     'currency' => env('CURRENCY_SYMBOL_CODE', '$'),
 
     /*

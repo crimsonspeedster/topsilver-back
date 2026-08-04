@@ -35,6 +35,7 @@ class AttributeTerm extends Resource
     public static $search = [
         'id',
         'title',
+        'external_id',
     ];
 
     public static $group = 'Shop';
@@ -46,7 +47,7 @@ class AttributeTerm extends Resource
         return false;
     }
 
-    public function authorizedToUpdate(Request $request): bool
+    public function authorizedToDelete(Request $request): bool
     {
         return false;
     }
@@ -65,6 +66,9 @@ class AttributeTerm extends Resource
                 ->rules(
                     'required',
                 ),
+
+            Text::make('External ID', 'external_id')
+                ->readonly(),
 
             Slug::make('Slug')
                 ->from('Title')

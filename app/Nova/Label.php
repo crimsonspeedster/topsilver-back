@@ -4,6 +4,7 @@ namespace App\Nova;
 
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsToMany;
+use Laravel\Nova\Fields\Color;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -44,6 +45,11 @@ class Label extends Resource
         return false;
     }
 
+    public function authorizedToDelete(Request $request): bool
+    {
+        return false;
+    }
+
     /**
      * Get the fields displayed by the resource.
      *
@@ -57,6 +63,8 @@ class Label extends Resource
             Text::make('Name')
                 ->sortable()
                 ->rules('required', 'string'),
+
+            Color::make('Background color', 'background_color'),
 
             Text::make('External ID', 'external_id')
                 ->sortable()

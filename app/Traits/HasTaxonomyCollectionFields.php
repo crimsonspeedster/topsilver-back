@@ -28,6 +28,9 @@ trait HasTaxonomyCollectionFields
             Text::make('Title')
                 ->rules('required'),
 
+            Text::make('External ID', 'external_id')
+                ->readonly(),
+
             Markdown::make('Description'),
 
             Flexible::make('Content')

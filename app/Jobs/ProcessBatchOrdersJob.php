@@ -141,9 +141,9 @@ class ProcessBatchOrdersJob implements ShouldQueue
                 continue;
             }
 
-            $status = OrderStatus::tryFrom($orderData['status']);
-            $payment_type = PaymentMethods::tryFrom($orderData['payment_type']);
-            $shipping_type = ShippingMethods::tryFrom($orderData['shipping_type']);
+            $status = OrderStatus::tryFrom($orderData['status'] ?? '');
+            $payment_type = PaymentMethods::tryFrom($orderData['payment_type'] ?? '');
+            $shipping_type = ShippingMethods::tryFrom($orderData['shipping_type'] ?? '');
 
             $subtotal = floatval($orderData['subtotal']);
             $total = floatval($orderData['total']);

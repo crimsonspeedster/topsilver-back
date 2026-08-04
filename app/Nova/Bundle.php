@@ -36,6 +36,7 @@ class Bundle extends Resource
         'id',
         'title',
         'sku',
+        'external_id',
     ];
 
     public static $group = 'Shop';
@@ -54,7 +55,7 @@ class Bundle extends Resource
 
     public function authorizedToDelete(Request $request): bool
     {
-        return $request->user()?->canAccessNovaShopSettings() ?? false;
+        return false;
     }
 
     /**
@@ -69,6 +70,9 @@ class Bundle extends Resource
 
             Text::make('Title')
                 ->rules('required'),
+
+            Text::make('External ID', 'external_id')
+                ->readonly(),
 
             Text::make('SKU')
                 ->rules(
@@ -96,8 +100,6 @@ class Bundle extends Resource
                 ->sortable(),
 
             HasMany::make('Items', 'items', BundleItem::class),
-
-            BelongsToMany::make('Products', 'products', Product::class),
         ];
     }
 

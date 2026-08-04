@@ -365,13 +365,13 @@ class ProcessBatchProductsJob implements ShouldQueue
             $title = $item['title'];
             $price = $item['price'];
 
-            $status = EntityStatus::tryFrom($item['status']);
+            $status = EntityStatus::tryFrom($item['status'] ?? '');
 
             if (!$status) {
                 $status = EntityStatus::Published;
             }
 
-            $type = ProductTypes::tryFrom($item['type']);
+            $type = ProductTypes::tryFrom($item['type'] ?? '');
 
             if (!$type) {
                 $type = ProductTypes::SIMPLE;

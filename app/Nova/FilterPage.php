@@ -3,6 +3,7 @@
 namespace App\Nova;
 
 use App\Enums\EntityStatus;
+use App\Nova\Flexible\Presets\PagePreset;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\DateTime;
@@ -14,6 +15,7 @@ use Laravel\Nova\Fields\MorphOne;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Whitecube\NovaFlexibleContent\Flexible;
 
 class FilterPage extends Resource
 {
@@ -75,6 +77,9 @@ class FilterPage extends Resource
                 ->rules('required'),
 
             Markdown::make('Description'),
+
+            Flexible::make('Content')
+                ->preset(PagePreset::class),
 
             Image::make('Image')
                 ->store($this->imageStoreCallback())

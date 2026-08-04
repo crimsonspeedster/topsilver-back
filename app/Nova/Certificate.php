@@ -23,7 +23,7 @@ class Certificate extends Resource
      *
      * @var string
      */
-    public static $title = 'code';
+    public static $title = 'external_id';
 
     /**
      * The columns that should be searched.
@@ -33,6 +33,7 @@ class Certificate extends Resource
     public static $search = [
         'id',
         'code',
+        'external_id',
     ];
 
     public static $group = 'Shop';
@@ -51,7 +52,7 @@ class Certificate extends Resource
 
     public function authorizedToDelete(Request $request): bool
     {
-        return $request->user()?->canAccessNovaShopSettings() ?? false;
+        return false;
     }
 
     /**
@@ -64,12 +65,8 @@ class Certificate extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('Code')
-                ->sortable()
-                ->rules(
-                    'required',
-                    'unique:certificates,code,{{resourceId}}',
-                ),
+            Text::make('External ID', 'external_id')
+                ->readonly(),
 
             Number::make('Value')
                 ->sortable()

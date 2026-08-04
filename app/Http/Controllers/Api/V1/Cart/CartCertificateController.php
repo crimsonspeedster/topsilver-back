@@ -20,7 +20,9 @@ class CartCertificateController extends Controller
             'code' => ['required', 'string'],
         ]);
 
-        $certificate = Certificate::where('code', $data['code'])
+        $hash = hash('sha256', $data['code']);
+
+        $certificate = Certificate::where('code_hash', $hash)
             ->where('is_used', false)
             ->where('activated_at', '<=', now())
             ->where('expires_at', '>', now())

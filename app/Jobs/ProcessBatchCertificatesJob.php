@@ -110,9 +110,12 @@ class ProcessBatchCertificatesJob implements ShouldQueue {
                 continue;
             }
 
+            $code = (string) $item['code'];
+
             $rows[] = [
                 'external_id' => (string) $item['id'],
-                'code' => (string) $item['code'],
+                'code' => encrypt($code),
+                'code_hash' => hash('sha256', $code),
                 'value' => (float) $item['value'],
                 'activated_at' => !empty($item['activated_at'])
                     ? Carbon::parse($item['activated_at'])
