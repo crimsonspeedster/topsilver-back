@@ -36,12 +36,14 @@ class SyncMediaBatchJob implements ShouldQueue
     {
         $collection = $item['collection'];
         $urls = collect($item['urls'] ?? [])
+            ->map(fn ($url) => trim($url))
             ->filter()
             ->unique();
 
         $existing = $model
             ->getMedia($collection)
             ->pluck('custom_properties.source_url')
+            ->map(fn ($url) => trim($url))
             ->filter()
             ->toArray();
 
