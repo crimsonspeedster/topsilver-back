@@ -4,9 +4,9 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noindex, nofollow, noarchive">
+        <meta name="description" content="API endpoint">
         <link rel="icon" href="{{asset('favicon.ico')}}">
         <title>{{ config('app.name', 'Laravel') }}</title>
-
         <style>
             * {
                 margin: 0;
@@ -31,7 +31,7 @@
                 justify-content: center;
             }
 
-            .text-centner {
+            .text-center {
                 text-align: center;
             }
         </style>
@@ -39,9 +39,9 @@
 
     <body>
        <main>
-           <section class="text-centner">
+           <section class="text-center">
                <div class="container">
-                   <h1>Nice try =)</h1>
+                   <h1>Service is running</h1>
                </div>
            </section>
        </main>
