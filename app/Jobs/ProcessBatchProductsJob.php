@@ -436,7 +436,7 @@ class ProcessBatchProductsJob implements ShouldQueue
                 }
             }
 
-            foreach (($item['attributes'] ?? []) as $attributeItem) {
+            foreach (($item['attribute_terms'] ?? []) as $attributeItem) {
                 $term = $attributeTerms->get($attributeItem['id']);
 
                 if ($term) {

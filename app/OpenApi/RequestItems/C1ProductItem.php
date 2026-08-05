@@ -129,7 +129,7 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(
-            property: "attributes",
+            property: "attribute_terms",
             required: ['id'],
             type: "array",
             items: new OA\Items(
