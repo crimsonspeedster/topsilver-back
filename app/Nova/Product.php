@@ -44,6 +44,7 @@ class Product extends Resource
      */
     public static $search = [
         'id',
+        'external_id',
         'title',
         'sku',
         'group_key',
@@ -68,6 +69,10 @@ class Product extends Resource
     {
         return [
             ID::make()->sortable(),
+
+            Text::make('External ID', 'external_id')
+                ->sortable()
+                ->readonly(),
 
             Text::make('Group Key')
                 ->sortable(),

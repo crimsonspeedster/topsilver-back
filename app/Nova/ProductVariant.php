@@ -35,6 +35,7 @@ class ProductVariant extends Resource
      */
     public static $search = [
         'id',
+        'external_id',
         'sku',
     ];
 
@@ -61,6 +62,10 @@ class ProductVariant extends Resource
     {
         return [
             ID::make()->sortable(),
+
+            Text::make('External ID', 'external_id')
+                ->sortable()
+                ->readonly(),
 
             Text::make('SKU')
                 ->sortable()
