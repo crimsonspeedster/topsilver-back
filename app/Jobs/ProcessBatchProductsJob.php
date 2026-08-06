@@ -197,6 +197,10 @@ class ProcessBatchProductsJob implements ShouldQueue
                     ->whereIn('product_id', $productsGrouped->pluck('id'))
                     ->delete();
 
+                DB::table('product_attribute_terms')
+                    ->whereIn('product_id', $productsGrouped->pluck('id'))
+                    ->delete();
+
                 $map = fn ($extId) => $productsGrouped[$extId]->id ?? null;
 
                 $cats = [];
