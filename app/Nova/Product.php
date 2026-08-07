@@ -3,6 +3,7 @@
 namespace App\Nova;
 
 use App\Enums\EntityStatus;
+use App\Enums\ProductTypes;
 use App\Enums\StockStatus;
 use Ardenthq\ImageGalleryField\ImageGalleryField;
 use Illuminate\Http\Request;
@@ -86,6 +87,12 @@ class Product extends Resource
 
             Select::make('Status')
                 ->options(EntityStatus::options())
+                ->displayUsingLabels()
+                ->sortable()
+                ->rules('required'),
+
+            Select::make('Type')
+                ->options(ProductTypes::options())
                 ->displayUsingLabels()
                 ->sortable()
                 ->rules('required'),
@@ -174,7 +181,12 @@ class Product extends Resource
 
             BelongsToMany::make('Labels', 'labels', Label::class),
 
-            BelongsToMany::make('Attribute Terms', 'attributeTerms', AttributeTerm::class),
+            BelongsToMany::make('Attribute Terms', 'attributeTerms', AttributeTerm::class)
+                ->fields(function () {
+                    return [
+                        Boolean::make('Is Variation', 'is_variation'),
+                    ];
+                }),
 
             MorphOne::make('Slug', 'sluggable', Slug::class),
 
