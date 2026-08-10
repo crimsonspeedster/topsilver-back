@@ -91,8 +91,10 @@ class ProcessBatchTaxonomiesJob implements ShouldQueue
                 )->onQueue('import_1c');
             }
 
+            $status = $failed > 0 ? IntegrationBatchStatus::PartialFailed : IntegrationBatchStatus::Completed;
+
             $this->batch->update([
-                'status' => IntegrationBatchStatus::Completed,
+                'status' => $status,
                 'items_count' => count($items),
                 'processed_count' => $processed,
                 'failed_count' => $failed,

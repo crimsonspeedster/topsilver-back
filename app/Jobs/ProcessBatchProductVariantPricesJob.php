@@ -79,8 +79,10 @@ class ProcessBatchProductVariantPricesJob implements ShouldQueue
                     $failed += $f;
                 });
 
+            $status = $failed > 0 ? IntegrationBatchStatus::PartialFailed : IntegrationBatchStatus::Completed;
+
             $this->batch->update([
-                'status' => IntegrationBatchStatus::Completed,
+                'status' => $status,
                 'processed_count' => $processed,
                 'failed_count' => $failed,
                 'finished_at' => now(),
