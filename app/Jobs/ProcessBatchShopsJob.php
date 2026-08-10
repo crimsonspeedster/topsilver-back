@@ -225,7 +225,7 @@ class ProcessBatchShopsJob implements ShouldQueue
     {
         $this->batch->update([
             'status' => IntegrationBatchStatus::Failed,
-            'error_message' => $message,
+            'error_message' => mb_substr($message, 0, 10000),
             'finished_at' => now(),
         ]);
     }
