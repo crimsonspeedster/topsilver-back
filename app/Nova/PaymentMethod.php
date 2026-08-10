@@ -38,7 +38,7 @@ class PaymentMethod extends Resource
         'name',
     ];
 
-    public static $group = 'Shop';
+    public static $group = 'Settings';
 
     public static $showColumnBorders = true;
 

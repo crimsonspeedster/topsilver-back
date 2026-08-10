@@ -39,7 +39,7 @@ class Setting extends Resource
         'key'
     ];
 
-    public static $group = 'Content';
+    public static $group = 'Settings';
 
     public static $showColumnBorders = true;
 
