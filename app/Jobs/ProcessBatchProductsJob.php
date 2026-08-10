@@ -67,9 +67,17 @@ class ProcessBatchProductsJob implements ShouldQueue
             $promotionsMap = Promotion::pluck('id', 'external_id');
             $labelsMap = Label::pluck('id', 'external_id');
             $attributeTerms = AttributeTerm::query()
-                ->select('id', 'external_id', 'attribute_id')
+                ->join('attributes', 'attributes.id', '=', 'attribute_terms.attribute_id')
+                ->select(
+                    'attribute_terms.id',
+                    'attribute_terms.external_id',
+                    'attribute_terms.attribute_id',
+                    'attributes.external_id as attribute_external_id',
+                )
                 ->get()
-                ->keyBy('external_id');
+                ->keyBy(fn ($term) =>
+                    $term->attribute_external_id . ':' . $term->external_id
+                );
 
             $processed = 0;
             $failed = 0;
@@ -443,7 +451,9 @@ class ProcessBatchProductsJob implements ShouldQueue
             }
 
             foreach (($item['attribute_terms'] ?? []) as $attributeItem) {
-                $term = $attributeTerms->get($attributeItem['id']);
+                $key = $attributeItem['attribute_id'] . ':' . $attributeItem['id'];
+
+                $term = $attributeTerms->get($key);
 
                 if ($term) {
                     $productAttributeTerms[] = [

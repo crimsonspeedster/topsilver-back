@@ -62,9 +62,17 @@ class ProcessBatchProductVariantsJob implements ShouldQueue
                 ->get()
                 ->keyBy('external_id');
             $attributeTerms = AttributeTerm::query()
-                ->select('id', 'external_id', 'attribute_id')
+                ->join('attributes', 'attributes.id', '=', 'attribute_terms.attribute_id')
+                ->select(
+                    'attribute_terms.id',
+                    'attribute_terms.external_id',
+                    'attribute_terms.attribute_id',
+                    'attributes.external_id as attribute_external_id',
+                )
                 ->get()
-                ->keyBy('external_id');
+                ->keyBy(fn ($term) =>
+                    $term->attribute_external_id . ':' . $term->external_id
+                );
 
             $rows = [];
             $externalIds = [];
@@ -239,17 +247,18 @@ class ProcessBatchProductVariantsJob implements ShouldQueue
 
             $terms = [];
 
-            foreach ($item['attribute_terms'] ?? [] as $externalTermId) {
+            foreach ($item['attribute_terms'] ?? [] as $attributeItem) {
+                $key = $attributeItem['attribute_id'] . ':' . $attributeItem['id'];
+
                 /** @var AttributeTerm|null $term */
-                $term = $attributeTerms->get($externalTermId);
+                $term = $attributeTerms->get($key);
 
-                if (! $term) {
-
+                if (!$term) {
                     $this->logError(
                         index: $index,
                         code: IntegrationErrorCode::InvalidValue->value,
                         message: 'Term not found',
-                        field: 'product_id',
+                        field: 'attribute_terms',
                         externalId: $externalId,
                     );
 

@@ -44,9 +44,33 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: "attribute_terms",
+            required: ['id', 'attribute_id'],
             type: "array",
-            items: new OA\Items(type: "string"),
-            example: ["1c_term_1", "1c_term_2"],
+            items: new OA\Items(
+                properties: [
+                    new OA\Property(
+                        property: "id",
+                        type: "string",
+                        example: "1c_term_1",
+                    ),
+                    new OA\Property(
+                        property: "attribute_id",
+                        type: "string",
+                        example: "1c_attribute_1",
+                    ),
+                ],
+                type: "object",
+            ),
+            example: [
+                [
+                    "id" => "1c_term_1",
+                    "attribute_id" => "1c_attribute_1",
+                ],
+                [
+                    "id" => "1c_term_2",
+                    "attribute_id" => "1c_attribute_2",
+                ],
+            ],
         ),
     ],
     type: "object"
