@@ -14,6 +14,7 @@ class ProductionSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
+            RegionSeeder::class,
             CitySeeder::class,
             PaymentMethodSeeder::class,
             ShippingMethodSeeder::class,
