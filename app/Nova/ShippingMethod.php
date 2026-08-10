@@ -6,10 +6,8 @@ use App\Enums\ShippingMethods;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\KeyValue;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
 class ShippingMethod extends Resource
@@ -75,8 +73,6 @@ class ShippingMethod extends Resource
                 ->options(ShippingMethods::options())
                 ->displayUsingLabels()
                 ->rules('required'),
-
-            KeyValue::make('Config'),
 
             Boolean::make('Active')
                 ->default(false),

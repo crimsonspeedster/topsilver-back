@@ -33,6 +33,7 @@ class SettingsSeeder extends Seeder
             $this->createRelationPageSetting('rules_page', $rules_page);
         }
 
+        $this->createTextSetting('np_api_key', config('services.nova_poshta_key'));
         $this->createImageSetting('logo', $logo_path);
         $this->createImageSetting('checkout_banner', $banner_path);
         $this->createImageSetting('cart_banner', $banner_path);

@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('type');
-            $table->longText('config')->nullable();
             $table->boolean('active')->default(false);
             $table->timestamps();
         });

@@ -9,8 +9,14 @@ class NovaPoshtaService
 
     public function call(string $model, string $method, array $properties = []): array
     {
+        $np_api_key = settings('np_api_key');
+
+        if (!$np_api_key) {
+            return [];
+        }
+
         $payload = [
-            'apiKey' => config('services.nova_poshta_key'),
+            'apiKey' => $np_api_key,
             'modelName' => $model,
             'calledMethod' => $method,
         ];

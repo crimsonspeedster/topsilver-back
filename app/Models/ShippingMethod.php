@@ -17,13 +17,11 @@ class ShippingMethod extends Model
         'description',
         'type',
         'active',
-        'config',
     ];
 
     protected $casts = [
         'active' => 'boolean',
         'type' => ShippingMethods::class,
-        'config' => 'encrypted:array',
     ];
 
     #[Scope]

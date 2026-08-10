@@ -82,8 +82,14 @@ class NPController extends Controller
             ], 422);
         }
 
+        $np_api_key = settings('np_api_key');
+
+        if (!$np_api_key) return response()->json([
+            'message' => 'Недійсний ключ API',
+        ], 422);
+
         $response = Http::post('https://api.novaposhta.ua/v2.0/json/', [
-            'apiKey' => config('services.nova_poshta_key'),
+            'apiKey' => $np_api_key,
             'modelName' => 'Address',
             'calledMethod' => 'searchSettlementStreets',
             'methodProperties' => [
@@ -111,8 +117,14 @@ class NPController extends Controller
             ], 422, [], JSON_UNESCAPED_UNICODE);
         }
 
+        $np_api_key = settings('np_api_key');
+
+        if (!$np_api_key) return response()->json([
+            'message' => 'Недійсний ключ API',
+        ], 422);
+
         $response = Http::post('https://api.novaposhta.ua/v2.0/json/', [
-            'apiKey' => config('services.nova_poshta_key'),
+            'apiKey' => $np_api_key,
             'modelName' => 'Address',
             'calledMethod' => 'getSettlements',
             'methodProperties' => [
