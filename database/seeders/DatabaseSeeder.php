@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            UserSeeder::class,
+            UserSeeder::class, // для прода
             AttributeSeeder::class,
             AttributeTermSeeder::class,
             CategorySeeder::class,
@@ -30,10 +30,10 @@ class DatabaseSeeder extends Seeder
             PageSeeder::class,
             BonusSeeder::class,
             RegionSeeder::class,
-            CitySeeder::class,
+            CitySeeder::class, // для прода
             ProfileSeeder::class,
-            PaymentMethodSeeder::class,
-            ShippingMethodSeeder::class,
+            PaymentMethodSeeder::class, // для прода
+            ShippingMethodSeeder::class, // для прода
             ShopSeeder::class,
             BundleSeeder::class,
             ProductReviewSeeder::class,
@@ -42,10 +42,10 @@ class DatabaseSeeder extends Seeder
             SlugSeeder::class,
             SeoSeeder::class,
             SeoBlockSeeder::class,
-            LocationSeeder::class,
+            LocationSeeder::class, // для прода
             MenuSeeder::class,
             MenuItemSeeder::class,
-            SettingsSeeder::class,
+            SettingsSeeder::class, // для прода
         ]);
     }
 }
