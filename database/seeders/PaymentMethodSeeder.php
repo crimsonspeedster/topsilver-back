@@ -17,15 +17,23 @@ class PaymentMethodSeeder extends Seeder
         $methods = [
             [
                 'type' => PaymentMethods::COD,
-                'name' => 'Оплата при отриманні товару'
+                'name' => 'Оплата при отриманні товару',
+                'config' => [],
             ],
             [
                 'type' => PaymentMethods::PLATA_BY_MONO,
                 'name' => 'Оплата Online by Mono',
+                'config' => [
+                    'monobank_token' => config("services.monobank_token"),
+                ],
             ],
             [
                 'type' => PaymentMethods::LIQPAY,
                 'name' => 'Оплата Online by Liqpay',
+                'config' => [
+                    'public_key' => config('services.liqpay.public_key'),
+                    'private_key' => config('services.liqpay.private_key'),
+                ],
             ],
         ];
 
@@ -33,6 +41,7 @@ class PaymentMethodSeeder extends Seeder
             PaymentMethod::factory()->create([
                 'name' => $method['name'],
                 'type' => $method['type'],
+                'config' => $method['config'],
             ]);
         }
     }

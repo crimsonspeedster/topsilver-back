@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Models\PaymentMethod;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -14,24 +15,30 @@ use Throwable;
 class MonobankPay
 {
     protected string $baseUrl = 'https://api.monobank.ua/api/merchant';
+    protected string $token;
 
     public function __construct(
-        protected string $monobank_token = '',
+        protected PaymentMethod $paymentMethod,
     )
     {
-        $this->monobank_token = config("services.monobank_token");
+        $this->token = $this->paymentMethod->config['monobank_token'] ?? '';
     }
 
     /**
      * @throws RequestException
      * @throws ConnectionException
+     * @throws Exception
      */
     public function createInvoice(Order $order): array
     {
+        if (!$this->token) {
+            throw new Exception('No token provided');
+        }
+
         $payload = $this->buildPayload($order);
 
         return Http::withHeaders([
-            'X-Token' => $this->monobank_token,
+            'X-Token' => $this->token,
         ])
             ->post($this->baseUrl . '/invoice/create', $payload)
             ->throw()
@@ -95,11 +102,16 @@ class MonobankPay
     /**
      * @throws RequestException
      * @throws ConnectionException
+     * @throws Exception
      */
     protected function fetchPublicKey(): string
     {
+        if (!$this->token) {
+            throw new Exception('No token provided');
+        }
+
         return Http::withHeaders([
-            'X-Token' => $this->monobank_token,
+            'X-Token' => $this->token,
         ])
             ->get($this->baseUrl . '/pubkey')
             ->throw()

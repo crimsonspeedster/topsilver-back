@@ -2,21 +2,31 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Models\PaymentMethod;
 use Exception;
 use LiqPay;
 
 class LiqPayService
 {
+    protected string $public_key = '';
+    protected string $private_key = '';
+
     public function __construct(
-        protected string $public_key = '',
-        protected string $private_key = '',
+        protected PaymentMethod $paymentMethod,
     ) {
-        $this->public_key = config('services.liqpay.public_key');
-        $this->private_key = config('services.liqpay.private_key');
+        $this->public_key = $this->paymentMethod->config['public_key'] ?? '';
+        $this->private_key = $this->paymentMethod->config['private_key'] ?? '';
     }
 
+    /**
+     * @throws Exception
+     */
     public function generatePaymentForm(Order $order): array
     {
+        if (!$this->public_key || !$this->private_key) {
+            throw new Exception('No public key or private key');
+        }
+
         $liqpay = new LiqPay(
             $this->public_key,
             $this->private_key,
@@ -54,8 +64,15 @@ class LiqPayService
         return $decoded;
     }
 
+    /**
+     * @throws Exception
+     */
     public function validateSignature(string $data, string $signature): bool
     {
+        if (!$this->public_key || !$this->private_key) {
+            throw new Exception('No public key or private key');
+        }
+
         $expectedSignature = base64_encode(
             sha1($this->private_key . $data . $this->private_key, true)
         );

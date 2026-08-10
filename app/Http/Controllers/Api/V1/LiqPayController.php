@@ -2,15 +2,18 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentMethods;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\PaymentMethod;
 use App\Services\LiqPayService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Exception;
 
 class LiqPayController extends Controller
 {
-    public function callback(Request $request, LiqpayService $liqpayService)
+    public function callback(Request $request)
     {
         $validated = $request->validate([
             'data' => ['required', 'string'],
@@ -20,14 +23,26 @@ class LiqPayController extends Controller
         $data = $validated['data'];
         $signature = $validated['signature'];
 
-        if (!$liqpayService->validateSignature($data, $signature)) {
+        $paymentMethod = PaymentMethod::active()
+            ->where('type', '=', PaymentMethods::LIQPAY)
+            ->firstOrFail();
+
+        $liqpayService = new LiqPayService($paymentMethod);
+
+        try {
+            $isValid = $liqpayService->validateSignature($data, $signature);
+        } catch (Exception $e) {
+            return response($e->getMessage(), 500);
+        }
+
+        if (!$isValid) {
             return response('Invalid signature', 400);
         }
 
         try {
             $payload = $liqpayService->decodeData($data);
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             Log::error('LiqPay Error: ' . $e->getMessage());
 
             return response('Bad request', 400);

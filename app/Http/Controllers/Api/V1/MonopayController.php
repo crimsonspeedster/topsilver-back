@@ -2,8 +2,10 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentMethods;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\PaymentMethod;
 use App\Services\MonobankPay;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -11,7 +13,7 @@ use Throwable;
 
 class MonopayController extends Controller
 {
-    public function callback(Request $request, MonobankPay $monobankPay)
+    public function callback(Request $request)
     {
         $payload = $request->getContent();
         $xSign = $request->header('x-sign');
@@ -19,6 +21,12 @@ class MonopayController extends Controller
         if (!$xSign) {
             return response('Missing signature', 400);
         }
+
+        $paymentMethod = PaymentMethod::active()
+            ->where('type', '=', PaymentMethods::PLATA_BY_MONO)
+            ->firstOrFail();
+
+        $monobankPay = new MonobankPay($paymentMethod);
 
         if (!$monobankPay->verifyWebhookSignature($payload, $xSign)) {
             Log::warning('Monobank invalid signature', [

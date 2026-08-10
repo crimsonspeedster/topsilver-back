@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Bundle;
+use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Services\CheckoutService;
 use App\Services\LiqPayService;
@@ -18,8 +19,6 @@ class CheckoutController extends Controller
 {
     public function __construct(
         protected CheckoutService $checkoutService,
-        protected LiqpayService $liqpayService,
-        protected MonobankPay $monobankPay,
     ) {}
 
     public function __invoke(CreateOrderRequest $request)
@@ -43,14 +42,22 @@ class CheckoutController extends Controller
             throw $e;
         }
 
-        $payment = match ($order->payment_type) {
+        $paymentMethod = PaymentMethod::active()
+            ->where('type', '=', $order->payment_type)
+            ->first();
+
+        if (!$paymentMethod) {
+            abort(422, 'Payment method is not available.');
+        }
+
+        $payment = match ($paymentMethod->type) {
             PaymentMethods::LIQPAY => [
                 'type' => PaymentMethods::LIQPAY->value,
-                'data' => $this->liqpayService->generatePaymentForm($order),
+                'data' => $this->getPaymentService($paymentMethod)->generatePaymentForm($order),
             ],
             PaymentMethods::PLATA_BY_MONO => [
                 'type' => PaymentMethods::PLATA_BY_MONO->value,
-                'data' => $this->monobankPay->createInvoice($order),
+                'data' => $this->getPaymentService($paymentMethod)->createInvoice($order),
             ],
             default => [
                 'type' => PaymentMethods::COD->value,
@@ -77,5 +84,13 @@ class CheckoutController extends Controller
             ),
             'payment' => $payment,
         ])->cookie(cookie()->forget('cart_token'));
+    }
+
+    private function getPaymentService(PaymentMethod $paymentMethod): LiqPayService | MonobankPay
+    {
+        return match ($paymentMethod->type) {
+            PaymentMethods::LIQPAY => new LiqPayService($paymentMethod),
+            PaymentMethods::PLATA_BY_MONO => new MonobankPay($paymentMethod),
+        };
     }
 }
