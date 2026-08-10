@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('attribute_terms', function (Blueprint $table) {
             $table->id();
-            $table->string('external_id')->unique();
+            $table->string('external_id');
             $table->unsignedBigInteger('attribute_id');
             $table->string('title');
             $table->string('slug');
@@ -23,6 +23,7 @@ return new class extends Migration
             $table->foreign('attribute_id')->references('id')->on('attributes')->onDelete('cascade');
 
             $table->unique(['attribute_id', 'slug']);
+            $table->unique(['attribute_id', 'external_id']);
         });
     }
 

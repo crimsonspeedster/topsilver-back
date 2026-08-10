@@ -143,8 +143,8 @@ class ProcessBatchAttributeTermsJob implements ShouldQueue
         if (!empty($rows)) {
             AttributeTerm::upsert(
                 $rows,
-                ['external_id'],
-                ['attribute_id', 'title', 'slug', 'meta_value', 'updated_at']
+                ['attribute_id', 'external_id'],
+                ['title', 'slug', 'meta_value', 'updated_at']
             );
         }
 
