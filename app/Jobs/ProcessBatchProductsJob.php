@@ -284,6 +284,11 @@ class ProcessBatchProductsJob implements ShouldQueue
                 }
 
                 if ($attributeTerms) {
+                    $attributeTerms = collect($attributeTerms)
+                        ->unique(fn ($row) => $row['product_id'] . '-' . $row['attribute_term_id'])
+                        ->values()
+                        ->all();
+
                     DB::table('product_attribute_terms')->insert($attributeTerms);
                 }
             });
