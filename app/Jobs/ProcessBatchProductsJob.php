@@ -268,18 +268,38 @@ class ProcessBatchProductsJob implements ShouldQueue
                 }
 
                 if ($cats) {
+                    $cats = collect($cats)
+                        ->unique(fn ($row) => $row['product_id'] . '-' . $row['category_id'])
+                        ->values()
+                        ->all();
+
                     DB::table('product_category')->insert($cats);
                 }
 
                 if ($cols) {
+                    $cols = collect($cols)
+                        ->unique(fn ($row) => $row['product_id'] . '-' . $row['collection_id'])
+                        ->values()
+                        ->all();
+
                     DB::table('product_collection')->insert($cols);
                 }
 
                 if ($promos) {
+                    $promos = collect($promos)
+                        ->unique(fn ($row) => $row['product_id'] . '-' . $row['promotion_id'])
+                        ->values()
+                        ->all();
+
                     DB::table('product_promotion')->insert($promos);
                 }
 
                 if ($labels) {
+                    $labels = collect($labels)
+                        ->unique(fn ($row) => $row['product_id'] . '-' . $row['label_id'])
+                        ->values()
+                        ->all();
+
                     DB::table('label_products')->insert($labels);
                 }
 
