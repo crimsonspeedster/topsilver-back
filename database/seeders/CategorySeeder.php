@@ -13,9 +13,38 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        Category::factory()->count(7)->create()
-            ->each(function (Category $category) {
+        Category::factory()
+            ->count(7)
+            ->create()
+            ->each(function (Category $category, int $index) {
+                $category->update([
+                    'title' => 'Category-' . ($index + 1),
+                ]);
+
                 $this->attachMedia($category);
+                $this->createChildren($category, 2);
+            });
+    }
+
+    private function createChildren(Category $parent, int $depth): void
+    {
+        if ($depth <= 0) {
+            return;
+        }
+
+        Category::factory()
+            ->count(fake()->numberBetween(2, 4))
+            ->create([
+                'parent_id' => $parent->id,
+                'parent_external_id' => $parent->external_id,
+            ])
+            ->each(function (Category $category, int $index) use ($depth) {
+                $category->update([
+                    'title' => 'SubCategory-' . $depth . '-' . ($index + 1),
+                ]);
+
+                $this->attachMedia($category);
+                $this->createChildren($category, $depth - 1);
             });
     }
 

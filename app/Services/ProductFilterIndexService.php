@@ -3,6 +3,7 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\ProductFilterIndex;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -19,8 +20,8 @@ class ProductFilterIndexService
             $rows = [];
             $now = now();
 
-            $categoryIds = $product->categories->pluck('id');
-            $collectionIds = $product->collections->pluck('id');
+            $categoryIds = $this->getCategoryIds($product);
+            $collectionIds = $this->getCollectionIds($product);
 
             $categoryIds = $categoryIds->isEmpty() ? [null] : $categoryIds;
             $collectionIds = $collectionIds->isEmpty() ? [null] : $collectionIds;
@@ -92,5 +93,37 @@ class ProductFilterIndexService
                 }
             }
         });
+    }
+
+    private function getCategoryIds(Product $product): Collection
+    {
+        $categoryIds = collect();
+
+        foreach ($product->categories as $category) {
+            $current = $category;
+
+            while ($current) {
+                $categoryIds->push($current->id);
+                $current = $current->parent;
+            }
+        }
+
+        return $categoryIds->unique()->values();
+    }
+
+    private function getCollectionIds(Product $product): Collection
+    {
+        $collectionIds = collect();
+
+        foreach ($product->collections as $collection) {
+            $current = $collection;
+
+            while ($current) {
+                $collectionIds->push($current->id);
+                $current = $current->parent;
+            }
+        }
+
+        return $collectionIds->unique()->values();
     }
 }

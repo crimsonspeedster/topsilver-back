@@ -79,13 +79,19 @@ class ProductCatalogService
     {
         return match ($taxonomy->getType()) {
             'category' => $query->whereHas(
-                'categories',
-                fn ($q) => $q->where('categories.id', $taxonomy->id)
+                'filterIndex',
+                fn ($q) => $q->where(
+                    'category_id',
+                    $taxonomy->id
+                )
             ),
 
             'collection' => $query->whereHas(
-                'collections',
-                fn ($q) => $q->where('collections.id', $taxonomy->id)
+                'filterIndex',
+                fn ($q) => $q->where(
+                    'collection_id',
+                    $taxonomy->id
+                )
             ),
 
             'promotion' => $query->whereHas(

@@ -69,21 +69,21 @@ class ProductSeeder extends Seeder
     {
         $product->categories()->syncWithoutDetaching(
             Category::inRandomOrder()
-                ->take(rand(1,3))
+                ->take(1)
                 ->pluck('id')
                 ->toArray()
         );
 
         $product->collections()->syncWithoutDetaching(
             Collection::inRandomOrder()
-                ->take(rand(1,3))
+                ->take(1)
                 ->pluck('id')
                 ->toArray()
         );
 
         $product->promotions()->syncWithoutDetaching(
             Promotion::inRandomOrder()
-                ->take(rand(1,3))
+                ->take(1)
                 ->pluck('id')
                 ->toArray()
         );

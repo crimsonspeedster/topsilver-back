@@ -155,6 +155,14 @@ class Product extends Model implements HasMedia, HasMeta
         );
     }
 
+    public function filterIndex(): HasMany
+    {
+        return $this->hasMany(
+            ProductFilterIndex::class,
+            'product_id',
+        );
+    }
+
     public function crossSells(): BelongsToMany
     {
         return $this->belongsToMany(
