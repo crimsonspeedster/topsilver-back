@@ -12,6 +12,7 @@ class SettingFieldsRegistry
             ContactFields::class,
             RelationPageFields::class,
             SocialLinkFields::class,
+            BooleanFields::class,
         ];
     }
 

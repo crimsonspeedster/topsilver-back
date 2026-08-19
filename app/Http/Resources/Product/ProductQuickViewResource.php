@@ -25,8 +25,15 @@ class ProductQuickViewResource extends JsonResource
             'slug' => $this->whenLoaded('sluggable', fn () => $this->sluggable?->slug),
             'title' => $this->title,
             'short_description' => $this->short_description,
-            'media' => new MediaResource($this->getFirstMedia('media')),
-            'gallery' => MediaResource::collection($this->getMedia('gallery')),
+            'media' => new MediaResource(
+                $this->getFirstMedia('media'),
+                $this->shouldShowWatermark(),
+            ),
+            'gallery' => $this->getMedia('gallery')
+                ->map(fn ($media) => new MediaResource(
+                    $media,
+                    $this->shouldShowWatermark(),
+                )),
             'price' => $this->price,
             'price_on_sale' => $this->price_on_sale,
             'price_formatted' => $currency->format($this->price)->format(),

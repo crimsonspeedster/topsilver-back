@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c8718ec2dcefddd40646d839f62505e3",
+    "content-hash": "3025293eeb9fd8b2667779017fa69e48",
     "packages": [
         {
             "name": "app/instagram",
@@ -13487,8 +13487,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "ardenthq/nova-image-gallery-field": 20,
-        "app/instagram": 20
+        "app/instagram": 20,
+        "ardenthq/nova-image-gallery-field": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

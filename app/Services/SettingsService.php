@@ -21,8 +21,6 @@ class SettingsService
             ['key' => $key],
             ['value' => $value, 'type' => $type]
         );
-
-        Cache::forget("settings:$key");
     }
 
     public function all(): array

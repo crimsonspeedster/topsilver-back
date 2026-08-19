@@ -22,7 +22,10 @@ class ProductQuickShopResource extends JsonResource
             'external_id' => $this->external_id,
             'slug' => $this->whenLoaded('sluggable', fn () => $this->sluggable?->slug),
             'title' => $this->title,
-            'media' => new MediaResource($this->getFirstMedia('media')),
+            'media' => new MediaResource(
+                $this->getFirstMedia('media'),
+                $this->shouldShowWatermark(),
+            ),
             'price' => $this->price,
             'price_on_sale' => $this->price_on_sale,
             'price_formatted' => $currency->format($this->price)->format(),

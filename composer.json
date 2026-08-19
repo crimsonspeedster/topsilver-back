@@ -12,6 +12,7 @@
         "php": "^8.3",
         "ext-bcmath": "*",
         "ext-openssl": "*",
+        "app/instagram": "@dev",
         "ardenthq/nova-image-gallery-field": "dev-nova5",
         "darkaonline/l5-swagger": "^11.0",
         "laravel/framework": "^12.0",
@@ -27,8 +28,7 @@
         "predis/predis": "^3.4",
         "spatie/laravel-medialibrary": "^11.21",
         "spatie/laravel-sitemap": "^8.1",
-        "whitecube/nova-flexible-content": "^2.0",
-        "app/instagram": "@dev"
+        "whitecube/nova-flexible-content": "^2.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

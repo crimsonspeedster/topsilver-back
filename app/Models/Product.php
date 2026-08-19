@@ -18,8 +18,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Spatie\Image\Enums\AlignPosition;
+use Spatie\Image\Enums\Fit;
+use Spatie\Image\Enums\Unit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Product extends Model implements HasMedia, HasMeta
 {
@@ -68,6 +74,37 @@ class Product extends Model implements HasMedia, HasMeta
 
         $this
             ->addMediaCollection('gallery');
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $watermark = settings('watermark_image');
+
+        if (!$watermark)
+            return;
+
+        $path = Storage::disk('public')->path($watermark);
+
+        $this
+            ->addMediaConversion('web')
+            ->watermark(
+                $path,
+                AlignPosition::BottomRight,
+                paddingX: 20,
+                paddingY: 20,
+                width: 35,
+                widthUnit: Unit::Percent,
+                height: 35,
+                heightUnit: Unit::Percent,
+                fit: Fit::Contain,
+                alpha: 75,
+            );
+    }
+
+    public function shouldShowWatermark(): bool
+    {
+        return (bool) settings('show_watermark', false)
+            && (bool) settings('watermark_image');
     }
 
     public function variants (): HasMany

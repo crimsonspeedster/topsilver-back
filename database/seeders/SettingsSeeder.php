@@ -35,6 +35,7 @@ class SettingsSeeder extends Seeder
 
         $this->createTextSetting('np_api_key', config('services.nova_poshta_key'));
         $this->createImageSetting('logo', $logo_path);
+        $this->createImageSetting('watermark_image', $logo_path);
         $this->createImageSetting('checkout_banner', $banner_path);
         $this->createImageSetting('cart_banner', $banner_path);
         $this->createNumberSetting('free_shipping', 5000);
@@ -44,6 +45,7 @@ class SettingsSeeder extends Seeder
         $this->createTextSetting('size_guide', fake()->realText(1500));
         $this->createSocialLinksSetting('social_links', 4);
         $this->createContactSetting('contacts', 4);
+        $this->createBoolSetting('show_watermark', true);
         $this->createProductAdvantagesSetting('product_advantages');
         $this->createSeoRobotsSetting();
     }
@@ -59,12 +61,23 @@ class SettingsSeeder extends Seeder
         ]);
     }
 
+    public function createBoolSetting(string $key, bool $bool): void
+    {
+        Setting::create([
+            'key' => $key,
+            'value' => [
+                'data' => $bool
+            ],
+            'type' => 'boolean',
+        ]);
+    }
+
     private function createImageSetting (string $key, string $image_path): void
     {
         Setting::create([
             'key' => $key,
             'value' => [
-                'data' => Storage::disk('public')->url($image_path),
+                'data' => $image_path,
             ],
             'type' => 'image',
         ]);
@@ -262,7 +275,7 @@ class SettingsSeeder extends Seeder
 
     private function fakeLogo(): string
     {
-        $source = base_path('resources/src/img/logo.png');
+        $source = resource_path('src/img/logo.png');
         $fileName = 'settings/' . Str::uuid() . '.png';
 
         Storage::disk('public')->put(
