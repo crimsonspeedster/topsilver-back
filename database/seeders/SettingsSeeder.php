@@ -128,7 +128,7 @@ class SettingsSeeder extends Seeder
         Setting::create([
             'key' => $key,
             'value' => [
-                'data' => $advantages,
+                'data' => [$advantages],
             ],
             'type' => 'product_advantages',
         ]);

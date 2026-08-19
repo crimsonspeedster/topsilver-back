@@ -13,6 +13,8 @@ class SettingFieldsRegistry
             RelationPageFields::class,
             SocialLinkFields::class,
             BooleanFields::class,
+            NumberFields::class,
+            ProductAdvantagesFields::class,
         ];
     }
 
