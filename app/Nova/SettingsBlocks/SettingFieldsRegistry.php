@@ -15,6 +15,7 @@ class SettingFieldsRegistry
             BooleanFields::class,
             NumberFields::class,
             ProductAdvantagesFields::class,
+            MarkdownFields::class,
         ];
     }
 

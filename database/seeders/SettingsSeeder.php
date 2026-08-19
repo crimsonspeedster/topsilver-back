@@ -41,8 +41,8 @@ class SettingsSeeder extends Seeder
         $this->createNumberSetting('free_shipping', 5000);
         $this->createTextSetting('top_banner_text', fake()->sentence());
         $this->createTextSetting('subscribe_text', fake()->text());
-        $this->createTextSetting('delivery_and_return', fake()->realText(2000));
-        $this->createTextSetting('size_guide', fake()->realText(1500));
+        $this->createMarkdownSetting('delivery_and_return', fake()->realText(2000));
+        $this->createMarkdownSetting('size_guide', fake()->realText(1500));
         $this->createSocialLinksSetting('social_links', 4);
         $this->createContactSetting('contacts', 4);
         $this->createBoolSetting('show_watermark', true);
@@ -91,6 +91,17 @@ class SettingsSeeder extends Seeder
                 'data' => $text,
             ],
             'type' => 'text',
+        ]);
+    }
+
+    private function createMarkdownSetting (string $key, string $text): void
+    {
+        Setting::create([
+            'key' => $key,
+            'value' => [
+                'data' => $text,
+            ],
+            'type' => 'markdown',
         ]);
     }
 
