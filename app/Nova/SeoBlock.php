@@ -3,11 +3,9 @@
 namespace App\Nova;
 
 use App\Nova\Flexible\Presets\PagePreset;
-use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Markdown;
 use Laravel\Nova\Fields\MorphTo;
-use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Whitecube\NovaFlexibleContent\Flexible;
 
@@ -35,8 +33,6 @@ class SeoBlock extends Resource
     public static $search = [
         'id',
     ];
-
-    public static $displayInNavigation = false;
 
     public static $group = 'Content';
 

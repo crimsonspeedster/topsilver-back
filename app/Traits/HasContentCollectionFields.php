@@ -68,7 +68,8 @@ trait HasContentCollectionFields
 
             MorphOne::make('Seo', 'seo', Seo::class),
 
-            MorphOne::make('SeoBlock', 'seoBlock', SeoBlock::class),
+            MorphOne::make('SeoBlock', 'seoBlock', SeoBlock::class)
+                ->onlyOnDetail(),
 
             MorphOne::make('Slug', 'sluggable', Slug::class),
         ];

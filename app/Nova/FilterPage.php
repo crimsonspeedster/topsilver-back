@@ -104,7 +104,8 @@ class FilterPage extends Resource
 
             MorphOne::make('Seo', 'seo', Seo::class),
 
-            MorphOne::make('SeoBlock', 'seoBlock', SeoBlock::class),
+            MorphOne::make('SeoBlock', 'seoBlock', SeoBlock::class)
+                ->onlyOnDetail(),
 
             HasMany::make('Filters', 'filters', FilterPageFilter::class),
         ];

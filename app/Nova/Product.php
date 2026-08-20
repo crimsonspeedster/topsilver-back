@@ -192,7 +192,8 @@ class Product extends Resource
 
             MorphOne::make('Seo', 'seo', Seo::class),
 
-            MorphOne::make('SeoBlock', 'seoBlock', SeoBlock::class),
+            MorphOne::make('SeoBlock', 'seoBlock', SeoBlock::class)
+                ->onlyOnDetail(),
         ];
     }
 

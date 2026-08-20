@@ -46,7 +46,7 @@ class Category extends Resource
         return false;
     }
 
-    public function authorizeToDelete(Request $request): bool
+    public function authorizedToDelete(Request $request): bool
     {
         return false;
     }

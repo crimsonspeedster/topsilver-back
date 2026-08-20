@@ -13,7 +13,7 @@ class FaqBlockLayout extends Layout
     public function fields(): array
     {
         return [
-            Flexible::make('Banners')
+            Flexible::make('Items')
                 ->addLayout(FaqBlockItemLayout::class)
                 ->required(),
         ];

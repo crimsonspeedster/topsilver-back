@@ -53,6 +53,11 @@ class ProductVariant extends Resource
         return false;
     }
 
+    public function authorizedToDelete(Request $request): bool
+    {
+        return false;
+    }
+
     /**
      * Get the fields displayed by the resource.
      *

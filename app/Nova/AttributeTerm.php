@@ -44,12 +44,17 @@ class AttributeTerm extends Resource
 
     public static function authorizedToCreate(Request $request): bool
     {
-        return false;
+        return $request->user()?->canAccessNovaGeneralSettings() ?? false;
+    }
+
+    public function authorizedToUpdate(Request $request): bool
+    {
+        return $request->user()?->canAccessNovaGeneralSettings() ?? false;
     }
 
     public function authorizedToDelete(Request $request): bool
     {
-        return false;
+        return $request->user()?->canAccessNovaGeneralSettings() ?? false;
     }
 
     /**
