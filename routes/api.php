@@ -37,6 +37,7 @@ use App\Http\Controllers\Api\V1\User\OrdersController;
 use App\Http\Controllers\Api\V1\User\QuickOrdersController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use App\Http\Controllers\Api\V1\User\UserUpdateController;
+use App\Http\Controllers\Api\V1\User\SendEmailVerificationController;
 use App\Http\Controllers\Api\V1\WishlistController;
 use App\Http\Controllers\Api\V1\BuyInOneClickController;
 use App\Http\Controllers\Api\V1\Integrations\OneC\TaxonomySyncController;
@@ -212,6 +213,7 @@ Route::prefix('v1')->group(function () {
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/logout', LogoutController::class);
         Route::post('/products/{product}/reviews', [ReviewsController::class, 'store']);
+        Route::middleware('throttle:email-verify')->post('/email/verification-notification', SendEmailVerificationController::class);
 
         Route::prefix('me')->group(function () {
             Route::get('/', UserController::class);

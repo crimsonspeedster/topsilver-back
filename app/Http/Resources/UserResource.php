@@ -15,6 +15,7 @@ class UserResource extends JsonResource
         return [
             'email' => $this->email,
             'phone' => $this->phone,
+            'email_verified' => $this->resource->hasVerifiedEmail(),
             'profile' => new ProfileResource($this->whenLoaded('profile')),
         ];
     }

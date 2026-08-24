@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Api\V1\User;
 
 use App\Enums\SexTypes;
+use App\Events\UserEmailChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\Profile;
@@ -9,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\ValidationException;
 
@@ -55,31 +55,47 @@ class UserUpdateController extends Controller
         ]);
 
         $user = DB::transaction(function () use ($authUser, $data) {
-            $authUser->update(array_filter([
+            $userData = array_filter([
                 'email' => $data['email'] ?? null,
                 'phone' => $data['phone'] ?? null,
-            ]));
+            ], fn ($value) => $value !== null);
+
+            $emailChanged = isset($data['email'])
+                && $data['email'] !== $authUser->email;
+
+            if ($emailChanged) {
+                $userData['email_verified_at'] = null;
+            }
+
+            $authUser->update($userData);
 
             $profile = $authUser->profile()->first() ?? new Profile();
 
-            $profile->fill([
-                'name' => $data['name'],
-                'surname' => $data['surname'],
-                'middle_name' => $data['middle_name'],
-                'about' => $data['about'],
-                'sex' => $data['sex'],
-                'dob' => $data['dob'],
-                'city_id' => $data['city_id'],
-            ]);
+            $profile->fill(array_filter([
+                'name' => $data['name'] ?? null,
+                'surname' => $data['surname'] ?? null,
+                'middle_name' => $data['middle_name'] ?? null,
+                'about' => $data['about'] ?? null,
+                'sex' => $data['sex'] ?? null,
+                'dob' => $data['dob'] ?? null,
+                'city_id' => $data['city_id'] ?? null,
+            ], fn ($value) => $value !== null));
 
             $profile->save();
 
-            return $authUser->fresh();
+            return [
+                'user' => $authUser->fresh(),
+                'email_changed' => $emailChanged,
+            ];
         });
+
+        if ($user['email_changed']) {
+            UserEmailChanged::dispatch($user['user']);
+        }
 
         return response()->json([
             'data' => new UserResource(
-                $user->load('profile.city.region')
+                $user['user']->load('profile.city.region')
             ),
         ]);
     }
