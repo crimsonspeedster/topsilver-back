@@ -27,7 +27,7 @@ class RegisterController extends Controller
             ],
             'phone' => [
                 'required',
-                'regex:/^(\+?380)\d{9}$/',
+                'regex:/^380\d{9}$/',
                 'unique:users,phone',
             ],
             'password' => [

@@ -53,7 +53,7 @@ class CreateOrderRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:50'],
             'last_name' => ['required', 'string', 'max:50'],
             'middle_name' => ['nullable', 'string', 'max:50'],
-            'phone' => ['required', 'regex:/^(\+?380)\d{9}$/'],
+            'phone' => ['required', 'regex:/^380\d{9}$/'],
             'email' => ['nullable', 'email', 'max:100'],
             'notes' => ['nullable', 'string', 'max:500'],
             'payment_method_id' => [

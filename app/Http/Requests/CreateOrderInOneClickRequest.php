@@ -32,7 +32,7 @@ class CreateOrderInOneClickRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:50'],
-            'phone' => ['required', 'regex:/^(\+?380)\d{9}$/'],
+            'phone' => ['required', 'regex:/^380\d{9}$/'],
             'email' => ['nullable', 'email', 'max:100'],
             'comment' => ['nullable', 'string', 'max:500'],
             'product_id' => [
