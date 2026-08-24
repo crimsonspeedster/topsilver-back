@@ -13,10 +13,10 @@ class OrderObserver
     {
         if ($order->status === OrderStatus::COMPLETED) {
             if ($order instanceof OneClickRequest) {
-                UpdateOneClickRequestSellingCounts::dispatch($order->id)->onQueue('high');
+                UpdateOneClickRequestSellingCounts::dispatch($order->id)->onQueue('filters');
             }
             else {
-                UpdateOrderSellingCounts::dispatch($order->id)->onQueue('high');
+                UpdateOrderSellingCounts::dispatch($order->id)->onQueue('filters');
             }
         }
     }
@@ -28,10 +28,10 @@ class OrderObserver
             && $order->status === OrderStatus::COMPLETED
         ) {
             if ($order instanceof OneClickRequest) {
-                UpdateOneClickRequestSellingCounts::dispatch($order->id)->onQueue('high');
+                UpdateOneClickRequestSellingCounts::dispatch($order->id)->onQueue('filters');
             }
             else {
-                UpdateOrderSellingCounts::dispatch($order->id)->onQueue('high');
+                UpdateOrderSellingCounts::dispatch($order->id)->onQueue('filters');
             }
         }
     }

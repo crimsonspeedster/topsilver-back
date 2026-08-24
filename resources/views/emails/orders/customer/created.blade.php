@@ -1,5 +1,14 @@
-<h1>Заказ #{{ $order->id }}</h1>
+<x-mail::message>
+# Замовлення #{{ $order->id }}
 
-<p>Спасибо за заказ!</p>
+Дякую за замовлення!
 
-<p>Сумма: {{ $total_formatted }}</p>
+**Сума:** {{ $total_formatted }}
+
+<x-mail::button :url="frontend_url('/order/details/' . $order->public_token)">
+Переглянути замовлення
+</x-mail::button>
+
+Дякуємо,<br>
+{{ config('app.name') }}
+</x-mail::message>

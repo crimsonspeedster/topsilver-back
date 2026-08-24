@@ -89,15 +89,13 @@ class Product extends Model implements HasMedia, HasMeta
             ->addMediaConversion('web')
             ->watermark(
                 $path,
-                AlignPosition::BottomRight,
-                paddingX: 20,
-                paddingY: 20,
-                width: 35,
+                AlignPosition::Center,
+                width: 65,
                 widthUnit: Unit::Percent,
-                height: 35,
+                height: 65,
                 heightUnit: Unit::Percent,
                 fit: Fit::Contain,
-                alpha: 75,
+                alpha: 25,
             );
     }
 

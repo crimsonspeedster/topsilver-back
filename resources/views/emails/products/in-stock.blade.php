@@ -1,5 +1,12 @@
-<p>Товар <strong>"{{ $product->title }}"</strong> знову в наявності!</p>
+<x-mail::message>
+# Товар знову в наявності!
 
-<a href="{{ frontend_url('/'. $product->sluggable?->slug) }}">
-    Переглянути товар
-</a>
+Товар **«{{ $product->title }}»** знову в наявності!
+
+<x-mail::button :url="frontend_url('/' . $product->sluggable?->slug)">
+Переглянути товар
+</x-mail::button>
+
+Дякуємо,<br>
+{{ config('app.name') }}
+</x-mail::message>

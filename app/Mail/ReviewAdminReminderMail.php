@@ -11,7 +11,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ReviewAdminReminderMail extends Mailable implements ShouldQueue
+class ReviewAdminReminderMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -31,7 +31,7 @@ class ReviewAdminReminderMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Новый отзыв ожидает проверки',
+            subject: 'Новий відгук чекає на перевірку',
         );
     }
 
@@ -41,7 +41,7 @@ class ReviewAdminReminderMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            view: 'emails.reviews.admin.created',
+            markdown: 'emails.reviews.admin.created',
             with: [
                 'productReview' => $this->productReview,
             ]

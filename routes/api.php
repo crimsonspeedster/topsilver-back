@@ -168,7 +168,8 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('throttle:notifications')->post('/products/{product}/notifications', [ProductsController::class, 'notifications']);
 
-    Route::middleware('throttle:buy_in_one_click')->post('/buy-in-one-click', BuyInOneClickController::class);
+//    Route::middleware('throttle:buy_in_one_click')->post('/buy-in-one-click', BuyInOneClickController::class);
+    Route::post('/buy-in-one-click', BuyInOneClickController::class);
 
     Route::middleware('throttle:login')->post('/login', LoginController::class);
     Route::middleware('throttle:register')->post('/register', RegisterController::class);

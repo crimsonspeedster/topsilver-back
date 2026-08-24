@@ -3,25 +3,21 @@
 namespace App\Mail;
 
 use App\Models\Order;
-use App\Services\CurrencyService;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class OrderCreatedMail extends Mailable implements ShouldQueue
+class OrderStatusChangedMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use SerializesModels;
 
     /**
      * Create a new message instance.
      */
     public function __construct(
         public Order $order,
-        protected CurrencyService $currency,
     )
     {
         //
@@ -33,7 +29,7 @@ class OrderCreatedMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Підтвердження замовлення №' . $this->order->id,
+            subject: 'Оновлено статус замовлення №' . $this->order->id,
         );
     }
 
@@ -43,10 +39,9 @@ class OrderCreatedMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.orders.customer.created',
+            markdown: 'emails.orders.customer.status-changed',
             with: [
                 'order' => $this->order,
-                'total_formatted' => $this->currency->format($this->order->total)->format(),
             ],
         );
     }

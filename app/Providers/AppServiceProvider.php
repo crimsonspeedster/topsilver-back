@@ -2,14 +2,8 @@
 
 namespace App\Providers;
 
-use App\Events\UserLoggedIn;
-use App\Listeners\AttachOneClickRequestsToUser;
-use App\Listeners\AttachOrdersToUser;
-use App\Listeners\MergeCartListener;
-use App\Listeners\MergeWishlistListener;
 use App\Models\OneClickRequest;
 use App\Models\Order;
-use App\Models\Product;
 use App\Models\ProductReview;
 use App\Observers\OrderObserver;
 use App\Observers\ProductReviewObserver;
@@ -22,7 +16,6 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Event;
 use Laravel\Sanctum\PersonalAccessToken;
 use Laravel\Sanctum\Sanctum;
 
@@ -46,7 +39,6 @@ class AppServiceProvider extends ServiceProvider
         $this->configureRoutes();
         $this->configureEmails();
         $this->configureRateLimiting();
-        $this->customListeners();
         $this->observeHandle();
     }
 
@@ -199,16 +191,5 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perHour(5)->by($key),
             ];
         });
-    }
-
-    protected function customListeners (): void
-    {
-        Event::listen(UserLoggedIn::class, AttachOrdersToUser::class);
-
-        Event::listen(UserLoggedIn::class, AttachOneClickRequestsToUser::class);
-
-        Event::listen(UserLoggedIn::class, MergeCartListener::class);
-
-        Event::listen(UserLoggedIn::class, MergeWishlistListener::class);
     }
 }

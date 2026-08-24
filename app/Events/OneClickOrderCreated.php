@@ -1,21 +1,21 @@
 <?php
-
 namespace App\Events;
 
-use App\Models\User;
+use App\Models\OneClickRequest;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class UserRegistered
+class OneClickOrderCreated
 {
-    use InteractsWithSockets, SerializesModels;
+    use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(public User $user)
+    public function __construct(public OneClickRequest $oneClickOrder)
     {
         //
     }

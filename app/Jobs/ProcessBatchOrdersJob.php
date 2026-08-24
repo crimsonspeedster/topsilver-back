@@ -7,6 +7,7 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentMethods;
 use App\Enums\ProductTypes;
 use App\Enums\ShippingMethods;
+use App\Events\OrderStatusChanged;
 use App\Models\Bundle;
 use App\Models\Certificate;
 use App\Models\IntegrationBatch;
@@ -300,6 +301,8 @@ class ProcessBatchOrdersJob implements ShouldQueue
                         $order->certificates()->attach($certificate->id);
                     }
                 }
+
+                OrderStatusChanged::dispatch($order);
             });
 
             $processed++;

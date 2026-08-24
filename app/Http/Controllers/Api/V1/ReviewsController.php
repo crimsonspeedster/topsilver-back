@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\OrderStatus;
 use App\Enums\ReviewStatus;
+use App\Events\ReviewCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductReviewRequest;
 use App\Http\Resources\PaginationResource;
@@ -86,6 +87,8 @@ class ReviewsController extends Controller
                 'status' => $this->productReviewService->resolveStatus($user),
             ]);
 
+            ReviewCreated::dispatch($review);
+
             return response()->json([
                 'data' => new ProductReviewResource($review),
             ], 201);
@@ -109,6 +112,8 @@ class ReviewsController extends Controller
             'comment' => $data['comment'],
             'status' => $this->productReviewService->resolveStatus($user),
         ]);
+
+        ReviewCreated::dispatch($review);
 
         return response()->json([
             'data' => new ProductReviewResource($review),

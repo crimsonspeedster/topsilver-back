@@ -41,7 +41,7 @@ class ProductBackInStockMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            view: 'emails.products.in-stock',
+            markdown: 'emails.products.in-stock',
             with: [
                 'product' => $this->product->load('sluggable'),
             ],

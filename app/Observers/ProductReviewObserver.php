@@ -10,7 +10,7 @@ class ProductReviewObserver
     public function created(ProductReview $review): void
     {
         if ($review->status === ReviewStatus::APPROVED) {
-            RecalculateProductRating::dispatch($review->product_id)->onQueue('high');
+            RecalculateProductRating::dispatch($review->product_id)->onQueue('filters');
         }
     }
 
@@ -20,7 +20,7 @@ class ProductReviewObserver
             $review->wasChanged('status')
             && $review->status === ReviewStatus::APPROVED
         ) {
-            RecalculateProductRating::dispatch($review->product_id)->onQueue('high');
+            RecalculateProductRating::dispatch($review->product_id)->onQueue('filters');
         }
     }
 }

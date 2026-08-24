@@ -1,10 +1,11 @@
-<h1>Новый отзыв ожидает проверки.</h1>
+<x-mail::message>
+# Новий відгук очікує на перевірку
 
-<p>Товар: {{$productReview->product->title}}</p>
-<p>Пользователь: {{$productReview->user->profile->name}} {{$productReview->user->profile->surname}}</p>
+**Товар:** {{ $productReview->product->title }}
 
-<p>
-    <a href="{{ url('/nova/resources/product-reviews/' . $productReview->id) }}">
-        👉 Открыть в админке
-    </a>
-</p>
+**Користувач:** {{ $productReview->user->profile->name }} {{ $productReview->user->profile->surname }}
+
+<x-mail::button :url="url('/admin/resources/product-reviews/' . $productReview->id)">
+Відкрити в адмін-панелі
+</x-mail::button>
+</x-mail::message>

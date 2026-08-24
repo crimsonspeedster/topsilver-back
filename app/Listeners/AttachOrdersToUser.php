@@ -27,7 +27,7 @@ class AttachOrdersToUser implements ShouldQueue
     /**
      * Handle the event.
      */
-    public function handle(UserRegistered | UserLoggedIn $event): void
+    public function handle(UserLoggedIn $event): void
     {
         $user = $event->user;
 

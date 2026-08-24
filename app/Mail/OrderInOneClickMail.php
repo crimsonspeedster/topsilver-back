@@ -2,30 +2,23 @@
 
 namespace App\Mail;
 
-use App\Models\Order;
-use App\Services\CurrencyService;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Models\OneClickRequest;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class OrderCreatedMail extends Mailable implements ShouldQueue
+class OrderInOneClickMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use SerializesModels;
 
     /**
      * Create a new message instance.
      */
     public function __construct(
-        public Order $order,
-        protected CurrencyService $currency,
-    )
-    {
-        //
-    }
+        public OneClickRequest $order,
+    ) {}
 
     /**
      * Get the message envelope.
@@ -33,7 +26,7 @@ class OrderCreatedMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Підтвердження замовлення №' . $this->order->id,
+            subject: 'Підтвердження замовлення на 1 клік №' . $this->order->id,
         );
     }
 
@@ -43,10 +36,9 @@ class OrderCreatedMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.orders.customer.created',
+            markdown: 'emails.orders.customer.in-one-click',
             with: [
-                'order' => $this->order,
-                'total_formatted' => $this->currency->format($this->order->total)->format(),
+                'product' => $this->order->product,
             ],
         );
     }
