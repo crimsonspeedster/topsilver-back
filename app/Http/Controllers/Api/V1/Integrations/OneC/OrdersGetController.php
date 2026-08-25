@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
 use App\Http\Resources\PaginationResource;
 use App\Jobs\ProcessBatchOrdersJob;
+use App\Jobs\ProcessBatchOrdersCreateJob;
 use App\Jobs\ProcessBatchOrderStatusesJob;
 use App\Models\IntegrationBatch;
 use App\Models\Order;
@@ -15,6 +16,31 @@ use Illuminate\Validation\Rules\Enum;
 
 class OrdersGetController extends Controller
 {
+    public function create(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (empty($data)) {
+            return response()->json([
+                'message' => 'Empty payload'
+            ], 422);
+        }
+
+        $batch = IntegrationBatch::create([
+            'integration' => '1c',
+            'entity' => 'orders',
+            'status' => IntegrationBatchStatus::Pending,
+            'items_count' => count($data),
+            'payload' => $request->getContent(),
+        ]);
+
+        ProcessBatchOrdersCreateJob::dispatch($batch)->onQueue('import_1c');
+
+        return response()->json([
+            'job_id' => $batch->id,
+        ]);
+    }
+
     public function show(Request $request)
     {
         $validated = $request->validate([

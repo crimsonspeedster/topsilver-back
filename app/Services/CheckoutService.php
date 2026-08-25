@@ -19,7 +19,6 @@ use App\Models\ShippingMethod;
 use App\Models\Shop;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -308,7 +307,7 @@ class CheckoutService
         array $couponData,
     ): Order {
         return Order::create([
-            'public_token' => Str::random(64),
+            'public_token' => hash('sha256', (string) Str::uuid()),
 
             'status' => $status,
             'subtotal' => $subtotal,
