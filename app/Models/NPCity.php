@@ -36,7 +36,7 @@ class NPCity extends Model
     public function area (): BelongsTo
     {
         return $this->belongsTo(
-            NpArea::class,
+            NPArea::class,
             'area_ref',
             'ref'
         );
