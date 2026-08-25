@@ -6,7 +6,6 @@ use App\Events\OrderCreated;
 use App\Mail\OrderCreatedMail;
 use App\Services\CurrencyService;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Mail;
 
 class SendOrderNotification implements ShouldQueue
