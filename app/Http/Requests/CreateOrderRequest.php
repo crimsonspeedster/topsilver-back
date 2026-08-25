@@ -33,7 +33,6 @@ class CreateOrderRequest extends FormRequest
         $first_name = $this->input('first_name');
         $last_name = $this->input('last_name');
         $middle_name = $this->input('middle_name');
-        $phone = $this->input('phone');
         $email = $this->input('email');
         $notes = $this->input('notes');
 
@@ -41,7 +40,6 @@ class CreateOrderRequest extends FormRequest
             'first_name' => $first_name ? trim($first_name) : null,
             'last_name' => $last_name ? trim($last_name) : null,
             'middle_name' => $middle_name ? trim($middle_name) : null,
-            'phone' => $phone ? $this->normalize_phone($phone) : null,
             'email' => $email ? strtolower(trim($email)) : null,
             'notes' => $notes ? trim($notes) : null,
         ]);
@@ -113,16 +111,5 @@ class CreateOrderRequest extends FormRequest
                 'string',
             ]
         ];
-    }
-
-    private function normalize_phone(string $phone): string
-    {
-        $phone = preg_replace('/\D/', '', $phone);
-
-        if (!str_starts_with($phone, '+')) {
-            return '+' . $phone;
-        }
-
-        return $phone;
     }
 }

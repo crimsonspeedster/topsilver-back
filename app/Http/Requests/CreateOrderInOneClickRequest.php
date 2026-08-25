@@ -15,14 +15,12 @@ class CreateOrderInOneClickRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $phone = $this->input('phone');
         $name = $this->input('name');
         $email = $this->input('email');
         $comment = $this->input('comment');
 
         $this->merge([
             'name' => $name ? trim($name) : null,
-            'phone' => $phone ? $this->normalize_phone($phone) : null,
             'email' => $email ? strtolower(trim($email)) : null,
             'comment' => $comment ? trim($comment) : null,
         ]);
@@ -46,17 +44,6 @@ class CreateOrderInOneClickRequest extends FormRequest
                 Rule::exists('product_variants', 'id'),
             ],
         ];
-    }
-
-    private function normalize_phone(string $phone): string
-    {
-        $phone = preg_replace('/\D/', '', $phone);
-
-        if (!str_starts_with($phone, '+')) {
-            return '+' . $phone;
-        }
-
-        return $phone;
     }
 
     public function after(): array
