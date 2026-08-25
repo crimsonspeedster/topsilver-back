@@ -303,6 +303,10 @@ class ProcessBatchOrdersJob implements ShouldQueue
                 }
 
                 OrderStatusChanged::dispatch($order);
+
+                if ($order->status === OrderStatus::COMPLETED) {
+                    UpdateOrderSellingCounts::dispatch($order->id)->onQueue('filters');
+                }
             });
 
             $processed++;

@@ -67,6 +67,18 @@ class ProcessBatchProductStocksJob implements ShouldQueue
                     );
 
                     if (!empty($rows)) {
+                        $externalIds = collect($rows)
+                            ->pluck('external_id');
+
+                        $existingProducts = Product::query()
+                            ->whereIn('external_id', $externalIds)
+                            ->get([
+                                'id',
+                                'external_id',
+                                'stock_status',
+                            ])
+                            ->keyBy('external_id');
+
                         Product::upsert(
                             $rows,
                             ['external_id'],
@@ -77,6 +89,24 @@ class ProcessBatchProductStocksJob implements ShouldQueue
                                 'updated_at',
                             ]
                         );
+
+                        foreach ($rows as $row) {
+                            $product = $existingProducts->get(
+                                $row['external_id']
+                            );
+
+                            if (
+                                $product
+                                && $this->shouldNotifyBackInStock(
+                                    $product->stock_status,
+                                    $row['stock_status']
+                                )
+                            ) {
+                                NotifyProductBackInStockJob::dispatch(
+                                    $product->id
+                                )->onQueue('high');
+                            }
+                        }
                     }
 
                     $processed += $p;
@@ -217,5 +247,13 @@ class ProcessBatchProductStocksJob implements ShouldQueue
         }
 
         return $errors;
+    }
+
+    private function shouldNotifyBackInStock(
+        ?StockStatus $oldStatus,
+        StockStatus $newStatus
+    ): bool {
+        return $oldStatus === StockStatus::OutOfStock
+            && $newStatus === StockStatus::InStock;
     }
 }

@@ -2,31 +2,24 @@
 
 namespace App\Nova;
 
-use App\Enums\CouponTypes;
 use App\Enums\OrderStatus;
-use App\Enums\PaymentMethods;
-use App\Enums\ShippingMethods;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
-use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\Email;
-use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\KeyValue;
-use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class Order extends Resource
+class OneClickRequest extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\App\Models\Order>
+     * @var class-string<\App\Models\OneClickRequest>
      */
-    public static $model = \App\Models\Order::class;
+    public static $model = \App\Models\OneClickRequest::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -42,11 +35,11 @@ class Order extends Resource
      */
     public static $search = [
         'id',
-        'phone',
-        'email',
         'user.email',
         'user.phone',
-        'public_token',
+        'email',
+        'phone',
+        'name',
     ];
 
     public static $group = 'Shop';
@@ -61,11 +54,6 @@ class Order extends Resource
     public function authorizedToUpdate(Request $request): bool
     {
         return false;
-    }
-
-    public function authorizedToDelete(Request $request): bool
-    {
-        return $request->user()?->canAccessNovaShopSettings() ?? false;
     }
 
     /**
@@ -84,35 +72,8 @@ class Order extends Resource
                 ->sortable()
                 ->rules('required'),
 
-            Number::make('Subtotal')
-                ->sortable()
+            Text::make('Name')
                 ->rules('required'),
-
-            Number::make('Total')
-                ->sortable()
-                ->readonly()
-                ->exceptOnForms(),
-
-            Number::make('Discount Amount')
-                ->rules('min:0', 'lte:subtotal')
-                ->default(0)
-                ->sortable(),
-
-            DateTime::make('Paid At')
-                ->sortable()
-                ->readonly()
-                ->hideWhenCreating()
-                ->hideWhenUpdating(),
-
-            Textarea::make('Notes'),
-
-            Text::make('First Name')
-                ->rules('required'),
-
-            Text::make('Last Name')
-                ->rules('required'),
-
-            Text::make('Middle Name'),
 
             Text::make('Phone')
                 ->sortable()
@@ -124,37 +85,22 @@ class Order extends Resource
             Email::make('Email')
                 ->sortable(),
 
-            Select::make('Payment Type')
-                ->options(PaymentMethods::options())
-                ->sortable()
-                ->displayUsingLabels()
-                ->rules('required'),
-
-            KeyValue::make('Payment Data'),
-
-            Select::make('Shipping Type')
-                ->options(ShippingMethods::options())
-                ->sortable()
-                ->displayUsingLabels()
-                ->rules('required'),
-
-            KeyValue::make('Shipping Data'),
-
-            Text::make('Coupon Code')
-                ->sortable(),
-
-            Select::make('Coupon Type')
-                ->options(CouponTypes::options())
-                ->displayUsingLabels(),
-
-            Number::make('Coupon Value'),
+            Textarea::make('Comment'),
 
             BelongsTo::make('User', 'user', User::class)
                 ->searchable()
                 ->sortable()
                 ->nullable(),
 
-            HasMany::make('Items', 'items', OrderItem::class),
+            BelongsTo::make('Product', 'product', Product::class)
+                ->searchable()
+                ->sortable()
+                ->nullable(),
+
+            BelongsTo::make('Variant', 'variant', ProductVariant::class)
+                ->searchable()
+                ->sortable()
+                ->nullable(),
         ];
     }
 

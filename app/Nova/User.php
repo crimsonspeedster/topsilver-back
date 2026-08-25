@@ -78,7 +78,7 @@ class User extends Resource
                 ->updateRules('unique:users,email,{{resourceId}}'),
 
             Text::make('Phone')
-                ->rules('required', 'regex:/^\+?[0-9]{9,15}$/')
+                ->rules('required', 'regex:/^380\d{9}$/')
                 ->creationRules('unique:users,phone')
                 ->updateRules('unique:users,phone,{{resourceId}}'),
 

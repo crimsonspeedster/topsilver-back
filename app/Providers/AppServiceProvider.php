@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\OneClickRequest;
 use App\Models\Order;
 use App\Models\ProductReview;
+use App\Observers\OneClickRequestObserver;
 use App\Observers\OrderObserver;
 use App\Observers\ProductReviewObserver;
 use App\Policies\ProductReviewPolicy;
@@ -56,7 +57,7 @@ class AppServiceProvider extends ServiceProvider
     {
         ProductReview::observe(ProductReviewObserver::class);
         Order::observe(OrderObserver::class);
-        OneClickRequest::observe(OrderObserver::class);
+        OneClickRequest::observe(OneClickRequestObserver::class);
     }
 
     protected function configureRoutes (): void

@@ -4,6 +4,7 @@ namespace App\Jobs;
 use App\Enums\IntegrationBatchStatus;
 use App\Enums\IntegrationErrorCode;
 use App\Enums\OrderStatus;
+use App\Events\OrderStatusChanged;
 use App\Models\IntegrationBatch;
 use App\Models\IntegrationBatchError;
 use App\Models\Order;
@@ -149,6 +150,12 @@ class ProcessBatchOrderStatusesJob implements ShouldQueue
             $order->update([
                 'status' => $status,
             ]);
+
+            OrderStatusChanged::dispatch($order);
+
+            if ($status === OrderStatus::COMPLETED) {
+                UpdateOrderSellingCounts::dispatch($order->id)->onQueue('filters');
+            }
 
             $processed++;
         }

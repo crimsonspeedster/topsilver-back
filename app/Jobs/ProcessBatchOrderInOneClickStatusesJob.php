@@ -150,6 +150,10 @@ class ProcessBatchOrderInOneClickStatusesJob implements ShouldQueue
                 'status' => $status,
             ]);
 
+            if ($status === OrderStatus::COMPLETED) {
+                UpdateOneClickRequestSellingCounts::dispatch($order->id)->onQueue('filters');
+            }
+
             $processed++;
         }
 
