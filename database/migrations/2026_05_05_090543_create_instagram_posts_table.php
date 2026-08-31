@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('type')->default('IMAGE');
             $table->string('link');
             $table->text('thumbnail_url')->nullable();
-            $table->text('media_url');
+            $table->text('media_url')->nullable();
             $table->text('caption')->nullable();
             $table->timestamp('published_at');
             $table->timestamps();

@@ -17,10 +17,6 @@ class InstagramGridLayout extends Layout
         return [
             Text::make('Title')
                 ->required(),
-
-            Multiselect::make('Posts')
-                ->asyncResource(InstagramPost::class)
-                ->required(),
         ];
     }
 }

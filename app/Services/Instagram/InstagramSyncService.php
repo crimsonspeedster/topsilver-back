@@ -28,27 +28,36 @@ class InstagramSyncService
         foreach ($response['data'] ?? [] as $media) {
             $post = $this->upsertMedia($media);
 
-            if ($post && $post->wasRecentlyCreated) {
-                if ($post->type === InstagramPostTypes::VIDEO) {
+            if (!$post?->wasRecentlyCreated) {
+                continue;
+            }
+
+            if ($post->type === InstagramPostTypes::VIDEO) {
+                if ($post->media_url) {
                     $batchItems[] = [
                         'id' => $post->id,
                         'collection' => 'videos',
                         'urls' => [$post->media_url],
                     ];
+                }
 
+                if ($post->thumbnail_url) {
                     $batchItems[] = [
                         'id' => $post->id,
                         'collection' => 'media',
                         'urls' => [$post->thumbnail_url],
                     ];
                 }
-                else {
-                    $batchItems[] = [
-                        'id' => $post->id,
-                        'collection' => 'media',
-                        'urls' => [$post->media_url],
-                    ];
-                }
+
+                continue;
+            }
+
+            if ($post->media_url) {
+                $batchItems[] = [
+                    'id' => $post->id,
+                    'collection' => 'media',
+                    'urls' => [$post->media_url],
+                ];
             }
         }
 
@@ -106,7 +115,7 @@ class InstagramSyncService
                 'caption' => $media['caption'] ?? null,
                 'published_at' => $media['timestamp'],
                 'thumbnail_url' => $type === InstagramPostTypes::VIDEO ? $media['thumbnail_url'] :  null,
-                'media_url' => $media['media_url'],
+                'media_url' => $media['media_url'] ?? null,
             ]
         );
     }

@@ -16,7 +16,10 @@ class InstagramPostResource extends JsonResource
         return [
             'id' => $this->id,
             'link' => $this->link,
+            'type' => $this->type,
+            'caption' => $this->caption,
             'media' => new MediaResource($this->getFirstMedia('media')),
+            'videos' => new MediaResource($this->getFirstMedia('videos')),
         ];
     }
 }

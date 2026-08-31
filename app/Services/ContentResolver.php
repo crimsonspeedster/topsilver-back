@@ -57,8 +57,17 @@ class ContentResolver
 
     private function resolveInstagramGrid(array $block): array
     {
-        $ids = json_decode($block['attributes']['posts'] ?? '[]', true);
-        $posts = InstagramPost::whereIn('id', $ids)->get();
+        $posts = InstagramPost::whereHas('media', function ($query) {
+            $query->where('collection_name', 'media');
+        })
+            ->with(['media' => function ($query) {
+                $query->where('collection_name', 'media');
+            }])
+            ->latest()
+            ->take(12)
+            ->get()
+            ->reverse()
+            ->values();
 
         $block['attributes']['posts'] = InstagramPostResource::collection($posts);
 
