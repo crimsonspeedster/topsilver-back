@@ -61,7 +61,7 @@ class ContentResolver
             $query->where('collection_name', 'media');
         })
             ->with(['media' => function ($query) {
-                $query->where('collection_name', 'media');
+                $query->whereIn('collection_name', ['media', 'video']);
             }])
             ->latest()
             ->take(12)

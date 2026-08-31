@@ -34,7 +34,7 @@ class InstagramPost extends Model implements HasMedia
             ->singleFile();
 
         $this
-            ->addMediaCollection('videos')
-            ->acceptsMimeTypes(['video/mp4']);
+            ->addMediaCollection('video')
+            ->singleFile();
     }
 }

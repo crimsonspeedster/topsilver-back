@@ -3,6 +3,7 @@ namespace App\Jobs;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
 use Spatie\MediaLibrary\HasMedia;
 use Throwable;
 
@@ -34,6 +35,12 @@ class SyncMediaBatchJob implements ShouldQueue
 
     private function syncCollection($model, array $item): void
     {
+        Log::info('SYNC MEDIA ITEM', [
+            'id' => $item['id'],
+            'collection' => $item['collection'],
+            'urls' => $item['urls'],
+        ]);
+
         $collection = $item['collection'];
         $urls = collect($item['urls'] ?? [])
             ->map(fn ($url) => trim($url))
@@ -53,6 +60,11 @@ class SyncMediaBatchJob implements ShouldQueue
             }
 
             try {
+                Log::info('DOWNLOADING MEDIA', [
+                    'post_id' => $item['id'],
+                    'url' => $url,
+                ]);
+
                 $model
                     ->addMediaFromUrl($url)
                     ->withCustomProperties([

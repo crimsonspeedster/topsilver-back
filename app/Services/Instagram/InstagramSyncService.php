@@ -7,6 +7,7 @@ use App\Jobs\SyncInstagramMediaJob;
 use App\Models\InstagramPost;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Log;
 
 class InstagramSyncService
 {
@@ -36,7 +37,7 @@ class InstagramSyncService
                 if ($post->media_url) {
                     $batchItems[] = [
                         'id' => $post->id,
-                        'collection' => 'videos',
+                        'collection' => 'video',
                         'urls' => [$post->media_url],
                     ];
                 }
