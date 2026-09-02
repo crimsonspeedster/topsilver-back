@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum MenuItemTypes : string
+enum MenuItemEntityTypes : string
 {
     case CUSTOM = 'custom';
     case ENTITY = 'entity';

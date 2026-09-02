@@ -2,9 +2,10 @@
 
 namespace App\Nova;
 
-use App\Enums\MenuItemTypes;
+use App\Enums\MenuItemEntityTypes;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\MorphTo;
@@ -61,16 +62,18 @@ class MenuItem extends Resource
                 ->rules('required'),
 
             Select::make('Type')
-                ->options(MenuItemTypes::options())
+                ->options(MenuItemEntityTypes::options())
                 ->displayUsingLabels()
                 ->rules('required'),
+
+            Boolean::make('Use HTML Blocks', 'use_html_blocks'),
 
             URL::make('URL')
                 ->hide()
                 ->dependsOn(
                     'type',
                     function ($field, $request, $formData) {
-                        if ($formData->type === MenuItemTypes::CUSTOM->value) {
+                        if ($formData->type === MenuItemEntityTypes::CUSTOM->value) {
                             $field->show()->rules(
                                 'required',
                             );
@@ -96,7 +99,7 @@ class MenuItem extends Resource
                 ->dependsOn(
                     'type',
                     function ($field, $request, $formData) {
-                        if ($formData->type === MenuItemTypes::ENTITY->value) {
+                        if ($formData->type === MenuItemEntityTypes::ENTITY->value) {
                             $field->show()->rules(
                                 'required',
                             );
@@ -114,6 +117,8 @@ class MenuItem extends Resource
                     'min:0',
                 )
                 ->default(0),
+
+            BelongsTo::make('HTML Block', 'htmlBlock', HTMLBlock::class),
 
             BelongsTo::make('Menu', 'menu', Menu::class),
 

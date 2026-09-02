@@ -2,29 +2,78 @@
 namespace App\Services;
 
 use App\Http\Resources\InstagramPostResource;
+use App\Http\Resources\MenuItemResource;
 use App\Http\Resources\Product\ProductCardResource;
 use App\Http\Resources\TaxonomyCollectionResource;
 use App\Models\Category;
 use App\Models\InstagramPost;
+use App\Models\MenuItem;
 use App\Models\Product;
 use App\Models\Promotion;
+use Illuminate\Support\Facades\Storage;
 
 class ContentResolver
 {
     public function resolve(array $blocks): array
     {
         return collect($blocks)->map(function ($block) {
-
             return match ($block['layout']) {
                 'InstagramGrid' => $this->resolveInstagramGrid($block),
                 'CategoriesGrid' => $this->resolveCategoriesGrid($block),
                 'ProductsGrid' => $this->resolveProductsGrid($block),
                 'ProductsGridWithTabs' => $this->resolveProductsGridWithTabs($block),
                 'LatestPromotions' => $this->resolveLatestPromotions($block),
+                'MegaMenu' => $this->resolveMegaMenu($block),
                 default => $block,
             };
-
         })->toArray();
+    }
+
+    private function resolveMegaMenu(array $block): array
+    {
+        $left_part = $block['attributes']['left_part'] ?? [];
+        $right_part = $block['attributes']['right_part'] ?? [];
+
+        $leftPartCount = count($left_part);
+
+        $parts = array_merge($left_part, $right_part);
+
+        $parts = array_map(function ($part) {
+            if ($part['layout'] === 'MenuItem') {
+                return $this->resolveMenuItem($part);
+            }
+            elseif ($part['layout'] === 'MenuImage') {
+                return $this->resolveMenuImage($part);
+            }
+
+            return $part;
+        }, $parts);
+
+        $block['attributes']['left_part'] = array_slice($parts, 0, $leftPartCount);
+        $block['attributes']['right_part'] = array_slice($parts, $leftPartCount);
+
+        return $block;
+    }
+
+    private function resolveMenuImage(array $block): array
+    {
+        $image_name = $block['attributes']['image'];
+        $image_url = Storage::disk('public')->url($image_name);
+
+        $block['attributes']['image'] = $image_url;
+
+        return $block;
+    }
+
+    private function resolveMenuItem(array $block): array
+    {
+        $ids = json_decode($block['attributes']['menu_items'] ?? '[]', true);
+        $posts = MenuItem::whereIn('id', $ids)
+            ->get();
+
+        $block['attributes']['menu_items'] = MenuItemResource::collection($posts);
+
+        return $block;
     }
 
     private function resolveLatestPromotions(array $block): array

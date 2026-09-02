@@ -12,6 +12,7 @@ class MenuController extends Controller
     {
         $menus = Menu::with([
             'items.children',
+            'items.htmlBlock',
             'location',
         ])->get();
 
@@ -23,7 +24,10 @@ class MenuController extends Controller
     public function show(Location $location)
     {
         $menu = Menu::where('location_id', $location->id)
-            ->with(['items.children'])
+            ->with([
+                'items.children',
+                'items.htmlBlock',
+            ])
             ->firstOrFail();
 
         return response()->json([

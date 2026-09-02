@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Enums\MenuItemTypes;
+use App\Enums\MenuItemEntityTypes;
 use App\Models\MenuItem;
 use App\Models\Slug;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -21,14 +21,15 @@ class MenuItemFactory extends Factory
     {
         $randomSlugItem = Slug::inRandomOrder()->first();
 
-        $type = $this->faker->randomElement(MenuItemTypes::cases());
+        $type = $this->faker->randomElement(MenuItemEntityTypes::cases());
 
-        $url = $type === MenuItemTypes::CUSTOM ? $this->faker->url() : null;
-        $entity_type = $type === MenuItemTypes::ENTITY ? $randomSlugItem->entity_type : null;
-        $entity_id = $type === MenuItemTypes::ENTITY ? $randomSlugItem->id : null;
+        $url = $type === MenuItemEntityTypes::CUSTOM ? $this->faker->url() : null;
+        $entity_type = $type === MenuItemEntityTypes::ENTITY ? $randomSlugItem->entity_type : null;
+        $entity_id = $type === MenuItemEntityTypes::ENTITY ? $randomSlugItem->id : null;
 
         return [
             'title' => $this->faker->title(),
+            'use_html_blocks' => false,
             'type' => $type,
             'url' => $url,
             'entity_type' => $entity_type,

@@ -15,14 +15,17 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('menu_id')->nullable();
             $table->unsignedBigInteger('parent_id')->nullable();
+            $table->unsignedBigInteger('html_block_id')->nullable();
             $table->string('title');
             $table->string('type')->default('entity');
             $table->string('url')->nullable();
             $table->unsignedBigInteger('entity_id')->nullable();
             $table->string('entity_type')->nullable();
+            $table->boolean('use_html_blocks')->default(false);
             $table->unsignedInteger('order')->default(0);
             $table->timestamps();
 
+            $table->foreign('html_block_id')->references('id')->on('html_blocks')->nullOnDelete();
             $table->foreign('menu_id')->references('id')->on('menus')->onDelete('cascade');
             $table->foreign('parent_id')->references('id')->on('menu_items')->onDelete('cascade');
         });

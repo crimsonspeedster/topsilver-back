@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\MenuItemTypes;
+use App\Enums\MenuItemEntityTypes;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,17 +18,20 @@ class MenuItem extends Model
     protected $fillable = [
         'menu_id',
         'parent_id',
+        'html_block_id',
         'title',
         'type',
         'url',
         'entity_id',
         'entity_type',
+        'use_html_blocks',
         'order'
     ];
 
     protected $casts = [
         'order' => 'integer',
-        'type' => MenuItemTypes::class,
+        'type' => MenuItemEntityTypes::class,
+        'use_html_blocks' => 'boolean',
     ];
 
     public function entity (): MorphTo
@@ -44,6 +47,14 @@ class MenuItem extends Model
     {
         return $this->belongsTo(
             Menu::class,
+        );
+    }
+
+    public function htmlBlock(): BelongsTo
+    {
+        return $this->belongsTo(
+            HTMLBlock::class,
+            'html_block_id',
         );
     }
 
@@ -73,8 +84,8 @@ class MenuItem extends Model
     public function getLinkAttribute(): string
     {
         return match ($this->type) {
-            MenuItemTypes::CUSTOM => $this->url,
-            MenuItemTypes::ENTITY => $this->getEntitySlug(),
+            MenuItemEntityTypes::CUSTOM => $this->url,
+            MenuItemEntityTypes::ENTITY => $this->getEntitySlug(),
         };
     }
 

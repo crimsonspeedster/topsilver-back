@@ -4,7 +4,7 @@ namespace App\OpenApi\Endpoints;
 use OpenApi\Attributes as OA;
 
 #[OA\Post(
-    path: "/api/v1/integrations/1c/taxonomy/certificates",
+    path: "/api/v1/integrations/1c/certificates",
     description: "Sync certificates from 1c with site",
     summary: "Add / Update certificates",
     security: [["bearerAuth" => []]],

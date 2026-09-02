@@ -18,6 +18,8 @@ class MenuItemResource extends JsonResource
             'type' => $this->type,
             'url' => $this->link,
             'order' => $this->order,
+            'use_html_blocks' => $this->use_html_blocks,
+            'html_block' => new HTMLBlockResource($this->whenLoaded('htmlBlock')),
             'children' => MenuItemResource::collection($this->whenLoaded('children')),
         ];
     }
