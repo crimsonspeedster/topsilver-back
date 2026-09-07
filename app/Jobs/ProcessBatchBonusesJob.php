@@ -1,106 +1,28 @@
 <?php
 namespace App\Jobs;
 
-use App\Enums\IntegrationBatchStatus;
 use App\Enums\IntegrationErrorCode;
 use App\Models\Bonus;
-use App\Models\IntegrationBatch;
-use App\Models\IntegrationBatchError;
 use App\Models\User;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Throwable;
 
-class ProcessBatchBonusesJob implements ShouldQueue
+class ProcessBatchBonusesJob extends ProcessBatchJob
 {
-    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
-
-    public function __construct(
-        public IntegrationBatch $batch
-    ) {}
-
-    /**
-     * @throws Throwable
-     */
-    public function handle(): void
+    protected function lockKey(): string
     {
-        $lock = Cache::lock('bonuses-batch-import', 600);
-
-        if (!$lock->get()) {
-            return;
-        }
-
-        try {
-            $this->batch->update([
-                'status' => IntegrationBatchStatus::Processing,
-                'processed_count' => 0,
-                'failed_count' => 0,
-                'started_at' => now(),
-            ]);
-
-            $data = json_decode($this->batch->payload, true);
-
-            if (!is_array($data) || empty($data)) {
-                $this->failBatch('Empty payload');
-                return;
-            }
-
-            $items = $data['items'] ?? [];
-
-            if (!is_array($items) || empty($items)) {
-                $this->failBatch('Empty items');
-                return;
-            }
-
-            $processed = 0;
-            $failed = 0;
-
-            collect($items)
-                ->chunk(200)
-                ->each(function ($chunk) use (&$processed, &$failed) {
-                    [$p, $f] = $this->processChunk($chunk->toArray());
-                    $processed += $p;
-                    $failed += $f;
-                });
-
-            $status = $failed > 0 ? IntegrationBatchStatus::PartialFailed : IntegrationBatchStatus::Completed;
-
-            $this->batch->update([
-                'status' => $status,
-                'processed_count' => $processed,
-                'failed_count' => $failed,
-                'items_count' => count($items),
-                'finished_at' => now(),
-            ]);
-        }
-        catch (Throwable $e) {
-            $this->failBatch($e->getMessage());
-
-            throw $e;
-        }
-        finally {
-            optional($lock)->release();
-        }
+        return 'bonuses-batch-import';
     }
 
-    /**
-     * @throws Throwable
-     */
-    private function processChunk(array $items): array
+    protected function updateChunk(array $items): array
     {
         $processed = 0;
         $failed = 0;
         $grouped = [];
 
         foreach ($items as $index => $item) {
-            $errors = $this->validateItem($item, $this->rulesGlobal());
+            $errors = $this->validateItem($item);
 
-            if (!empty($errors)) {
+            if ($errors) {
                 $failed++;
 
                 foreach ($errors as $error) {
@@ -109,30 +31,28 @@ class ProcessBatchBonusesJob implements ShouldQueue
                         code: $error['code']->value,
                         message: $error['message'],
                         field: $error['field'],
-                        externalId: $item['id'] ?: null,
+                        externalId: $item['id'] ?? null,
                     );
                 }
 
                 continue;
             }
 
-            if (
-                !is_array($item['bonuses'])
-            ) {
+            if (!is_array($item['bonuses'])) {
                 $this->logError(
                     index: $index,
                     code: IntegrationErrorCode::InvalidValue->value,
                     message: 'Bonuses should be an array',
                     field: 'bonuses',
-                    externalId: $item['id'] ?: null,
+                    externalId: $item['id'] ?? null,
                 );
 
                 $failed++;
+
                 continue;
             }
 
             $grouped[$item['phone']][] = $item['bonuses'];
-            $processed++;
         }
 
         if (empty($grouped)) {
@@ -141,11 +61,8 @@ class ProcessBatchBonusesJob implements ShouldQueue
             return [$processed, $failed];
         }
 
-        $phones = array_keys($grouped);
-
         $users = User::query()
-            ->with(['bonuses'])
-            ->whereIn('phone', $phones)
+            ->whereIn('phone', array_keys($grouped))
             ->get(['id', 'phone'])
             ->keyBy('phone');
 
@@ -157,20 +74,24 @@ class ProcessBatchBonusesJob implements ShouldQueue
                     index: 0,
                     code: IntegrationErrorCode::Exception->value,
                     message: 'Not found user',
+                    externalId: $phone,
                 );
 
                 $failed++;
+
                 continue;
             }
 
-            $bonuses = collect($bonusSets)->flatten(1)->values();
-
             $rows = [];
 
-            foreach ($bonuses as $index => $bonus) {
-                $errors = $this->validateItem($bonus, $this->rulesInner());
+            $bonuses = collect($bonusSets)
+                ->flatten(1)
+                ->values();
 
-                if (!empty($errors)) {
+            foreach ($bonuses as $index => $bonus) {
+                $errors = $this->validateItem($bonus, $this->innerRules());
+
+                if ($errors) {
                     $failed++;
 
                     foreach ($errors as $error) {
@@ -184,7 +105,6 @@ class ProcessBatchBonusesJob implements ShouldQueue
 
                     continue;
                 }
-
 
                 $rows[] = [
                     'user_id' => $user->id,
@@ -200,7 +120,7 @@ class ProcessBatchBonusesJob implements ShouldQueue
             DB::transaction(function () use ($user, $rows) {
                 Bonus::where('user_id', $user->id)->delete();
 
-                if (!empty($rows)) {
+                if ($rows) {
                     Bonus::insert($rows);
                 }
             });
@@ -211,33 +131,7 @@ class ProcessBatchBonusesJob implements ShouldQueue
         return [$processed, $failed];
     }
 
-    private function failBatch(string $message): void
-    {
-        $this->batch->update([
-            'status' => IntegrationBatchStatus::Failed,
-            'error_message' => mb_substr($message, 0, 10000),
-            'finished_at' => now(),
-        ]);
-    }
-
-    private function logError(
-        int $index,
-        string $code,
-        string $message,
-        ?string $field = null,
-        ?string $externalId = null,
-    ): void {
-        IntegrationBatchError::create([
-            'integration_batch_id' => $this->batch->id,
-            'item_index' => $index,
-            'external_id' => $externalId,
-            'field' => $field,
-            'code' => $code,
-            'message' => $message,
-        ]);
-    }
-
-    private function rulesGlobal(): array
+    protected function rules(): array
     {
         return [
             'phone' => [
@@ -249,7 +143,7 @@ class ProcessBatchBonusesJob implements ShouldQueue
         ];
     }
 
-    private function rulesInner(): array
+    protected function innerRules(): array
     {
         return [
             'amount' => [
@@ -265,26 +159,5 @@ class ProcessBatchBonusesJob implements ShouldQueue
                 'required' => true,
             ],
         ];
-    }
-
-    private function validateItem(array $item, array $rules): array
-    {
-        $errors = [];
-
-        foreach ($rules as $field => $fieldRules) {
-            $value = $item[$field] ?? null;
-
-            $valueStr = is_string($value) ? trim($value) : $value;
-
-            if (($fieldRules['required'] ?? false) && empty($valueStr)) {
-                $errors[] = [
-                    'field' => $field,
-                    'code' => IntegrationErrorCode::Required,
-                    'message' => ucfirst($field) . ' is required',
-                ];
-            }
-        }
-
-        return $errors;
     }
 }
