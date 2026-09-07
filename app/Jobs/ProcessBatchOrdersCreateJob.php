@@ -25,6 +25,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class ProcessBatchOrdersCreateJob implements ShouldQueue
@@ -284,7 +285,12 @@ class ProcessBatchOrdersCreateJob implements ShouldQueue
                                 }
                             }
 
-                            $order->items()->create([
+                            Log::info('Product ID -> ' . $entity->id);
+                            Log::info('Product Title -> ' . $entity->title);
+
+                            Log::info('BEFORE CREATE ORDER ITEM');
+
+                            $order_item = $order->items()->create([
                                 'external_id' => $item['id'],
 
                                 'entity_id' => $entity->id,
@@ -302,6 +308,12 @@ class ProcessBatchOrdersCreateJob implements ShouldQueue
                                     'external_id' => $variant->external_id,
                                     'attributes' => $variant_attributes,
                                 ] : [],
+                            ]);
+
+                            Log::info('Order item created', [
+                                'id' => $order_item->id,
+                                'external_id' => $order_item->external_id,
+                                'order_id' => $order->id,
                             ]);
                         }
                     }
