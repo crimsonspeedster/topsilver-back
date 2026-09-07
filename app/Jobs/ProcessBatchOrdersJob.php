@@ -269,7 +269,7 @@ class ProcessBatchOrdersJob implements ShouldQueue
 
                             'entity_id' => $entity->id,
                             'entity_name' => $entity->title,
-                            'entity_type' => $item['entity_type'] ?? 'product',
+                            'entity_type' => $entity::class,
 
                             'entity_image' => $entity?->getFirstMediaUrl('media') ?? null,
                             'entity_price' => floatval($item['price']),

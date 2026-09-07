@@ -285,17 +285,12 @@ class ProcessBatchOrdersCreateJob implements ShouldQueue
                                 }
                             }
 
-                            Log::info('Product ID -> ' . $entity->id);
-                            Log::info('Product Title -> ' . $entity->title);
-
-                            Log::info('BEFORE CREATE ORDER ITEM');
-
-                            $order_item = $order->items()->create([
+                            $order->items()->create([
                                 'external_id' => $item['id'],
 
                                 'entity_id' => $entity->id,
                                 'entity_name' => $entity->title,
-                                'entity_type' => $item['entity_type'] ?? 'product',
+                                'entity_type' => $entity::class,
 
                                 'entity_image' => $entity->getFirstMediaUrl('media') ?: null,
                                 'entity_price' => floatval($item['price']),
@@ -308,12 +303,6 @@ class ProcessBatchOrdersCreateJob implements ShouldQueue
                                     'external_id' => $variant->external_id,
                                     'attributes' => $variant_attributes,
                                 ] : [],
-                            ]);
-
-                            Log::info('Order item created', [
-                                'id' => $order_item->id,
-                                'external_id' => $order_item->external_id,
-                                'order_id' => $order->id,
                             ]);
                         }
                     }
