@@ -148,10 +148,15 @@ class Product extends Resource
             Image::make('Image')
                 ->store(function ($request, $model, $attribute) {
                     if ($request->hasFile($attribute)) {
+                        $model->clearMediaCollection('media');
+
                         $model->addMediaFromRequest($attribute)->toMediaCollection('media');
                     }
 
                     return [];
+                })
+                ->delete(function ($request, $model, $attribute) {
+                    $model->clearMediaCollection('media');
                 })
                 ->preview(fn ($value, $disk, $model) => $model->getFirstMediaUrl('media'))
                 ->thumbnail(fn ($value, $disk, $model) => $model->getFirstMediaUrl('media'))

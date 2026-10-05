@@ -62,10 +62,15 @@ class Video extends Resource
             Image::make('Thumbnail')
                 ->store(function ($request, $model, $attribute) {
                     if ($request->hasFile($attribute)) {
+                        $model->clearMediaCollection('thumbnail');
+
                         $model->addMediaFromRequest($attribute)->toMediaCollection('thumbnail');
                     }
 
                     return [];
+                })
+                ->delete(function ($request, $model, $attribute) {
+                    $model->clearMediaCollection('thumbnail');
                 })
                 ->preview(fn ($value, $disk, $model) => $model->getFirstMediaUrl('thumbnail'))
                 ->thumbnail(fn ($value, $disk, $model) => $model->getFirstMediaUrl('thumbnail'))
