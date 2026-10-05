@@ -90,12 +90,12 @@ class Product extends Model implements HasMedia, HasMeta
             ->watermark(
                 $path,
                 AlignPosition::Center,
-                width: 65,
+                width: 43,
                 widthUnit: Unit::Percent,
-                height: 65,
+                height: 43,
                 heightUnit: Unit::Percent,
                 fit: Fit::Contain,
-                alpha: 25,
+                alpha: 35,
             );
     }
 
