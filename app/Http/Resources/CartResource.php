@@ -17,14 +17,20 @@ class CartResource extends JsonResource
         $subtotal = $this->subtotal ?? 0;
 
         return [
-            'items' => CartItemsResource::collection($this->whenLoaded('items')),
+            'items' => $this->relationLoaded('items')
+                ? CartItemsResource::collection($this->items)
+                : [],
             'subtotal' => $subtotal,
             'total' => $total,
             'bonuses_used' => $this->bonuses_used,
             'total_formatted' => $currency->format($total)->format(),
             'subtotal_formatted' => $currency->format($subtotal)->format(),
-            'coupon' => new CouponResource($this->whenLoaded('coupon')),
-            'certificates' => CertificateResource::collection($this->whenLoaded('certificates')),
+            'coupon' => $this->relationLoaded('coupon')
+                ? new CouponResource($this->coupon)
+                : null,
+            'certificates' => $this->relationLoaded('certificates')
+                ? CertificateResource::collection($this->certificates)
+                : [],
             'items_count' => $this->items_count,
             'total_qty' => $this->total_qty,
             'promotion_messages' => $this->getPromotionMessages(),

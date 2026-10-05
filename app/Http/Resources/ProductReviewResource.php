@@ -14,7 +14,9 @@ class ProductReviewResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user' => new UserResource($this->whenLoaded('user')),
+            'user' => $this->relationLoaded('user')
+                ? new UserResource($this->user)
+                : null,
             'comment' => $this->comment,
             'rating' => $this->rating,
             'created_at' => $this->created_at,

@@ -27,7 +27,9 @@ class QuickOrderResource extends JsonResource
             'phone' => $this->phone,
             'email' => $this->email,
             'created_at' => $this->created_at,
-            'product' => new ProductCardResource($this->whenLoaded('product')),
+            'product' => $this->relationLoaded('product')
+                ? new ProductCardResource($this->product)
+                : null,
             'product_variant' => $this->product_variant,
             'product_image' => $this->product_image,
             'product_name' => $this->product_name,

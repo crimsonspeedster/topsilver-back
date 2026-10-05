@@ -10,7 +10,9 @@ class SeoPageResource extends JsonResource
         $media = $this->getFirstMedia('media');
 
         return [
-            'seo' => new SeoResource($this->whenLoaded('seo')),
+            'seo' => $this->relationLoaded('seo')
+                ? new SeoResource($this->seo)
+                : null,
             'media' => $media
                 ? new MediaResource($media)
                 : null,

@@ -37,11 +37,15 @@ class ProductPDPResource extends JsonResource
                     $media,
                     $this->shouldShowWatermark(),
                 )),
-            'videos' => VideoResource::collection($this->whenLoaded('videos')),
+            'videos' => $this->relationLoaded('videos')
+                ? VideoResource::collection($this->videos)
+                : [],
             'price' => $this->price,
             'price_on_sale' => $this->price_on_sale,
             'price_formatted' => $currency->format($this->price)->format(),
-            'price_on_sale_formatted' => $this->price_on_sale ? $currency->format($this->price_on_sale)->format(): null,
+            'price_on_sale_formatted' => $this->price_on_sale
+                ? $currency->format($this->price_on_sale)->format()
+                : null,
             'discount_percent' => $this->getDiscountPercent(),
             'manage_stock' => $this->manage_stock,
             'stock' => $this->stock,
@@ -52,15 +56,33 @@ class ProductPDPResource extends JsonResource
             'rating_distribution' => $this->rating_distribution,
             'type' => $this->type,
             'variant_attributes' => $this->variant_attributes,
-            'variants' => ProductVariantResource::collection($this->whenLoaded('variants')),
-            'labels' => LabelResource::collection($this->whenLoaded('labels')),
-            'categories' => TaxonomyCollectionResource::collection($this->whenLoaded('categories')),
-            'collections' => TaxonomyCollectionResource::collection($this->whenLoaded('collections')),
-            'promotions' => TaxonomyCollectionResource::collection($this->whenLoaded('promotions')),
-            'bundles' => BundleResource::collection($this->whenLoaded('bundles')),
-            'cross_sells' => ProductCardResource::collection($this->whenLoaded('crossSellsLimited')),
-            'group_products' => ProductCardResource::collection($this->whenLoaded('groupProducts')),
-            'seo_block' => new SeoBlockResource($this->whenLoaded('seoBlock')),
+            'variants' => $this->relationLoaded('variants')
+                ? ProductVariantResource::collection($this->variants)
+                : [],
+            'labels' => $this->relationLoaded('labels')
+                ? LabelResource::collection($this->labels)
+                : [],
+            'categories' => $this->relationLoaded('categories')
+                ? TaxonomyCollectionResource::collection($this->categories)
+                : [],
+            'collections' => $this->relationLoaded('collections')
+                ? TaxonomyCollectionResource::collection($this->collections)
+                : [],
+            'promotions' => $this->relationLoaded('promotions')
+                ? TaxonomyCollectionResource::collection($this->promotions)
+                : [],
+            'bundles' => $this->relationLoaded('bundles')
+                ? BundleResource::collection($this->bundles)
+                : [],
+            'cross_sells' => $this->relationLoaded('crossSellsLimited')
+                ? ProductCardResource::collection($this->crossSellsLimited)
+                : [],
+            'group_products' => $this->relationLoaded('groupProducts')
+                ? ProductCardResource::collection($this->groupProducts)
+                : [],
+            'seo_block' => $this->relationLoaded('seoBlock')
+                ? new SeoBlockResource($this->seoBlock)
+                : null,
         ];
     }
 }

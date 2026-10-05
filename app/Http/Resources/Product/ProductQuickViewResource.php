@@ -22,7 +22,9 @@ class ProductQuickViewResource extends JsonResource
         return [
             'id' => $this->id,
             'external_id' => $this->external_id,
-            'slug' => $this->whenLoaded('sluggable', fn () => $this->sluggable?->slug),
+            'slug' => $this->relationLoaded('sluggable')
+                ? $this->sluggable?->slug
+                : null,
             'title' => $this->title,
             'short_description' => $this->short_description,
             'media' => new MediaResource(
@@ -37,21 +39,31 @@ class ProductQuickViewResource extends JsonResource
             'price' => $this->price,
             'price_on_sale' => $this->price_on_sale,
             'price_formatted' => $currency->format($this->price)->format(),
-            'price_on_sale_formatted' => $this->price_on_sale ? $currency->format($this->price_on_sale)->format(): null,
+            'price_on_sale_formatted' => $this->price_on_sale ? $currency->format($this->price_on_sale)->format() : null,
             'discount_percent' => $this->getDiscountPercent(),
             'type' => $this->type,
             'variant_attributes' => $this->variant_attributes,
-            'variants' => ProductVariantResource::collection($this->whenLoaded('variants')),
+            'variants' => $this->relationLoaded('variants')
+                ? ProductVariantResource::collection($this->variants)
+                : [],
             'stock_status' => $this->stock_status,
             'stock' => $this->stock,
             'manage_stock' => $this->manage_stock,
             'rating_count' => $this->rating_count,
             'rating_avg' => $this->rating_avg,
             'sku' => $this->sku,
-            'labels' => LabelResource::collection($this->whenLoaded('labels')),
-            'categories' => TaxonomyCollectionResource::collection($this->whenLoaded('categories')),
-            'collections' => TaxonomyCollectionResource::collection($this->whenLoaded('collections')),
-            'promotions' => TaxonomyCollectionResource::collection($this->whenLoaded('promotions')),
+            'labels' => $this->relationLoaded('labels')
+                ? LabelResource::collection($this->labels)
+                : [],
+            'categories' => $this->relationLoaded('categories')
+                ? TaxonomyCollectionResource::collection($this->categories)
+                : [],
+            'collections' => $this->relationLoaded('collections')
+                ? TaxonomyCollectionResource::collection($this->collections)
+                : [],
+            'promotions' => $this->relationLoaded('promotions')
+                ? TaxonomyCollectionResource::collection($this->promotions)
+                : [],
         ];
     }
 }

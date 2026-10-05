@@ -15,7 +15,9 @@ class BundleItemResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'product' => new ProductCardResource($this->whenLoaded('product')),
+            'product' => $this->relationLoaded('product')
+                ? new ProductCardResource($this->product)
+                : null,
             'quantity' => $this->quantity,
         ];
     }

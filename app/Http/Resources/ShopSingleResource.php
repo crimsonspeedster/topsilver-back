@@ -22,8 +22,12 @@ class ShopSingleResource extends JsonResource
             'address_link' => $this->address_link,
             'phone' => $this->phone,
             'time_working' => $this->time_working,
-            'city' => new CityResource($this->whenLoaded('city')),
-            'seo_block' => new SeoBlockResource($this->whenLoaded('seoBlock')),
+            'city' => $this->relationLoaded('city')
+                ? new CityResource($this->city)
+                : null,
+            'seo_block' => $this->relationLoaded('seoBlock')
+                ? new SeoBlockResource($this->seoBlock)
+                : null,
             'media' => new MediaResource($this->getFirstMedia('media')),
             'banner' => new MediaResource($this->getFirstMedia('banner')),
         ];

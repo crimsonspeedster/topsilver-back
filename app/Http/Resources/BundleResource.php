@@ -23,8 +23,12 @@ class BundleResource extends JsonResource
             'old_price' => $this->old_price,
             'price' => $this->price,
             'price_formatted' => $currency->format($this->price)->format(),
-            'old_price_formatted' => $this->old_price ? $currency->format($this->old_price)->format(): null,
-            'items' => BundleItemResource::collection($this->whenLoaded('items')),
+            'old_price_formatted' => $this->old_price
+                ? $currency->format($this->old_price)->format()
+                : null,
+            'items' => $this->relationLoaded('items')
+                ? BundleItemResource::collection($this->items)
+                : [],
         ];
     }
 }

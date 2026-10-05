@@ -18,7 +18,9 @@ class AttributeResource extends JsonResource
             'title' => $this->title,
             'slug' => $this->slug,
             'type' => $this->type,
-            'terms' => AttributeTermResource::collection($this->whenLoaded('terms')),
+            'terms' => $this->relationLoaded('terms')
+                ? AttributeTermResource::collection($this->terms)
+                : [],
         ];
     }
 }

@@ -14,7 +14,9 @@ class ContentEntityCollectionResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'slug' => $this->whenLoaded('sluggable', fn () => $this->sluggable?->slug),
+            'slug' => $this->relationLoaded('sluggable')
+                ? $this->sluggable?->slug
+                : null,
             'short_description' => $this->short_description,
             'media' => new MediaResource($this->getFirstMedia('media')),
         ];

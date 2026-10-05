@@ -16,7 +16,9 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'phone' => $this->phone,
             'email_verified' => $this->resource->hasVerifiedEmail(),
-            'profile' => new ProfileResource($this->whenLoaded('profile')),
+            'profile' => $this->relationLoaded('profile')
+                ? new ProfileResource($this->profile)
+                : null,
         ];
     }
 }

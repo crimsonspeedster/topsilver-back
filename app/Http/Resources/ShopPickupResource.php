@@ -15,7 +15,9 @@ class ShopPickupResource extends JsonResource
             'id' => $this->id,
             'external_id' => $this->external_id,
             'title' => $this->title,
-            'city' => new CityResource($this->whenLoaded('city')),
+            'city' => $this->relationLoaded('city')
+                ? new CityResource($this->city)
+                : null,
             'address' => $this->address,
         ];
     }

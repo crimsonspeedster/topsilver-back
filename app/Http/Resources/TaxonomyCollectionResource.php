@@ -18,7 +18,9 @@ class TaxonomyCollectionResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'media' => new MediaResource($this->getFirstMedia('media')),
-            'slug' => $this->whenLoaded('sluggable', fn () => $this->sluggable?->slug),
+            'slug' => $this->relationLoaded('sluggable')
+                ? $this->sluggable?->slug
+                : null,
         ];
     }
 }

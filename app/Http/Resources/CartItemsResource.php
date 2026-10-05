@@ -29,7 +29,9 @@ class CartItemsResource extends JsonResource
             'total' => $this->total_price,
             'total_formatted' => $currency->format($this->total_price)->format(),
             'entity' => $this->resolveEntityResource(),
-            'product_variant' => new ProductVariantResource($this->whenLoaded('variant')),
+            'product_variant' => $this->relationLoaded('variant')
+                ? new ProductVariantResource($this->variant)
+                : null,
         ];
     }
 

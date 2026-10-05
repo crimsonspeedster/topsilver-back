@@ -21,7 +21,9 @@ class IntegrationBatchResource extends JsonResource
             'error_message' => $this->error_message,
             'started_at' => $this->started_at,
             'finished_at' => $this->finished_at,
-            'errors' => IntegrationBatchErrorResource::collection($this->whenLoaded('errors')),
+            'errors' => $this->relationLoaded('errors')
+                ? IntegrationBatchErrorResource::collection($this->errors)
+                : [],
         ];
     }
 }

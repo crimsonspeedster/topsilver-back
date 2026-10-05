@@ -22,13 +22,19 @@ class ProductCardResource extends JsonResource
             'id' => $this->id,
             'external_id' => $this->external_id,
             'title' => $this->title,
-            'slug' => $this->whenLoaded('sluggable', fn () => $this->sluggable?->slug),
+            'slug' => $this->relationLoaded('sluggable')
+                ? $this->sluggable?->slug
+                : null,
             'price' => $this->price,
             'price_on_sale' => $this->price_on_sale,
             'price_formatted' => $currency->format($this->price)->format(),
-            'price_on_sale_formatted' => $this->price_on_sale ? $currency->format($this->price_on_sale)->format(): null,
+            'price_on_sale_formatted' => $this->price_on_sale
+                ? $currency->format($this->price_on_sale)->format()
+                : null,
             'discount_percent' => $this->getDiscountPercent(),
-            'labels' => LabelResource::collection($this->whenLoaded('labels')),
+            'labels' => $this->relationLoaded('labels')
+                ? LabelResource::collection($this->labels)
+                : [],
             'media' => new MediaResource(
                 $this->getFirstMedia('media'),
                 $this->shouldShowWatermark(),
@@ -38,7 +44,9 @@ class ProductCardResource extends JsonResource
             'manage_stock' => $this->manage_stock,
             'type' => $this->type,
             'variant_attributes' => $this->variant_attributes,
-            'variants' => ProductVariantResource::collection($this->whenLoaded('variants')),
+            'variants' => $this->relationLoaded('variants')
+                ? ProductVariantResource::collection($this->variants)
+                : [],
         ];
     }
 }

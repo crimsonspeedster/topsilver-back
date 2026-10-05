@@ -39,8 +39,12 @@ class OrderResource extends JsonResource
             'shipping_type' => $this->shipping_type,
             'shipping_data' => $this->shipping_data,
             'created_at' => $this->created_at,
-            'certificates' => CertificateResource::collection($this->whenLoaded('certificates')),
-            'items' => OrderItemCollectionResource::collection($this->whenLoaded('items')),
+            'certificates' => $this->relationLoaded('certificates')
+                ? CertificateResource::collection($this->certificates)
+                : [],
+            'items' => $this->relationLoaded('items')
+                ? OrderItemCollectionResource::collection($this->items)
+                : [],
         ];
     }
 }
