@@ -29,8 +29,6 @@ return new class extends Migration
 
             $table->decimal('bonuses_used', 10, 2)->default(0);
 
-            $table->decimal('discount_amount', 10, 2)->default(0);
-
             $table->text('notes')->nullable();
 
             $table->string('first_name');

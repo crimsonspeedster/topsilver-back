@@ -150,7 +150,6 @@ class ProcessBatchOrdersJob implements ShouldQueue
 
             $subtotal = floatval($orderData['subtotal']);
             $total = floatval($orderData['total']);
-            $discount_amount = floatval($orderData['discount_amount']);
 
             $is_shipping_data_valid = $this->validateShippingData($orderData['shipping_data']);
 
@@ -197,13 +196,12 @@ class ProcessBatchOrdersJob implements ShouldQueue
             $shipping_data['shipping_method_name'] = $shipping_method->name;
             $shipping_method['shipping_method_type'] = $shipping_method->type->value;
 
-            DB::transaction(function () use ($order, $orderData, $status, $payment_type, $shipping_type, $subtotal, $total, $discount_amount, $payment_data, $shipping_data) {
+            DB::transaction(function () use ($order, $orderData, $status, $payment_type, $shipping_type, $subtotal, $total, $payment_data, $shipping_data) {
                 $order->update([
                     'status' => $status,
 
                     'subtotal' => $subtotal,
                     'total' => $total,
-                    'discount_amount' => $discount_amount,
 
                     'coupon_code' => $orderData['coupon_code'] ?? null,
 

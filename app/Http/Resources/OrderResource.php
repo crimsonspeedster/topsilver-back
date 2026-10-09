@@ -32,7 +32,6 @@ class OrderResource extends JsonResource
             'middle_name' => $this->middle_name,
             'phone' => $this->phone,
             'email' => $this->email,
-            'discount_amount' => $this->discount_amount,
             'coupon_code' => $this->coupon_code,
             'payment_type' => $this->payment_type,
             'payment_data' => $this->payment_data,

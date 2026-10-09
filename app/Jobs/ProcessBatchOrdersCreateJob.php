@@ -148,7 +148,6 @@ class ProcessBatchOrdersCreateJob implements ShouldQueue
 
             $subtotal = floatval($orderData['subtotal'] ?? 0);
             $total = floatval($orderData['total'] ?? 0);
-            $discount_amount = floatval($orderData['discount_amount'] ?? 0);
 
             $is_shipping_data_valid = $this->validateShippingData(
                 $orderData['shipping_data'] ?? []
@@ -210,7 +209,6 @@ class ProcessBatchOrdersCreateJob implements ShouldQueue
                     $shipping_type,
                     $subtotal,
                     $total,
-                    $discount_amount,
                     $payment_data,
                     $shipping_data
                 ) {
@@ -221,7 +219,6 @@ class ProcessBatchOrdersCreateJob implements ShouldQueue
 
                         'subtotal' => $subtotal,
                         'total' => $total,
-                        'discount_amount' => $discount_amount,
 
                         'coupon_code' => $orderData['coupon_code'] ?? null,
 

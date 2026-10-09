@@ -8,6 +8,7 @@ use App\Enums\PaymentMethods;
 use App\Enums\ShippingMethods;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\BelongsToMany;
 use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\Email;
 use Laravel\Nova\Fields\HasMany;
@@ -156,6 +157,8 @@ class Order extends Resource
                 ->searchable()
                 ->sortable()
                 ->nullable(),
+
+            BelongsToMany::make('Certificates', 'certificates', Certificate::class),
 
             HasMany::make('Items', 'items', OrderItem::class),
         ];

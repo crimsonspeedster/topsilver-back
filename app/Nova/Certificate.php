@@ -68,6 +68,10 @@ class Certificate extends Resource
             Text::make('External ID', 'external_id')
                 ->readonly(),
 
+            // TODO: Удалить перед релизом
+            Text::make('Code', 'code')
+                ->readonly(),
+
             Number::make('Value')
                 ->sortable()
                 ->rules(

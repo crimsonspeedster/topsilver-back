@@ -8,6 +8,7 @@ use App\Enums\PaymentMethods;
 use App\Enums\ShippingMethods;
 use App\Models\Bundle;
 use App\Models\Cart;
+use App\Models\Certificate;
 use App\Models\Coupon;
 use App\Models\NPWarehouse;
 use App\Models\OneClickRequest;
@@ -24,6 +25,10 @@ use Illuminate\Validation\ValidationException;
 
 class CheckoutService
 {
+    public function __construct(
+        private CartService $cartService,
+    ) {}
+
     public function createOrderInOneClick(array $data): OneClickRequest
     {
         return DB::transaction(function () use ($data) {
@@ -97,19 +102,19 @@ class CheckoutService
                 ]);
             }
 
-            $subtotal = $this->calculateAndValidateStock($cart);
+            $cart = $this->cartService->recalculateCart($cart);
+            $this->validateStock($cart);
+            $this->validateCertificates($cart);
 
             [$shippingMethod, $shippingData] = $this->resolveShipping($data);
             [$paymentMethod, $paymentData, $status] = $this->resolvePayment($data);
-            $couponData = $this->resolveCoupon($cart, $subtotal);
-
-            $total = max(0, $subtotal - $couponData['discount_amount']);
+            $couponData = $this->resolveCouponData($cart);
 
             $order = $this->createOrder(
                 $cart,
                 $data,
-                $subtotal,
-                $total,
+                $cart->subtotal,
+                $cart->total,
                 $status,
                 $shippingMethod,
                 $shippingData,
@@ -129,14 +134,53 @@ class CheckoutService
 
     private function attachCertificates(Cart $cart, Order $order): void
     {
-        $order->certificates()->attach(
-            $cart->certificates->pluck('id')
-        );
+        $certificates = $cart->certificates;
+
+        if ($certificates->isEmpty()) {
+            return;
+        }
+
+        $order->certificates()->attach($certificates->modelKeys());
+
+        Certificate::whereIn('id', $certificates->modelKeys())
+            ->update(['is_used' => true]);
     }
 
-    private function calculateAndValidateStock(Cart $cart): float
+    private function validateCertificates(Cart $cart): void
     {
-        $subtotal = 0;
+        $certificates = Certificate::whereIn(
+            'id',
+            $cart->certificates->modelKeys()
+        )
+            ->lockForUpdate()
+            ->get();
+
+        foreach ($certificates as $certificate) {
+            if ($certificate->is_used) {
+                throw ValidationException::withMessages([
+                    'certificate' => 'Certificate already used',
+                ]);
+            }
+
+            if (
+                !is_null($certificate->expires_at)
+                && $certificate->expires_at->isPast()
+            ) {
+                throw ValidationException::withMessages([
+                    'certificate' => 'Certificate expired',
+                ]);
+            }
+
+            if (is_null($certificate->activated_at)) {
+                throw ValidationException::withMessages([
+                    'certificate' => 'Certificate is not activated',
+                ]);
+            }
+        }
+    }
+
+    private function validateStock(Cart $cart): void
+    {
         $max = 999;
 
         foreach ($cart->items as $item) {
@@ -184,12 +228,7 @@ class CheckoutService
                     'stock' => "Not enough stock for entity {$entity->id}",
                 ]);
             }
-
-            $price = $this->getItemPrice($entity, $variant);
-            $subtotal += $price * $item->quantity;
         }
-
-        return $subtotal;
     }
 
     private function resolveShipping(array $data): array
@@ -244,7 +283,7 @@ class CheckoutService
         return [$shippingMethod, $shippingData];
     }
 
-    private function resolveCoupon(Cart $cart, float $subtotal): array
+    private function resolveCouponData(Cart $cart): array
     {
         $coupon = $cart->coupon;
 
@@ -253,21 +292,13 @@ class CheckoutService
                 'coupon_code' => null,
                 'coupon_type' => null,
                 'coupon_value' => null,
-                'discount_amount' => 0,
             ];
         }
-
-        $discount = match ($coupon->type) {
-            CouponTypes::PERCENT => round($subtotal * ($coupon->value / 100), 2),
-            CouponTypes::FIXED   => min($coupon->value, $subtotal),
-            default   => 0,
-        };
 
         return [
             'coupon_code' => $coupon->code,
             'coupon_type' => $coupon->type,
             'coupon_value' => $coupon->value,
-            'discount_amount' => $discount,
         ];
     }
 
@@ -322,7 +353,6 @@ class CheckoutService
             'coupon_code' => $couponData['coupon_code'],
             'coupon_type' => $couponData['coupon_type'],
             'coupon_value' => $couponData['coupon_value'],
-            'discount_amount' => $couponData['discount_amount'],
 
             'notes' => $data['notes'] ?? null,
 

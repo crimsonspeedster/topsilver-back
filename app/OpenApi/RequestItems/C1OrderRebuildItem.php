@@ -21,7 +21,6 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: "middle_name", type: "string", example: "Middle Name"),
         new OA\Property(property: "phone", type: "string", example: "380630000000"),
         new OA\Property(property: "email", type: "string", example: "test@gmail.com", nullable: true),
-        new OA\Property(property: "discount_amount", type: "number", example: 15, nullable: true, default: 0),
         new OA\Property(property: "coupon_code", type: "string", example: "COUPON", nullable: true),
         new OA\Property(
             property: "paid_at",
