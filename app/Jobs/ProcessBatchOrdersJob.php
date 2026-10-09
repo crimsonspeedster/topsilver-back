@@ -7,7 +7,7 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentMethods;
 use App\Enums\ProductTypes;
 use App\Enums\ShippingMethods;
-use App\Events\OrderStatusChanged;
+use App\Events\OrderRebuild;
 use App\Models\Bundle;
 use App\Models\Certificate;
 use App\Models\IntegrationBatch;
@@ -302,7 +302,7 @@ class ProcessBatchOrdersJob implements ShouldQueue
                     }
                 }
 
-                OrderStatusChanged::dispatch($order);
+                OrderRebuild::dispatch($order);
 
                 if ($order->status === OrderStatus::COMPLETED) {
                     UpdateOrderSellingCounts::dispatch($order->id)->onQueue('filters');

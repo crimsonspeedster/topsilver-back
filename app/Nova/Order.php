@@ -106,6 +106,9 @@ class Order extends Resource
 
             Textarea::make('Notes'),
 
+            Text::make('Token', 'public_token')
+                ->rules('required'),
+
             Text::make('First Name')
                 ->rules('required'),
 

@@ -53,6 +53,7 @@ use OpenApi\Attributes as OA;
                         new OA\Property(property: "np_warehouse", type: "string"),
                         new OA\Property(property: "np_warehouse_address", type: "string"),
                         new OA\Property(property: "np_warehouse_type", type: "string"),
+                        new OA\Property(property: "np_ttn", type: "string", nullable: true),
                     ],
                     type: "object"
                 ),
@@ -65,6 +66,7 @@ use OpenApi\Attributes as OA;
                         new OA\Property(property: "np_locality_name", type: "string"),
                         new OA\Property(property: "np_house_number", type: "string"),
                         new OA\Property(property: "np_apartment_number", type: "string", nullable: true),
+                        new OA\Property(property: "np_ttn", type: "string", nullable: true),
                     ],
                     type: "object"
                 ),

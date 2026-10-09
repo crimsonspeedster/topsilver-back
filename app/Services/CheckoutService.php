@@ -223,6 +223,10 @@ class CheckoutService
                 $shippingData['np_warehouse'] = $warehouse->name;
                 $shippingData['np_warehouse_address'] = $warehouse->address;
                 $shippingData['np_warehouse_type'] = $warehouse->type;
+                $shippingData['np_warehouse_ref'] = $warehouse->ref;
+                $shippingData['np_area_ref'] = $warehouse->city?->area?->ref;
+                $shippingData['np_city_ref'] = $warehouse->city?->ref;
+                $shippingData['np_ttn'] = null;
                 break;
             case ShippingMethods::NOVA_POSHTA_COURIER:
                 $shippingData['np_street_ref'] = $data['np_street_ref'];
@@ -231,6 +235,7 @@ class CheckoutService
                 $shippingData['np_locality_name'] = $data['np_locality_name'];
                 $shippingData['np_house_number'] = $data['np_house_number'];
                 $shippingData['np_apartment_number'] = $data['np_apartment_number'];
+                $shippingData['np_ttn'] = null;
                 break;
             default:
                 break;

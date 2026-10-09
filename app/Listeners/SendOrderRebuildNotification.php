@@ -2,12 +2,13 @@
 
 namespace App\Listeners;
 
-use App\Events\OrderStatusChanged;
-use App\Mail\OrderStatusChangedMail;
+use App\Events\OrderRebuild;
+use App\Mail\OrderRebuildMail;
+use App\Services\CurrencyService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Mail;
 
-class SendOrderStatusNotification implements ShouldQueue
+class SendOrderRebuildNotification implements ShouldQueue
 {
     public int $tries = 3;
 
@@ -26,14 +27,15 @@ class SendOrderStatusNotification implements ShouldQueue
     /**
      * Handle the event.
      */
-    public function handle(OrderStatusChanged $event): void
+    public function handle(OrderRebuild $event): void
     {
         $order = $event->order;
 
         if ($order->email) {
             Mail::to($order->email)
-                ->send(new OrderStatusChangedMail(
-                    $order
+                ->send(new OrderRebuildMail(
+                    $order,
+                    app(CurrencyService::class)
                 ));
         }
     }

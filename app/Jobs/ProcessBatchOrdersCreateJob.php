@@ -7,7 +7,7 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentMethods;
 use App\Enums\ProductTypes;
 use App\Enums\ShippingMethods;
-use App\Events\OrderStatusChanged;
+use App\Events\OrderCreated;
 use App\Models\Bundle;
 use App\Models\Certificate;
 use App\Models\IntegrationBatch;
@@ -25,7 +25,6 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class ProcessBatchOrdersCreateJob implements ShouldQueue
@@ -324,7 +323,7 @@ class ProcessBatchOrdersCreateJob implements ShouldQueue
                         }
                     }
 
-                    OrderStatusChanged::dispatch($order);
+                    OrderCreated::dispatch($order);
 
                     if ($order->status === OrderStatus::COMPLETED) {
                         UpdateOrderSellingCounts::dispatch($order->id)
