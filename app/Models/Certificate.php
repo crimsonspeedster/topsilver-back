@@ -23,6 +23,5 @@ class Certificate extends Model
         'is_used' => 'boolean',
         'activated_at' => 'datetime',
         'expires_at' => 'datetime',
-        'code' => 'encrypted',
     ];
 }

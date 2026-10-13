@@ -69,7 +69,9 @@ class Certificate extends Resource
                 ->readonly(),
 
             // TODO: Удалить перед релизом
-            Text::make('Code', 'code')
+            Text::make('Code', 'code', function () {
+                return decrypt($this->code);
+            })
                 ->readonly(),
 
             Number::make('Value')
