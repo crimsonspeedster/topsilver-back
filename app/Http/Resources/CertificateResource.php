@@ -18,7 +18,7 @@ class CertificateResource extends JsonResource
         return [
             'id' => $this->id,
             'external_id' => $this->external_id,
-            'code' => $this->code,
+            'code' => decrypt($this->code),
             'value' => $currency->format($this->value)->format(),
         ];
     }
