@@ -69,7 +69,7 @@ class UserUpdateController extends Controller
 
             $authUser->update($userData);
 
-            $profile = $authUser->profile()->first() ?? new Profile();
+            $profile = $authUser->profile()->firstOrNew();
 
             $profile->fill(array_filter([
                 'name' => $data['name'] ?? null,
