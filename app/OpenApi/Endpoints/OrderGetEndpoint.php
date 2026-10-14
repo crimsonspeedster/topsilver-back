@@ -50,7 +50,7 @@ use OpenApi\Attributes as OA;
                     enum: OrderStatus::VALUES
                 )
             ),
-            example: [OrderStatus::CREATED->value, OrderStatus::PENDING_PAYMENT->value],
+            example: OrderStatus::VALUES
         ),
     ],
     responses: [

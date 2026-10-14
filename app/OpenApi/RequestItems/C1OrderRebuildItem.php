@@ -12,7 +12,7 @@ use OpenApi\Attributes as OA;
     required: ['public_token', 'status', 'total', 'subtotal', 'first_name', 'last_name', 'middle_name', 'phone', 'payment_type', 'shipping_type', 'items'],
     properties: [
         new OA\Property(property: "public_token", type: "string", example: "TOKEN"),
-        new OA\Property(property: "status", type: "string", example: OrderStatus::CREATED->value, enum: OrderStatus::VALUES),
+        new OA\Property(property: "status", type: "string", example: OrderStatus::COMPLETED->value, enum: OrderStatus::VALUES),
         new OA\Property(property: "total", type: "number", format: "float", example: 1500),
         new OA\Property(property: "subtotal", type: "number", format: "float", example: 1500),
         new OA\Property(property: "notes", type: "string", example: "Notes", nullable: true),

@@ -78,7 +78,10 @@ class ProductReviewPolicy
             ->where('entity_type', Product::class)
             ->whereHas('order', function ($q) use ($user) {
                 $q->where('user_id', $user->id)
-                    ->where('status', '!=', OrderStatus::CANCELLED);
+                    ->whereNotIn('status', [
+                        OrderStatus::CANCELLED->value,
+                        OrderStatus::RETURNED->value,
+                    ]);
             })
             ->exists();
 

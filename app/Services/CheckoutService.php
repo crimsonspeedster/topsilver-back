@@ -2,9 +2,7 @@
 
 namespace App\Services;
 
-use App\Enums\CouponTypes;
 use App\Enums\OrderStatus;
-use App\Enums\PaymentMethods;
 use App\Enums\ShippingMethods;
 use App\Models\Bundle;
 use App\Models\Cart;
@@ -71,7 +69,7 @@ class CheckoutService
                 'product_variant' => $variantObject,
                 'product_name' => $product->title,
                 'product_image' => $product->getFirstMediaUrl('media'),
-                'status' => OrderStatus::CREATED,
+                'status' => OrderStatus::PENDING_PAYMENT,
             ]);
         });
     }
@@ -107,7 +105,7 @@ class CheckoutService
             $this->validateCertificates($cart);
 
             [$shippingMethod, $shippingData] = $this->resolveShipping($data);
-            [$paymentMethod, $paymentData, $status] = $this->resolvePayment($data);
+            [$paymentMethod, $paymentData] = $this->resolvePayment($data);
             $couponData = $this->resolveCouponData($cart);
 
             $order = $this->createOrder(
@@ -115,7 +113,6 @@ class CheckoutService
                 $data,
                 $cart->subtotal,
                 $cart->total,
-                $status,
                 $shippingMethod,
                 $shippingData,
                 $paymentMethod,
@@ -126,7 +123,7 @@ class CheckoutService
             $this->attachCertificates($cart, $order);
             $this->createOrderItemsAndUpdateStock($order, $cart);
             $this->consumeCoupon($cart);
-            $this->clearCart($cart, $status);
+            $this->clearCart($cart);
 
             return $order;
         });
@@ -323,11 +320,7 @@ class CheckoutService
             'payment_method_type' => $paymentMethod->type->value,
         ];
 
-        $status = $paymentMethod->type === PaymentMethods::COD
-            ? OrderStatus::CREATED
-            : OrderStatus::PENDING_PAYMENT;
-
-        return [$paymentMethod, $paymentData, $status];
+        return [$paymentMethod, $paymentData];
     }
 
     private function createOrder(
@@ -335,7 +328,6 @@ class CheckoutService
         array $data,
         float $subtotal,
         float $total,
-        OrderStatus $status,
         $shippingMethod,
         array $shippingData,
         $paymentMethod,
@@ -345,7 +337,7 @@ class CheckoutService
         return Order::create([
             'public_token' => hash('sha256', (string) Str::uuid()),
 
-            'status' => $status,
+            'status' => OrderStatus::PENDING_PAYMENT,
             'subtotal' => $subtotal,
             'total' => $total,
             'paid_at' => null,
@@ -428,7 +420,7 @@ class CheckoutService
         }
     }
 
-    private function clearCart(Cart $cart, OrderStatus $status): void
+    private function clearCart(Cart $cart): void
     {
         $cart->items()->delete();
         $cart->delete();

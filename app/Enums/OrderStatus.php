@@ -5,28 +5,35 @@ namespace App\Enums;
 enum OrderStatus: string
 {
     case PENDING_PAYMENT = 'pending_payment';
-    case CREATED = 'created';
+    case PAID = 'paid';
     case PROCESSING = 'processing';
+    case CONFIRMED = 'confirmed';
     case SHIPPED = 'shipped';
     case DELIVERED = 'delivered';
     case COMPLETED = 'completed';
     case CANCELLED = 'cancelled';
+    case RETURNED = 'returned';
 
     public const array VALUES = [
         self::PENDING_PAYMENT->value,
-        self::CREATED->value,
+        self::PAID->value,
         self::PROCESSING->value,
+        self::CONFIRMED->value,
         self::SHIPPED->value,
         self::DELIVERED->value,
         self::COMPLETED->value,
         self::CANCELLED->value,
+        self::RETURNED->value,
     ];
 
-    public static function withoutPending(): array
+    public static function withoutOnlinePayments(): array
     {
         return array_filter(
             self::cases(),
-            fn(self $case) => $case !== self::PENDING_PAYMENT
+            fn(self $case) => !in_array($case, [
+                self::PENDING_PAYMENT,
+                self::PAID,
+            ], true)
         );
     }
 
@@ -42,13 +49,15 @@ enum OrderStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::PENDING_PAYMENT => 'Очікує оплати',
-            self::CREATED => 'Створено',
-            self::PROCESSING => 'В обробці',
-            self::SHIPPED => 'Відправлено',
-            self::DELIVERED => 'Доставлено',
-            self::COMPLETED => 'Завершено',
-            self::CANCELLED => 'Скасовано',
+            self::PENDING_PAYMENT => 'Нове. Очікує оплати.',
+            self::PAID => 'Нове. Оплачено.',
+            self::PROCESSING => 'В роботі.',
+            self::CONFIRMED => 'В роботі. Підтверджено.',
+            self::SHIPPED => 'Відправлено.',
+            self::DELIVERED => 'Доставлено.',
+            self::COMPLETED => 'Успішно виконано.',
+            self::CANCELLED => 'Скасовано.',
+            self::RETURNED => 'Відмова. Повернення.',
         };
     }
 }
