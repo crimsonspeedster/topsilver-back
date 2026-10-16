@@ -1,8 +1,10 @@
 <?php
 namespace App\Services;
 
+use App\Models\Bonus;
 use App\Models\User;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class BonusService
 {
@@ -39,5 +41,46 @@ class BonusService
             ->notExpired()
             ->active()
             ->sum('amount');
+    }
+
+    public function spend(User $user, int $amount): void
+    {
+        if ($amount <= 0) {
+            return;
+        }
+
+        DB::transaction(function () use ($user, $amount) {
+            $bonuses = $user->bonuses()
+                ->notExpired()
+                ->active()
+                ->where('amount', '>', 0)
+                ->orderBy('expires_at')
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
+
+            $available = $bonuses->sum(
+                fn (Bonus $bonus) => (float) $bonus->amount
+            );
+
+            if ($amount > $available) {
+                throw new Exception('Not enough available bonuses.');
+            }
+
+            $remaining = $amount;
+
+            foreach ($bonuses as $bonus) {
+                if ($remaining <= 0) {
+                    break;
+                }
+
+                $bonusAmount = (int) $bonus->amount;
+                $spent = min($bonusAmount, $remaining);
+
+                $bonus->decrement('amount', $spent);
+
+                $remaining -= $spent;
+            }
+        });
     }
 }

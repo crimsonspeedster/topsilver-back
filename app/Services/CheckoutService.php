@@ -17,6 +17,7 @@ use App\Models\ProductVariant;
 use App\Models\ShippingMethod;
 use App\Models\Shop;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -25,6 +26,7 @@ class CheckoutService
 {
     public function __construct(
         private CartService $cartService,
+        private BonusService $bonusService,
     ) {}
 
     public function createOrderInOneClick(array $data): OneClickRequest
@@ -120,9 +122,19 @@ class CheckoutService
                 $couponData,
             );
 
+            $user = $order->user;
+
             $this->attachCertificates($cart, $order);
             $this->createOrderItemsAndUpdateStock($order, $cart);
             $this->consumeCoupon($cart);
+
+            if ($cart->bonuses_used > 0 && $user) {
+                $this->bonusService->spend(
+                    $user,
+                    $cart->bonuses_used,
+                );
+            }
+
             $this->clearCart($cart);
 
             return $order;

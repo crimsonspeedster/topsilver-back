@@ -94,6 +94,10 @@ class Order extends Resource
                 ->readonly()
                 ->exceptOnForms(),
 
+            Number::make('Bonuses used', 'bonuses_used')
+                ->sortable()
+                ->readonly(),
+
             Number::make('Discount Amount')
                 ->rules('min:0', 'lte:subtotal')
                 ->default(0)
