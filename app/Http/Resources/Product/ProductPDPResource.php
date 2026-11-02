@@ -6,6 +6,7 @@ use App\Http\Resources\LabelResource;
 use App\Http\Resources\MediaResource;
 use App\Http\Resources\ProductVariantResource;
 use App\Http\Resources\SeoBlockResource;
+use App\Http\Resources\ShopPickupResource;
 use App\Http\Resources\TaxonomyCollectionResource;
 use App\Http\Resources\VideoResource;
 use App\Models\Product;
@@ -83,6 +84,9 @@ class ProductPDPResource extends JsonResource
             'seo_block' => $this->relationLoaded('seoBlock')
                 ? new SeoBlockResource($this->seoBlock)
                 : null,
+            'shops' => $this->relationLoaded('shops')
+                ? ShopPickupResource::collection($this->shops)
+                : [],
         ];
     }
 }

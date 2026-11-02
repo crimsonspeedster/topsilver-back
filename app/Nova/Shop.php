@@ -5,6 +5,7 @@ namespace App\Nova;
 use App\Traits\HasContentCollectionFields;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\BelongsToMany;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Textarea;
@@ -38,6 +39,7 @@ class Shop extends Resource
         'title',
         'address',
         'phone',
+        'external_id',
     ];
 
     public static $group = 'Shop';
@@ -64,6 +66,10 @@ class Shop extends Resource
         return [
             ...$this->commonFields(),
 
+            Text::make('External ID', 'external_id')
+                ->sortable()
+                ->readonly(),
+
             Textarea::make('Address')
                 ->rules('required'),
 
@@ -79,6 +85,8 @@ class Shop extends Resource
 
             BelongsTo::make('City', 'city', City::class)
                 ->searchable(),
+
+            BelongsToMany::make('Products', 'products', Product::class),
         ];
     }
 

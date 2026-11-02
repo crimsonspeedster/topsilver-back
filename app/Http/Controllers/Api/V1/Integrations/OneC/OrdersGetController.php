@@ -51,7 +51,7 @@ class OrdersGetController extends Controller
         ]);
 
         $orders = Order::query()
-            ->with('items')
+            ->with(['items', 'certificates'])
             ->when(
                 $validated['updated_from'] ?? null,
                 fn ($q, $date) => $q->where('updated_at', '>=', $date)

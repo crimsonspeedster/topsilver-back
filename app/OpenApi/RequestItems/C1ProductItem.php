@@ -129,6 +129,12 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(
+            property: "shops",
+            type: "array",
+            items: new OA\Items(type: "string"),
+            example: ["1c_test_id", "1c_test_id_2"]
+        ),
+        new OA\Property(
             property: "attribute_terms",
             required: ['id', 'attribute_id'],
             type: "array",

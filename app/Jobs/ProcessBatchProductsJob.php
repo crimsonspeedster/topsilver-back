@@ -14,6 +14,7 @@ use App\Models\IntegrationBatchError;
 use App\Models\Label;
 use App\Models\Product;
 use App\Models\Promotion;
+use App\Models\Shop;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -66,6 +67,7 @@ class ProcessBatchProductsJob implements ShouldQueue
             $collectionsMap = Collection::pluck('id', 'external_id');
             $promotionsMap = Promotion::pluck('id', 'external_id');
             $labelsMap = Label::pluck('id', 'external_id');
+            $shopsMap = Shop::pluck('id', 'external_id');
             $attributeTerms = AttributeTerm::query()
                 ->join('attributes', 'attributes.id', '=', 'attribute_terms.attribute_id')
                 ->select(
@@ -89,6 +91,7 @@ class ProcessBatchProductsJob implements ShouldQueue
             $productCollections = [];
             $productPromotions = [];
             $productLabels = [];
+            $productShops = [];
             $productAttributeTerms = [];
 
             $mediaPayload = [];
@@ -104,6 +107,7 @@ class ProcessBatchProductsJob implements ShouldQueue
                     &$productCollections,
                     &$productPromotions,
                     &$productLabels,
+                    &$productShops,
                     &$productAttributeTerms,
                     &$mediaPayload,
                     &$processed,
@@ -112,16 +116,18 @@ class ProcessBatchProductsJob implements ShouldQueue
                     $collectionsMap,
                     $promotionsMap,
                     $labelsMap,
+                    $shopsMap,
                     $attributeTerms,
                     $now
                 ) {
-                    [$p, $f, $chunkRows, $chunkIds, $chunkCats, $chunkCols, $chunkPromos, $chunkLabels, $chunkAttributeTerms, $chunkMedia] =
+                    [$p, $f, $chunkRows, $chunkIds, $chunkCats, $chunkCols, $chunkPromos, $chunkLabels, $chunkShops, $chunkAttributeTerms, $chunkMedia] =
                         $this->updateChunk(
                             $chunk->toArray(),
                             $categoriesMap,
                             $collectionsMap,
                             $promotionsMap,
                             $labelsMap,
+                            $shopsMap,
                             $attributeTerms,
                             $now
                         );
@@ -133,6 +139,7 @@ class ProcessBatchProductsJob implements ShouldQueue
                     $productCollections = array_merge($productCollections, $chunkCols);
                     $productPromotions = array_merge($productPromotions, $chunkPromos);
                     $productLabels = array_merge($productLabels, $chunkLabels);
+                    $productShops = array_merge($productShops, $chunkShops);
                     $productAttributeTerms = array_merge($productAttributeTerms, $chunkAttributeTerms);
 
                     $mediaPayload = array_merge($mediaPayload, $chunkMedia);
@@ -153,6 +160,7 @@ class ProcessBatchProductsJob implements ShouldQueue
                 $productCollections,
                 $productPromotions,
                 $productLabels,
+                $productShops,
                 $productAttributeTerms,
                 &$productsGrouped,
             ) {
@@ -202,6 +210,10 @@ class ProcessBatchProductsJob implements ShouldQueue
                     ->delete();
 
                 DB::table('label_products')
+                    ->whereIn('product_id', $productsGrouped->pluck('id'))
+                    ->delete();
+
+                DB::table('shop_product')
                     ->whereIn('product_id', $productsGrouped->pluck('id'))
                     ->delete();
 
@@ -255,6 +267,17 @@ class ProcessBatchProductsJob implements ShouldQueue
                     }
                 }
 
+                $shops = [];
+                foreach ($productShops as $row) {
+                    $id = $map($row['external_product_id']);
+                    if ($id) {
+                        $shops[] = [
+                            'product_id' => $id,
+                            'shop_id' => $row['shop_id'],
+                        ];
+                    }
+                }
+
                 $attributeTerms = [];
                 foreach ($productAttributeTerms as $row) {
                     $id = $map($row['external_product_id']);
@@ -301,6 +324,15 @@ class ProcessBatchProductsJob implements ShouldQueue
                         ->all();
 
                     DB::table('label_products')->insert($labels);
+                }
+
+                if ($shops) {
+                    $shops = collect($shops)
+                        ->unique(fn ($row) => $row['product_id'] . '-' . $row['shop_id'])
+                        ->values()
+                        ->all();
+
+                    DB::table('shop_product')->insert($shops);
                 }
 
                 if ($attributeTerms) {
@@ -363,6 +395,7 @@ class ProcessBatchProductsJob implements ShouldQueue
             $collectionsMap,
             $promotionsMap,
             $labelsMap,
+            $shopsMap,
         SupportCollection $attributeTerms,
             $now
     ): array {
@@ -376,6 +409,7 @@ class ProcessBatchProductsJob implements ShouldQueue
         $productCollections = [];
         $productPromotions = [];
         $productLabels = [];
+        $productShops = [];
         $productAttributeTerms = [];
 
         $mediaPayload = [];
@@ -475,6 +509,15 @@ class ProcessBatchProductsJob implements ShouldQueue
                 }
             }
 
+            foreach (($item['shops'] ?? []) as $extId) {
+                if (isset($shopsMap[$extId])) {
+                    $productShops[] = [
+                        'external_product_id' => $externalID,
+                        'shop_id' => $shopsMap[$extId],
+                    ];
+                }
+            }
+
             foreach (($item['attribute_terms'] ?? []) as $attributeItem) {
                 $key = $attributeItem['attribute_id'] . ':' . $attributeItem['id'];
 
@@ -517,6 +560,7 @@ class ProcessBatchProductsJob implements ShouldQueue
             $productCollections,
             $productPromotions,
             $productLabels,
+            $productShops,
             $productAttributeTerms,
             $mediaPayload,
         ];

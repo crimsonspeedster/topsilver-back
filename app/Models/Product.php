@@ -132,6 +132,14 @@ class Product extends Model implements HasMedia, HasMeta
         );
     }
 
+    public function shops(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Shop::class,
+            'shop_product',
+        );
+    }
+
     public function videos(): HasMany
     {
         return $this->hasMany(

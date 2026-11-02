@@ -75,6 +75,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/products', [ProductsSyncController::class, 'update']);
         Route::post('/products/prices', [ProductsSyncController::class, 'price']);
         Route::post('/products/stocks', [ProductsSyncController::class, 'stock']);
+        Route::post('/products/shops', [ProductsSyncController::class, 'shops']);
         Route::post('/products/delete', [ProductsSyncController::class, 'delete']);
 
         Route::post('/bundles', [BundlesSyncController::class, 'update']);

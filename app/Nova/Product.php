@@ -186,6 +186,8 @@ class Product extends Resource
 
             BelongsToMany::make('Labels', 'labels', Label::class),
 
+            BelongsToMany::make('Shops' , 'shops', Shop::class),
+
             BelongsToMany::make('Attribute Terms', 'attributeTerms', AttributeTerm::class)
                 ->fields(function () {
                     return [
